@@ -56,16 +56,19 @@ model.B["position"]["center_left", "center_right", "move_left"] = 1.0
 model.B["position"]["center_right", "right", "move_left"] = 1.0
 
 # set preferences (C) tensor - prefer to be at "center_right"
+model.C["position_obs"]["left"] = 1.0
+model.C["position_obs"]["center_left"] = 1.0
+model.C["position_obs"]["center_right"] = 5.0
 model.C["position_obs"]["right"] = 1.0
 
 
 gamma = 10 # deterministic behavior; make gamma smaller for stochastic behavior
 
 # create agent
-agent = Agent(**model, gamma=gamma)
+agent = Agent(**model, gamma=gamma, policy_len=2)
 
 # set up initial observation to be "left"
-observation = jnp.zeros((agent.batch_size, 1)) # broadcast to agent's batch size (defaults to 1 agent) and add a time dimension
+observation = jnp.full((agent.batch_size, 1), 0) # broadcast to agent's batch size (defaults to 1 agent) and add a time dimension
 
 # get the prior
 qs_init = jtu.tree_map(lambda x: jnp.expand_dims(x, 1), agent.D) # qs needs a time dimension too
@@ -80,3 +83,14 @@ print(f"Goal position: {positions[jnp.argmax(agent.C[0])]}")
 q_pi, G = agent.infer_policies(qs)
 action_idx = agent.sample_action(q_pi)
 print(f"Action chosen: {actions[action_idx[0][0]]}")
+
+
+print("=== POLICIES ===")
+for index in range(len(agent.policies)):
+    print(agent.policies[index])
+
+print("\n=== Q_PI ===")
+print(q_pi)
+
+print("\n=== G ===")
+print(G)

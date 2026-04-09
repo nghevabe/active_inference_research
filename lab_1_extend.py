@@ -1,14 +1,11 @@
 import jax.tree_util as jtu
 from jax import numpy as jnp
-from jax import random as jr
 from pymdp.agent import Agent
 from pymdp.distribution import compile_model
-from pymdp.envs.env import Env
-from pymdp.envs import rollout
 
 
-positions = ["left", "center_left", "center_right", "right"]
-actions = ["move_left", "move_right"]
+positions = ["pos_1", "pos_2", "pos_3", "pos_4", "pos_5"]
+actions = ["stay", "move_left", "move_right"]
 
 model_description = {
     "observations": {
@@ -35,37 +32,47 @@ model = compile_model(model_description)
 
 # fill in the likelihood (A) tensor
 # the observations have an identical mapping to the states (i.e., the agent will perfectly observe its position)
-model.A["position_obs"]["left", "left"] = 1.0
-model.A["position_obs"]["center_left", "center_left"] = 1.0
-model.A["position_obs"]["center_right", "center_right"] = 1.0
-model.A["position_obs"]["right", "right"] = 1.0
+model.A["position_obs"]["pos_1", "pos_1"] = 1.0
+model.A["position_obs"]["pos_2", "pos_2"] = 1.0
+model.A["position_obs"]["pos_3", "pos_3"] = 1.0
+model.A["position_obs"]["pos_4", "pos_4"] = 1.0
+model.A["position_obs"]["pos_5", "pos_5"] = 1.0
 # model.A["position_obs"].data = jnp.eye(len(positions)) # you could also use the .data attribute to set the identity mapping directly
 
 # fill in the transition model (B) tensor
 # note that it's specified as ["to", "from", "action"]
+
+# stay
+model.B["position"]["pos_1", "pos_1", "stay"] = 1.0
+model.B["position"]["pos_2", "pos_2", "stay"] = 1.0
+model.B["position"]["pos_3", "pos_3", "stay"] = 1.0
+model.B["position"]["pos_4", "pos_4", "stay"] = 1.0
+model.B["position"]["pos_5", "pos_5", "stay"] = 1.0
+
 # moving right
-model.B["position"]["center_left", "left", "move_right"] = 1.0
-model.B["position"]["center_right", "center_left", "move_right"] = 1.0
-model.B["position"]["right", "center_right", "move_right"] = 1.0
-model.B["position"]["right", "right", "move_right"] = 1.0
+model.B["position"]["pos_2", "pos_1", "move_right"] = 1.0
+model.B["position"]["pos_3", "pos_2", "move_right"] = 1.0
+model.B["position"]["pos_4", "pos_3", "move_right"] = 1.0
+model.B["position"]["pos_5", "pos_4", "move_right"] = 1.0
+model.B["position"]["pos_5", "pos_5", "move_right"] = 1.0
 
 # moving left
-model.B["position"]["left", "left", "move_left"] = 1.0
-model.B["position"]["left", "center_left", "move_left"] = 1.0
-model.B["position"]["center_left", "center_right", "move_left"] = 1.0
-model.B["position"]["center_right", "right", "move_left"] = 1.0
+model.B["position"]["pos_1", "pos_1", "move_left"] = 1.0
+model.B["position"]["pos_1", "pos_2", "move_left"] = 1.0
+model.B["position"]["pos_2", "pos_3", "move_left"] = 1.0
+model.B["position"]["pos_3", "pos_4", "move_left"] = 1.0
+model.B["position"]["pos_4", "pos_5", "move_left"] = 1.0
 
 # set preferences (C) tensor - prefer to be at "center_right"
-model.C["position_obs"]["right"] = 1.0
-
+model.C["position_obs"]["pos_4"] = 1.0
 
 gamma = 10 # deterministic behavior; make gamma smaller for stochastic behavior
 
 # create agent
-agent = Agent(**model, gamma=gamma)
+agent = Agent(**model, gamma=gamma, policy_len=2)
 
 # set up initial observation to be "left"
-observation = jnp.zeros((agent.batch_size, 1)) # broadcast to agent's batch size (defaults to 1 agent) and add a time dimension
+observation = jnp.full((agent.batch_size, 1), 2) # broadcast to agent's batch size (defaults to 1 agent) and add a time dimension
 
 # get the prior
 qs_init = jtu.tree_map(lambda x: jnp.expand_dims(x, 1), agent.D) # qs needs a time dimension too
@@ -80,3 +87,14 @@ print(f"Goal position: {positions[jnp.argmax(agent.C[0])]}")
 q_pi, G = agent.infer_policies(qs)
 action_idx = agent.sample_action(q_pi)
 print(f"Action chosen: {actions[action_idx[0][0]]}")
+
+print("=== POLICIES ===")
+for index in range(len(agent.policies)):
+    print(agent.policies[index])
+
+print("=== q_pi===")
+for item in q_pi[0]:
+    print(round(item))
+
+
+# ["pos_1", "pos_2", "pos_3", "pos_4", "pos_5"]
