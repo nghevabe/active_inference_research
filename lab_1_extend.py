@@ -64,15 +64,34 @@ model.B["position"]["pos_3", "pos_4", "move_left"] = 1.0
 model.B["position"]["pos_4", "pos_5", "move_left"] = 1.0
 
 # set preferences (C) tensor - prefer to be at "center_right"
-model.C["position_obs"]["pos_4"] = 1.0
+model.C["position_obs"]["pos_5"] = 1.0
 
 gamma = 10 # deterministic behavior; make gamma smaller for stochastic behavior
 
+
+def get_name_by_index(idx):
+    return actions[idx]
+
+
+def get_lst_name_policy(policies):
+    lst_action = []
+    for idx in policies:
+        lst_action.append(get_name_by_index(idx[0]))
+
+    return lst_action
+
+
+def get_index_of_best_policies(policies):
+    policies_point = list(map(int, policies))
+    best_policy = int(policies.max())
+    return policies_point.index(best_policy)
+
+
 # create agent
-agent = Agent(**model, gamma=gamma, policy_len=2)
+agent = Agent(**model, gamma=gamma, policy_len=5)
 
 # set up initial observation to be "left"
-observation = jnp.full((agent.batch_size, 1), 2) # broadcast to agent's batch size (defaults to 1 agent) and add a time dimension
+observation = jnp.full((agent.batch_size, 1), 1) # broadcast to agent's batch size (defaults to 1 agent) and add a time dimension
 
 # get the prior
 qs_init = jtu.tree_map(lambda x: jnp.expand_dims(x, 1), agent.D) # qs needs a time dimension too
@@ -88,13 +107,8 @@ q_pi, G = agent.infer_policies(qs)
 action_idx = agent.sample_action(q_pi)
 print(f"Action chosen: {actions[action_idx[0][0]]}")
 
-print("=== POLICIES ===")
-for index in range(len(agent.policies)):
-    print(agent.policies[index])
-
-print("=== q_pi===")
-for item in q_pi[0]:
-    print(round(item))
-
-
-# ["pos_1", "pos_2", "pos_3", "pos_4", "pos_5"]
+print("")
+print("")
+print("=== Policy ===")
+best_index = get_index_of_best_policies(G[0])
+print(get_lst_name_policy(agent.policies[best_index]))
