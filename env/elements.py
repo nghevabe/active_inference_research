@@ -4,9 +4,9 @@ agent_actions = ["IL", "DL", "IT", "DT", "NA"]  # Agent action
 agent_actions_2 = ["IL", "DL", "IT", "DT", "NA", "ACN2"]  # Agent action
 user_actions = ["uIL", "uDL", "uIT", "uDT", "uNA"]  # User feedback action
 
-temperatures = ["T1", "T2", "T3", "T4"]  # Observe Temperature
-lights = ["L0", "L1", "L2", "L3"]  # Observe Light
-humidity = ["H1", "H2", "H3", "H4"]  # Observe Humidity
+temperatures = ["T0", "T1", "T2", "T3", "T4", "T5"]  # Observe Temperature
+lights = ["L0", "L1", "L2", "L3", "L4", "L5"]  # Observe Light
+humidity = ["H0", "H1", "H2", "H3", "H4", "H5"]  # Observe Humidity
 
 lst_pairing_state = [
     "Uncomfortable_Uncomfortable", "Uncomfortable_Neutral", "Uncomfortable_Comfortable",

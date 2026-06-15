@@ -18,8 +18,8 @@ agent_model = extend_action_space("ACN2")
 # =========================================================
 
 temperature_observed = "T4"
-light_observed = "L3"
-humidity_observed = "H4"
+light_observed = "L1"
+humidity_observed = "H1"
 
 # =========================================================
 # Initial recurrent variables
@@ -101,13 +101,6 @@ for t in range(10):
     # =====================================================
 
     rng_key = result["rng_key"]
-
-
-    from_state = history[len(history) - 2]["current_state"]
-    to_state = history[len(history) - 1]["current_state"]
-
-    print("XXX from_state: " + from_state)
-    print("XXX to_state: " + to_state)
 
     # each loop ask for input ates_action_id_input
     # ates_point = get_ates_positive_point(ates_action_id_input, "Neutral", "Comfortable", agent_model, 70, 30)
