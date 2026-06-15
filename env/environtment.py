@@ -1,6 +1,8 @@
 import jax
 from jax import numpy as jnp
-from env.elements import temperatures, lights, humidity
+
+
+from env.elements import temperatures, lights, humidity, agent_actions
 
 
 def build_matrix_a(current_model):
@@ -206,9 +208,32 @@ def build_matrix_d(current_model):
 
 def get_B_action_matrix(model, action_input, comforts_input):
     """
-    Return B[:, :, action] with shape:
-    (num_to_states, num_from_states)
+    Get B action slice.
+
+    Expected B shape:
+        B[to_state, from_state, action]
+
+    This version supports model as dict:
+        model["B"][0]
+
+    where:
+        model["B"][0] is the B matrix for the comfort hidden-state factor.
     """
+
+    action_idx = agent_actions.index(action_input)
+
+    # ---------------------------------------------------------
+    # Case 1: model is dict, used by Agent(**model_agent)
+    # ---------------------------------------------------------
+    if isinstance(model, dict):
+        B_dist = model["B"][0]
+        B_array = extract_distribution_array(B_dist)
+
+        return B_array[:, :, action_idx]
+
+    # ---------------------------------------------------------
+    # Case 2: fallback for old object-style model
+    # ---------------------------------------------------------
     return jnp.array([
         [
             model.B["comfort"][to_state, from_state, action_input]
@@ -217,17 +242,37 @@ def get_B_action_matrix(model, action_input, comforts_input):
         for to_state in comforts_input
     ])
 
-
-def predict_next_state_belief(model, qs_current, action_input, comforts_input):
+def predict_next_state_belief(
+    model,
+    qs_current,
+    action_input,
+    comforts_input,
+):
     """
-    Predict prior belief over next hidden state using B:
+    Predict next prior belief using B and selected action.
 
-        q_prior(s_{t+1}) = B^{a_t} q(s_t)
+    qs_current shape:
+        (num_states,)
+
+    B_a shape:
+        (num_states_to, num_states_from)
+
+    Output:
+        q(s_{t+1}) = B_a @ q(s_t)
     """
-    B_a = get_B_action_matrix(model, action_input, comforts_input)
-    qs_pred = B_a @ qs_current
-    qs_pred = qs_pred / jnp.sum(qs_pred)
-    return qs_pred
+
+    B_a = get_B_action_matrix(
+        model=model,
+        action_input=action_input,
+        comforts_input=comforts_input,
+    )
+
+    qs_next = B_a @ qs_current
+
+    # Safety normalization
+    qs_next = qs_next / jnp.sum(qs_next)
+
+    return qs_next
 
 
 def environment_step(action_input, current_temperatures,
@@ -278,3 +323,45 @@ def environment_step(action_input, current_temperatures,
     return (label_next_temperature, label_next_light, label_next_humidity, next_temperatures_index,
             next_lights_index, next_humidity_index)
 # ======
+
+
+def extract_distribution_array(dist):
+    """
+    Extract raw probability array from either:
+    - raw JAX / NumPy array
+    - Distribution-like object
+    """
+
+    candidate_attrs = [
+        "values",
+        "array",
+        "data",
+        "tensor",
+        "params",
+        "parameters",
+        "probabilities",
+        "probs",
+        "_values",
+        "_array",
+        "_data",
+        "_tensor",
+    ]
+
+    for attr in candidate_attrs:
+        if hasattr(dist, attr):
+            value = getattr(dist, attr)
+
+            if callable(value):
+                value = value()
+
+            try:
+                return jnp.asarray(value)
+            except Exception:
+                pass
+
+    try:
+        return jnp.asarray(dist)
+    except Exception as e:
+        raise TypeError(
+            "Cannot extract raw array from B distribution object."
+        ) from e
