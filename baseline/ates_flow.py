@@ -17,9 +17,9 @@ agent_model = extend_action_space("ACN2")
 # Initial observation
 # =========================================================
 
-temperature_observed = "T4"
-light_observed = "L1"
-humidity_observed = "H1"
+temperature_observed = "T7"
+light_observed = "L3"
+humidity_observed = "H3"
 
 # =========================================================
 # Initial recurrent variables

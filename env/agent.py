@@ -30,82 +30,213 @@ def update_model_agent(current_model_description):
 
 
 def build_matrix_a(current_model):
+    # =========================================================
     # temperature_obs define
-    current_model.A["temperature_obs"]["T0", "Uncomfortable"] = 0.35
-    current_model.A["temperature_obs"]["T1", "Uncomfortable"] = 0.10
-    current_model.A["temperature_obs"]["T2", "Uncomfortable"] = 0.05
-    current_model.A["temperature_obs"]["T3", "Uncomfortable"] = 0.10
-    current_model.A["temperature_obs"]["T4", "Uncomfortable"] = 0.10
-    current_model.A["temperature_obs"]["T5", "Uncomfortable"] = 0.30
-
-    current_model.A["temperature_obs"]["T0", "Neutral"] = 0.10
-    current_model.A["temperature_obs"]["T1", "Neutral"] = 0.25
-    current_model.A["temperature_obs"]["T2", "Neutral"] = 0.20
-    current_model.A["temperature_obs"]["T3", "Neutral"] = 0.25
-    current_model.A["temperature_obs"]["T4", "Neutral"] = 0.15
-    current_model.A["temperature_obs"]["T5", "Neutral"] = 0.05
-
-    current_model.A["temperature_obs"]["T0", "Comfortable"] = 0.05
-    current_model.A["temperature_obs"]["T1", "Comfortable"] = 0.20
-    current_model.A["temperature_obs"]["T2", "Comfortable"] = 0.40
-    current_model.A["temperature_obs"]["T3", "Comfortable"] = 0.20
-    current_model.A["temperature_obs"]["T4", "Comfortable"] = 0.10
-    current_model.A["temperature_obs"]["T5", "Comfortable"] = 0.05
-
-    # light_obs define
-    # Assumption:
-    # - L0: too dark
-    # - L1: dim / low light
-    # - L2: moderate light
-    # - L3: bright light
+    # A[obs, state] = P(obs | state)
     #
-    # For Uncomfortable, extreme lighting conditions are more likely.
-    # For Neutral, middle lighting levels are more likely.
-    # For Comfortable, moderate / suitable lighting is more likely.
-    current_model.A["light_obs"]["L0", "Uncomfortable"] = 0.30
-    current_model.A["light_obs"]["L1", "Uncomfortable"] = 0.15
+    # Interpretation:
+    # - T0/T10: extreme temperatures -> strongly Uncomfortable
+    # - T1/T9: bad temperatures -> Uncomfortable
+    # - T2/T8: mostly Neutral, partially Uncomfortable
+    # - T3: summer-preferred cool temperature -> Comfortable
+    # - T4: Neutral high, Comfortable moderate
+    # - T5/T6: mostly Neutral
+    # - T7: Neutral
+    #
+    # Each state column must sum to 1.
+    # =========================================================
+
+    # =========================================================
+    # Uncomfortable
+    # T0/T10 very high, T1/T9 high, T2/T8 moderate
+    # Sum = 1.00
+    # =========================================================
+    current_model.A["temperature_obs"]["T0", "Uncomfortable"] = 0.22
+    current_model.A["temperature_obs"]["T1", "Uncomfortable"] = 0.16
+    current_model.A["temperature_obs"]["T2", "Uncomfortable"] = 0.10
+    current_model.A["temperature_obs"]["T3", "Uncomfortable"] = 0.02
+    current_model.A["temperature_obs"]["T4", "Uncomfortable"] = 0.03
+    current_model.A["temperature_obs"]["T5", "Uncomfortable"] = 0.04
+    current_model.A["temperature_obs"]["T6", "Uncomfortable"] = 0.04
+    current_model.A["temperature_obs"]["T7", "Uncomfortable"] = 0.05
+    current_model.A["temperature_obs"]["T8", "Uncomfortable"] = 0.10
+    current_model.A["temperature_obs"]["T9", "Uncomfortable"] = 0.14
+    current_model.A["temperature_obs"]["T10", "Uncomfortable"] = 0.10
+
+    # =========================================================
+    # Neutral
+    # Broad neutral region: T2, T4, T5, T6, T7, T8
+    # Comfortable point T3 still has some neutral probability
+    # Sum = 1.00
+    # =========================================================
+    current_model.A["temperature_obs"]["T0", "Neutral"] = 0.01
+    current_model.A["temperature_obs"]["T1", "Neutral"] = 0.03
+    current_model.A["temperature_obs"]["T2", "Neutral"] = 0.10
+    current_model.A["temperature_obs"]["T3", "Neutral"] = 0.07
+    current_model.A["temperature_obs"]["T4", "Neutral"] = 0.13
+    current_model.A["temperature_obs"]["T5", "Neutral"] = 0.18
+    current_model.A["temperature_obs"]["T6", "Neutral"] = 0.18
+    current_model.A["temperature_obs"]["T7", "Neutral"] = 0.14
+    current_model.A["temperature_obs"]["T8", "Neutral"] = 0.10
+    current_model.A["temperature_obs"]["T9", "Neutral"] = 0.04
+    current_model.A["temperature_obs"]["T10", "Neutral"] = 0.02
+
+    # =========================================================
+    # Comfortable
+    # Narrow and asymmetric peak around T3.
+    # T4 has moderate Comfortable probability.
+    # Other middle values are low.
+    # Sum = 1.00
+    # =========================================================
+    current_model.A["temperature_obs"]["T0", "Comfortable"] = 0.01
+    current_model.A["temperature_obs"]["T1", "Comfortable"] = 0.02
+    current_model.A["temperature_obs"]["T2", "Comfortable"] = 0.08
+    current_model.A["temperature_obs"]["T3", "Comfortable"] = 0.55
+    current_model.A["temperature_obs"]["T4", "Comfortable"] = 0.20
+    current_model.A["temperature_obs"]["T5", "Comfortable"] = 0.05
+    current_model.A["temperature_obs"]["T6", "Comfortable"] = 0.03
+    current_model.A["temperature_obs"]["T7", "Comfortable"] = 0.02
+    current_model.A["temperature_obs"]["T8", "Comfortable"] = 0.02
+    current_model.A["temperature_obs"]["T9", "Comfortable"] = 0.01
+    current_model.A["temperature_obs"]["T10", "Comfortable"] = 0.01
+
+    # =========================================================
+    # light_obs define
+    # A[obs, state] = P(obs | state)
+    #
+    # Interpretation:
+    # - L0/L10: extreme light levels -> strongly Uncomfortable
+    # - L1/L9: uncomfortable
+    # - L2/L8: mostly Neutral, partially Uncomfortable
+    # - L3/L4/L5: Neutral region
+    # - L6: Neutral high, Comfortable moderate
+    # - L7: Comfortable peak
+    #
+    # Each state column must sum to 1.
+    # =========================================================
+
+    # =========================================================
+    # Uncomfortable
+    # L0/L10 very high, L1/L9 high, L2/L8 moderate
+    # Sum = 1.00
+    # =========================================================
+    current_model.A["light_obs"]["L0", "Uncomfortable"] = 0.22
+    current_model.A["light_obs"]["L1", "Uncomfortable"] = 0.16
     current_model.A["light_obs"]["L2", "Uncomfortable"] = 0.10
-    current_model.A["light_obs"]["L3", "Uncomfortable"] = 0.05
-    current_model.A["light_obs"]["L4", "Uncomfortable"] = 0.15
-    current_model.A["light_obs"]["L5", "Uncomfortable"] = 0.25
+    current_model.A["light_obs"]["L3", "Uncomfortable"] = 0.04
+    current_model.A["light_obs"]["L4", "Uncomfortable"] = 0.03
+    current_model.A["light_obs"]["L5", "Uncomfortable"] = 0.04
+    current_model.A["light_obs"]["L6", "Uncomfortable"] = 0.04
+    current_model.A["light_obs"]["L7", "Uncomfortable"] = 0.02
+    current_model.A["light_obs"]["L8", "Uncomfortable"] = 0.10
+    current_model.A["light_obs"]["L9", "Uncomfortable"] = 0.14
+    current_model.A["light_obs"]["L10", "Uncomfortable"] = 0.11
 
-    current_model.A["light_obs"]["L0", "Neutral"] = 0.10
-    current_model.A["light_obs"]["L1", "Neutral"] = 0.15
-    current_model.A["light_obs"]["L2", "Neutral"] = 0.25
-    current_model.A["light_obs"]["L3", "Neutral"] = 0.15
-    current_model.A["light_obs"]["L4", "Neutral"] = 0.30
-    current_model.A["light_obs"]["L5", "Neutral"] = 0.05
+    # =========================================================
+    # Neutral
+    # Broad neutral region, especially L3-L6
+    # L7 still has some neutral probability
+    # Sum = 1.00
+    # =========================================================
+    current_model.A["light_obs"]["L0", "Neutral"] = 0.01
+    current_model.A["light_obs"]["L1", "Neutral"] = 0.03
+    current_model.A["light_obs"]["L2", "Neutral"] = 0.10
+    current_model.A["light_obs"]["L3", "Neutral"] = 0.13
+    current_model.A["light_obs"]["L4", "Neutral"] = 0.18
+    current_model.A["light_obs"]["L5", "Neutral"] = 0.18
+    current_model.A["light_obs"]["L6", "Neutral"] = 0.13
+    current_model.A["light_obs"]["L7", "Neutral"] = 0.07
+    current_model.A["light_obs"]["L8", "Neutral"] = 0.10
+    current_model.A["light_obs"]["L9", "Neutral"] = 0.04
+    current_model.A["light_obs"]["L10", "Neutral"] = 0.03
 
-    current_model.A["light_obs"]["L0", "Comfortable"] = 0.05
-    current_model.A["light_obs"]["L1", "Comfortable"] = 0.15
-    current_model.A["light_obs"]["L2", "Comfortable"] = 0.20
-    current_model.A["light_obs"]["L3", "Comfortable"] = 0.35
-    current_model.A["light_obs"]["L4", "Comfortable"] = 0.20
+    # =========================================================
+    # Comfortable
+    # Asymmetric peak around L7.
+    # L6 has moderate Comfortable probability.
+    # Other middle values are low.
+    # Sum = 1.00
+    # =========================================================
+    current_model.A["light_obs"]["L0", "Comfortable"] = 0.01
+    current_model.A["light_obs"]["L1", "Comfortable"] = 0.01
+    current_model.A["light_obs"]["L2", "Comfortable"] = 0.02
+    current_model.A["light_obs"]["L3", "Comfortable"] = 0.02
+    current_model.A["light_obs"]["L4", "Comfortable"] = 0.03
     current_model.A["light_obs"]["L5", "Comfortable"] = 0.05
+    current_model.A["light_obs"]["L6", "Comfortable"] = 0.20
+    current_model.A["light_obs"]["L7", "Comfortable"] = 0.55
+    current_model.A["light_obs"]["L8", "Comfortable"] = 0.08
+    current_model.A["light_obs"]["L9", "Comfortable"] = 0.02
+    current_model.A["light_obs"]["L10", "Comfortable"] = 0.01
 
+    # =========================================================
     # humidity_obs define
-    # Assumption:
+    # A[obs, state] = P(obs | state)
+    #
+    # Interpretation:
+    # - H0/H10: extreme humidity levels -> strongly Uncomfortable
+    # - H1/H9: uncomfortable
+    # - H2/H8: mostly Neutral, partially Uncomfortable
+    # - H3/H4/H5: Neutral region
+    # - H6: Neutral high, Comfortable moderate
+    # - H7: Comfortable peak
+    #
+    # Each state column must sum to 1.
+    # =========================================================
 
-    current_model.A["humidity_obs"]["H0", "Uncomfortable"] = 0.25
-    current_model.A["humidity_obs"]["H1", "Uncomfortable"] = 0.10
-    current_model.A["humidity_obs"]["H2", "Uncomfortable"] = 0.05
-    current_model.A["humidity_obs"]["H3", "Uncomfortable"] = 0.15
-    current_model.A["humidity_obs"]["H4", "Uncomfortable"] = 0.15
-    current_model.A["humidity_obs"]["H5", "Uncomfortable"] = 0.30
+    # =========================================================
+    # Uncomfortable
+    # H0/H10 very high, H1/H9 high, H2/H8 moderate
+    # Sum = 1.00
+    # =========================================================
+    current_model.A["humidity_obs"]["H0", "Uncomfortable"] = 0.22
+    current_model.A["humidity_obs"]["H1", "Uncomfortable"] = 0.16
+    current_model.A["humidity_obs"]["H2", "Uncomfortable"] = 0.10
+    current_model.A["humidity_obs"]["H3", "Uncomfortable"] = 0.04
+    current_model.A["humidity_obs"]["H4", "Uncomfortable"] = 0.03
+    current_model.A["humidity_obs"]["H5", "Uncomfortable"] = 0.04
+    current_model.A["humidity_obs"]["H6", "Uncomfortable"] = 0.04
+    current_model.A["humidity_obs"]["H7", "Uncomfortable"] = 0.02
+    current_model.A["humidity_obs"]["H8", "Uncomfortable"] = 0.10
+    current_model.A["humidity_obs"]["H9", "Uncomfortable"] = 0.14
+    current_model.A["humidity_obs"]["H10", "Uncomfortable"] = 0.11
 
-    current_model.A["humidity_obs"]["H0", "Neutral"] = 0.05
-    current_model.A["humidity_obs"]["H1", "Neutral"] = 0.25
-    current_model.A["humidity_obs"]["H2", "Neutral"] = 0.20
-    current_model.A["humidity_obs"]["H3", "Neutral"] = 0.30
-    current_model.A["humidity_obs"]["H4", "Neutral"] = 0.15
-    current_model.A["humidity_obs"]["H5", "Neutral"] = 0.05
+    # =========================================================
+    # Neutral
+    # Broad neutral region, especially H3-H6
+    # H7 still has some neutral probability
+    # Sum = 1.00
+    # =========================================================
+    current_model.A["humidity_obs"]["H0", "Neutral"] = 0.01
+    current_model.A["humidity_obs"]["H1", "Neutral"] = 0.03
+    current_model.A["humidity_obs"]["H2", "Neutral"] = 0.10
+    current_model.A["humidity_obs"]["H3", "Neutral"] = 0.13
+    current_model.A["humidity_obs"]["H4", "Neutral"] = 0.18
+    current_model.A["humidity_obs"]["H5", "Neutral"] = 0.18
+    current_model.A["humidity_obs"]["H6", "Neutral"] = 0.13
+    current_model.A["humidity_obs"]["H7", "Neutral"] = 0.07
+    current_model.A["humidity_obs"]["H8", "Neutral"] = 0.10
+    current_model.A["humidity_obs"]["H9", "Neutral"] = 0.04
+    current_model.A["humidity_obs"]["H10", "Neutral"] = 0.03
 
-    current_model.A["humidity_obs"]["H0", "Comfortable"] = 0.05
-    current_model.A["humidity_obs"]["H1", "Comfortable"] = 0.15
-    current_model.A["humidity_obs"]["H2", "Comfortable"] = 0.25
-    current_model.A["humidity_obs"]["H3", "Comfortable"] = 0.35
-    current_model.A["humidity_obs"]["H4", "Comfortable"] = 0.15
+    # =========================================================
+    # Comfortable
+    # Asymmetric peak around H7.
+    # H6 has moderate Comfortable probability.
+    # Other middle values are low.
+    # Sum = 1.00
+    # =========================================================
+    current_model.A["humidity_obs"]["H0", "Comfortable"] = 0.01
+    current_model.A["humidity_obs"]["H1", "Comfortable"] = 0.01
+    current_model.A["humidity_obs"]["H2", "Comfortable"] = 0.02
+    current_model.A["humidity_obs"]["H3", "Comfortable"] = 0.02
+    current_model.A["humidity_obs"]["H4", "Comfortable"] = 0.03
     current_model.A["humidity_obs"]["H5", "Comfortable"] = 0.05
+    current_model.A["humidity_obs"]["H6", "Comfortable"] = 0.20
+    current_model.A["humidity_obs"]["H7", "Comfortable"] = 0.55
+    current_model.A["humidity_obs"]["H8", "Comfortable"] = 0.08
+    current_model.A["humidity_obs"]["H9", "Comfortable"] = 0.02
+    current_model.A["humidity_obs"]["H10", "Comfortable"] = 0.01
 
 
 def build_matrix_b(current_model):
@@ -128,9 +259,9 @@ def build_matrix_b(current_model):
     current_model.B["comfort"]["Comfortable", "Uncomfortable", "IL"] = 0.05
 
     # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "IL"] = 0.35
+    current_model.B["comfort"]["Uncomfortable", "Neutral", "IL"] = 0.30
     current_model.B["comfort"]["Neutral", "Neutral", "IL"] = 0.50
-    current_model.B["comfort"]["Comfortable", "Neutral", "IL"] = 0.15
+    current_model.B["comfort"]["Comfortable", "Neutral", "IL"] = 0.20
 
     # From Comfortable
     current_model.B["comfort"]["Uncomfortable", "Comfortable", "IL"] = 0.05
@@ -142,8 +273,8 @@ def build_matrix_b(current_model):
     # =========================================================
 
     # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "DL"] = 0.55
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "DL"] = 0.40
+    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "DL"] = 0.50
+    current_model.B["comfort"]["Neutral", "Uncomfortable", "DL"] = 0.45
     current_model.B["comfort"]["Comfortable", "Uncomfortable", "DL"] = 0.05
 
     # From Neutral
@@ -153,41 +284,41 @@ def build_matrix_b(current_model):
 
     # From Comfortable
     current_model.B["comfort"]["Uncomfortable", "Comfortable", "DL"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "DL"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Comfortable", "DL"] = 0.55
+    current_model.B["comfort"]["Neutral", "Comfortable", "DL"] = 0.45
+    current_model.B["comfort"]["Comfortable", "Comfortable", "DL"] = 0.50
 
     # =========================================================
     # IT: Increase Temperature
     # =========================================================
 
     # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "IT"] = 0.60
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "IT"] = 0.35
+    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "IT"] = 0.50
+    current_model.B["comfort"]["Neutral", "Uncomfortable", "IT"] = 0.45
     current_model.B["comfort"]["Comfortable", "Uncomfortable", "IT"] = 0.05
 
     # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "IT"] = 0.45
-    current_model.B["comfort"]["Neutral", "Neutral", "IT"] = 0.45
-    current_model.B["comfort"]["Comfortable", "Neutral", "IT"] = 0.10
+    current_model.B["comfort"]["Uncomfortable", "Neutral", "IT"] = 0.35
+    current_model.B["comfort"]["Neutral", "Neutral", "IT"] = 0.35
+    current_model.B["comfort"]["Comfortable", "Neutral", "IT"] = 0.30
 
     # From Comfortable
     current_model.B["comfort"]["Uncomfortable", "Comfortable", "IT"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "IT"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Comfortable", "IT"] = 0.55
+    current_model.B["comfort"]["Neutral", "Comfortable", "IT"] = 0.45
+    current_model.B["comfort"]["Comfortable", "Comfortable", "IT"] = 0.50
 
     # =========================================================
     # DT: Decrease Temperature
     # =========================================================
 
     # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "DT"] = 0.30
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "DT"] = 0.65
+    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "DT"] = 0.35
+    current_model.B["comfort"]["Neutral", "Uncomfortable", "DT"] = 0.60
     current_model.B["comfort"]["Comfortable", "Uncomfortable", "DT"] = 0.05
 
     # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "DT"] = 0.15
-    current_model.B["comfort"]["Neutral", "Neutral", "DT"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Neutral", "DT"] = 0.45
+    current_model.B["comfort"]["Uncomfortable", "Neutral", "DT"] = 0.30
+    current_model.B["comfort"]["Neutral", "Neutral", "DT"] = 0.45
+    current_model.B["comfort"]["Comfortable", "Neutral", "DT"] = 0.25
 
     # From Comfortable
     current_model.B["comfort"]["Uncomfortable", "Comfortable", "DT"] = 0.05
@@ -216,28 +347,71 @@ def build_matrix_b(current_model):
 
 def build_matrix_c(current_model):
     # Temperature preferences
-    current_model.C["temperature_obs"]["T0"] = -4.0
-    current_model.C["temperature_obs"]["T1"] = 2.0
-    current_model.C["temperature_obs"]["T2"] = 4.0
-    current_model.C["temperature_obs"]["T3"] = 2.0
-    current_model.C["temperature_obs"]["T4"] = 1.0
-    current_model.C["temperature_obs"]["T5"] = -4.0
+    # =========================================================
+    # C matrix: hardcoded observation preferences
+    #
+    # Higher value = more preferred
+    # Lower value  = less preferred / avoided
+    #
+    # C is defined over observations, not hidden states.
+    # =========================================================
 
+    # =========================================================
+    # Temperature preferences
+    # Comfortable is biased toward a cooler summer-preferred point: T3.
+    # T4 is still acceptable/partially comfortable.
+    # T5/T6 are mostly neutral.
+    # T0/T10 are strongly undesirable.
+    # =========================================================
+    current_model.C["temperature_obs"]["T0"] = -5.0
+    current_model.C["temperature_obs"]["T1"] = -3.0
+    current_model.C["temperature_obs"]["T2"] =  1.0
+    current_model.C["temperature_obs"]["T3"] =  5.0
+    current_model.C["temperature_obs"]["T4"] =  3.0
+    current_model.C["temperature_obs"]["T5"] =  1.0
+    current_model.C["temperature_obs"]["T6"] =  1.0
+    current_model.C["temperature_obs"]["T7"] =  0.0
+    current_model.C["temperature_obs"]["T8"] = -1.0
+    current_model.C["temperature_obs"]["T9"] = -3.0
+    current_model.C["temperature_obs"]["T10"] = -5.0
+
+    # =========================================================
     # Light preferences
-    current_model.C["light_obs"]["L0"] = -3.0
-    current_model.C["light_obs"]["L1"] = 1.0
-    current_model.C["light_obs"]["L2"] = 2.0
-    current_model.C["light_obs"]["L3"] = 4.0
-    current_model.C["light_obs"]["L4"] = 2.0
-    current_model.C["light_obs"]["L5"] = -2.0
+    # Comfortable peak is around L7.
+    # L6 is moderately comfortable.
+    # L4/L5 are neutral-good.
+    # L0/L10 are strongly undesirable.
+    # =========================================================
+    current_model.C["light_obs"]["L0"] = -5.0
+    current_model.C["light_obs"]["L1"] = -3.0
+    current_model.C["light_obs"]["L2"] = -1.0
+    current_model.C["light_obs"]["L3"] =  1.0
+    current_model.C["light_obs"]["L4"] =  2.0
+    current_model.C["light_obs"]["L5"] =  2.0
+    current_model.C["light_obs"]["L6"] =  3.0
+    current_model.C["light_obs"]["L7"] =  5.0
+    current_model.C["light_obs"]["L8"] =  1.0
+    current_model.C["light_obs"]["L9"] = -3.0
+    current_model.C["light_obs"]["L10"] = -5.0
 
+    # =========================================================
     # Humidity preferences
-    current_model.C["humidity_obs"]["H0"] = -4.0
-    current_model.C["humidity_obs"]["H1"] = 1.0
-    current_model.C["humidity_obs"]["H2"] = 4.0
-    current_model.C["humidity_obs"]["H3"] = 1.0
-    current_model.C["humidity_obs"]["H4"] = 2.0
-    current_model.C["humidity_obs"]["H5"] = -4.0
+    # Comfortable peak is around H7.
+    # H6 is moderately comfortable.
+    # H4/H5 are neutral-good.
+    # H0/H10 are strongly undesirable.
+    # =========================================================
+    current_model.C["humidity_obs"]["H0"] = -5.0
+    current_model.C["humidity_obs"]["H1"] = -3.0
+    current_model.C["humidity_obs"]["H2"] = -1.0
+    current_model.C["humidity_obs"]["H3"] =  1.0
+    current_model.C["humidity_obs"]["H4"] =  2.0
+    current_model.C["humidity_obs"]["H5"] =  2.0
+    current_model.C["humidity_obs"]["H6"] =  3.0
+    current_model.C["humidity_obs"]["H7"] =  5.0
+    current_model.C["humidity_obs"]["H8"] =  1.0
+    current_model.C["humidity_obs"]["H9"] = -3.0
+    current_model.C["humidity_obs"]["H10"] = -5.0
 
     return current_model
 
