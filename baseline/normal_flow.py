@@ -8,8 +8,10 @@ from utils.util import build_noisy_agent_b_from_env
 # Initialize agent model
 # =========================================================
 
-agent_model = extend_action_space("ACN1")
-agent_model = extend_action_space("ACN2")
+agent_model = extend_action_space("DH")
+agent_model = extend_action_space("IH")
+agent_model = extend_action_space("DHT")
+agent_model = extend_action_space("IHT")
 
 
 # =========================================================
@@ -17,8 +19,8 @@ agent_model = extend_action_space("ACN2")
 # =========================================================
 
 temperature_observed = "T4"
-light_observed = "L3"
-humidity_observed = "H4"
+light_observed = "L1"
+humidity_observed = "H1"
 
 # =========================================================
 # Initial recurrent variables

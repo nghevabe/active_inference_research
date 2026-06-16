@@ -9,8 +9,8 @@ from env.elements import comforts, agent_actions
 # Initialize agent model
 # =========================================================
 
-agent_model = extend_action_space("ACN1")
-agent_model = extend_action_space("ACN2")
+agent_model = extend_action_space("DH")
+agent_model = extend_action_space("IH")
 
 
 # =========================================================

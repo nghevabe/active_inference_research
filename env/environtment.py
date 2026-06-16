@@ -297,10 +297,18 @@ def environment_step(action_input, current_temperatures,
         next_temperatures_index = next_temperatures_index + 1
     if action_input == "DT":
         next_temperatures_index = next_temperatures_index - 1
-    if action_input == "ACN1":
+
+    if action_input == "DH":
         next_humidity_index = next_humidity_index + 1
-    if action_input == "ACN2":
+    if action_input == "IH":
         next_humidity_index = next_humidity_index - 1
+
+    if action_input == "DHT":
+        next_humidity_index = next_humidity_index + 1
+        next_temperatures_index = next_temperatures_index + 1
+    if action_input == "IHT":
+        next_humidity_index = next_humidity_index - 1
+        next_temperatures_index = next_temperatures_index - 1
 
     if next_temperatures_index < 0:
         next_temperatures_index = 0
