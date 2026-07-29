@@ -4,23 +4,44 @@ from jax import numpy as jnp
 
 from env.elements import temperatures, lights, humidity, agent_actions
 
+# ["UncomfortableLeft", "NeutralLeft", "Comfortable", "NeutralRight", "UncomfortableRight"]
 
 def build_matrix_a(current_model):
     # temperature_obs define
-    current_model.A["temperature_obs"]["T1", "Uncomfortable"] = 0.05
-    current_model.A["temperature_obs"]["T2", "Uncomfortable"] = 0.15
-    current_model.A["temperature_obs"]["T3", "Uncomfortable"] = 0.35
-    current_model.A["temperature_obs"]["T4", "Uncomfortable"] = 0.45
+    current_model.A["temperature_obs"]["T0", "UncomfortableLeft"] = 0.40
+    current_model.A["temperature_obs"]["T1", "UncomfortableLeft"] = 0.25
+    current_model.A["temperature_obs"]["T2", "UncomfortableLeft"] = 0.15
+    current_model.A["temperature_obs"]["T3", "UncomfortableLeft"] = 0.10
+    current_model.A["temperature_obs"]["T4", "UncomfortableLeft"] = 0.05
+    current_model.A["temperature_obs"]["T5", "UncomfortableLeft"] = 0.05
 
-    current_model.A["temperature_obs"]["T1", "Neutral"] = 0.30
-    current_model.A["temperature_obs"]["T2", "Neutral"] = 0.40
-    current_model.A["temperature_obs"]["T3", "Neutral"] = 0.20
-    current_model.A["temperature_obs"]["T4", "Neutral"] = 0.10
+    current_model.A["temperature_obs"]["T0", "NeutralLeft"] = 0.05
+    current_model.A["temperature_obs"]["T1", "NeutralLeft"] = 0.25
+    current_model.A["temperature_obs"]["T2", "NeutralLeft"] = 0.35
+    current_model.A["temperature_obs"]["T3", "NeutralLeft"] = 0.20
+    current_model.A["temperature_obs"]["T4", "NeutralLeft"] = 0.10
+    current_model.A["temperature_obs"]["T5", "NeutralLeft"] = 0.05
 
-    current_model.A["temperature_obs"]["T1", "Comfortable"] = 0.35
-    current_model.A["temperature_obs"]["T2", "Comfortable"] = 0.40
-    current_model.A["temperature_obs"]["T3", "Comfortable"] = 0.15
-    current_model.A["temperature_obs"]["T4", "Comfortable"] = 0.10
+    current_model.A["temperature_obs"]["T0", "Comfortable"] = 0.05
+    current_model.A["temperature_obs"]["T1", "Comfortable"] = 0.10
+    current_model.A["temperature_obs"]["T2", "Comfortable"] = 0.20
+    current_model.A["temperature_obs"]["T3", "Comfortable"] = 0.35
+    current_model.A["temperature_obs"]["T4", "Comfortable"] = 0.20
+    current_model.A["temperature_obs"]["T5", "Comfortable"] = 0.10
+
+    current_model.A["temperature_obs"]["T0", "NeutralRight"] = 0.05
+    current_model.A["temperature_obs"]["T1", "NeutralRight"] = 0.10
+    current_model.A["temperature_obs"]["T2", "NeutralRight"] = 0.20
+    current_model.A["temperature_obs"]["T3", "NeutralRight"] = 0.35
+    current_model.A["temperature_obs"]["T4", "NeutralRight"] = 0.25
+    current_model.A["temperature_obs"]["T5", "NeutralRight"] = 0.05
+
+    current_model.A["temperature_obs"]["T0", "UncomfortableRight"] = 0.05
+    current_model.A["temperature_obs"]["T1", "UncomfortableRight"] = 0.05
+    current_model.A["temperature_obs"]["T2", "UncomfortableRight"] = 0.10
+    current_model.A["temperature_obs"]["T3", "UncomfortableRight"] = 0.15
+    current_model.A["temperature_obs"]["T4", "UncomfortableRight"] = 0.25
+    current_model.A["temperature_obs"]["T5", "UncomfortableRight"] = 0.40
 
     # light_obs define
     # Assumption:
@@ -32,38 +53,79 @@ def build_matrix_a(current_model):
     # For Uncomfortable, extreme lighting conditions are more likely.
     # For Neutral, middle lighting levels are more likely.
     # For Comfortable, moderate / suitable lighting is more likely.
-    current_model.A["light_obs"]["L0", "Uncomfortable"] = 0.10
-    current_model.A["light_obs"]["L1", "Uncomfortable"] = 0.25
-    current_model.A["light_obs"]["L2", "Uncomfortable"] = 0.30
-    current_model.A["light_obs"]["L3", "Uncomfortable"] = 0.35
+    current_model.A["light_obs"]["L0", "UncomfortableLeft"] = 0.25
+    current_model.A["light_obs"]["L1", "UncomfortableLeft"] = 0.20
+    current_model.A["light_obs"]["L2", "UncomfortableLeft"] = 0.15
+    current_model.A["light_obs"]["L3", "UncomfortableLeft"] = 0.15
+    current_model.A["light_obs"]["L4", "UncomfortableLeft"] = 0.15
+    current_model.A["light_obs"]["L5", "UncomfortableLeft"] = 0.10
 
-    current_model.A["light_obs"]["L0", "Neutral"] = 0.30
-    current_model.A["light_obs"]["L1", "Neutral"] = 0.35
-    current_model.A["light_obs"]["L2", "Neutral"] = 0.20
-    current_model.A["light_obs"]["L3", "Neutral"] = 0.15
+    current_model.A["light_obs"]["L0", "NeutralLeft"] = 0.10
+    current_model.A["light_obs"]["L1", "NeutralLeft"] = 0.15
+    current_model.A["light_obs"]["L2", "NeutralLeft"] = 0.25
+    current_model.A["light_obs"]["L3", "NeutralLeft"] = 0.20
+    current_model.A["light_obs"]["L4", "NeutralLeft"] = 0.20
+    current_model.A["light_obs"]["L5", "NeutralLeft"] = 0.10
 
-    current_model.A["light_obs"]["L0", "Comfortable"] = 0.30
-    current_model.A["light_obs"]["L1", "Comfortable"] = 0.35
+    current_model.A["light_obs"]["L0", "Comfortable"] = 0.10
+    current_model.A["light_obs"]["L1", "Comfortable"] = 0.15
     current_model.A["light_obs"]["L2", "Comfortable"] = 0.20
-    current_model.A["light_obs"]["L3", "Comfortable"] = 0.15
+    current_model.A["light_obs"]["L3", "Comfortable"] = 0.25
+    current_model.A["light_obs"]["L4", "Comfortable"] = 0.20
+    current_model.A["light_obs"]["L5", "Comfortable"] = 0.10
+
+    current_model.A["light_obs"]["L0", "NeutralRight"] = 0.10
+    current_model.A["light_obs"]["L1", "NeutralRight"] = 0.20
+    current_model.A["light_obs"]["L2", "NeutralRight"] = 0.20
+    current_model.A["light_obs"]["L3", "NeutralRight"] = 0.25
+    current_model.A["light_obs"]["L4", "NeutralRight"] = 0.15
+    current_model.A["light_obs"]["L5", "NeutralRight"] = 0.10
+
+    current_model.A["light_obs"]["L0", "UncomfortableRight"] = 0.10
+    current_model.A["light_obs"]["L1", "UncomfortableRight"] = 0.15
+    current_model.A["light_obs"]["L2", "UncomfortableRight"] = 0.15
+    current_model.A["light_obs"]["L3", "UncomfortableRight"] = 0.15
+    current_model.A["light_obs"]["L4", "UncomfortableRight"] = 0.20
+    current_model.A["light_obs"]["L5", "UncomfortableRight"] = 0.25
 
     # humidity_obs define
     # Assumption:
+    # Todo Maybe remove humidity_obs
 
-    current_model.A["humidity_obs"]["H1", "Uncomfortable"] = 0.05
-    current_model.A["humidity_obs"]["H2", "Uncomfortable"] = 0.15
-    current_model.A["humidity_obs"]["H3", "Uncomfortable"] = 0.35
-    current_model.A["humidity_obs"]["H4", "Uncomfortable"] = 0.45
-
-    current_model.A["humidity_obs"]["H1", "Neutral"] = 0.30
-    current_model.A["humidity_obs"]["H2", "Neutral"] = 0.35
-    current_model.A["humidity_obs"]["H3", "Neutral"] = 0.25
-    current_model.A["humidity_obs"]["H4", "Neutral"] = 0.10
-
-    current_model.A["humidity_obs"]["H1", "Comfortable"] = 0.30
-    current_model.A["humidity_obs"]["H2", "Comfortable"] = 0.40
-    current_model.A["humidity_obs"]["H3", "Comfortable"] = 0.20
-    current_model.A["humidity_obs"]["H4", "Comfortable"] = 0.10
+    # current_model.A["humidity_obs"]["H0", "UncomfortableLeft"] = 0.40
+    # current_model.A["humidity_obs"]["H1", "UncomfortableLeft"] = 0.25
+    # current_model.A["humidity_obs"]["H2", "UncomfortableLeft"] = 0.15
+    # current_model.A["humidity_obs"]["H3", "UncomfortableLeft"] = 0.10
+    # current_model.A["humidity_obs"]["H4", "UncomfortableLeft"] = 0.05
+    # current_model.A["humidity_obs"]["H5", "UncomfortableLeft"] = 0.05
+    #
+    # current_model.A["humidity_obs"]["H0", "NeutralLeft"] = 0.05
+    # current_model.A["humidity_obs"]["H1", "NeutralLeft"] = 0.25
+    # current_model.A["humidity_obs"]["H2", "NeutralLeft"] = 0.35
+    # current_model.A["humidity_obs"]["H3", "NeutralLeft"] = 0.20
+    # current_model.A["humidity_obs"]["H4", "NeutralLeft"] = 0.10
+    # current_model.A["humidity_obs"]["H5", "NeutralLeft"] = 0.05
+    #
+    # current_model.A["humidity_obs"]["H0", "Comfortable"] = 0.05
+    # current_model.A["humidity_obs"]["H1", "Comfortable"] = 0.10
+    # current_model.A["humidity_obs"]["H2", "Comfortable"] = 0.20
+    # current_model.A["humidity_obs"]["H3", "Comfortable"] = 0.35
+    # current_model.A["humidity_obs"]["H4", "Comfortable"] = 0.20
+    # current_model.A["humidity_obs"]["H5", "Comfortable"] = 0.10
+    #
+    # current_model.A["humidity_obs"]["H0", "NeutralRight"] = 0.05
+    # current_model.A["humidity_obs"]["H1", "NeutralRight"] = 0.10
+    # current_model.A["humidity_obs"]["H2", "NeutralRight"] = 0.20
+    # current_model.A["humidity_obs"]["H3", "NeutralRight"] = 0.35
+    # current_model.A["humidity_obs"]["H4", "NeutralRight"] = 0.25
+    # current_model.A["humidity_obs"]["H5", "NeutralRight"] = 0.05
+    #
+    # current_model.A["humidity_obs"]["H0", "UncomfortableRight"] = 0.05
+    # current_model.A["humidity_obs"]["H1", "UncomfortableRight"] = 0.05
+    # current_model.A["humidity_obs"]["H2", "UncomfortableRight"] = 0.10
+    # current_model.A["humidity_obs"]["H3", "UncomfortableRight"] = 0.15
+    # current_model.A["humidity_obs"]["H4", "UncomfortableRight"] = 0.25
+    # current_model.A["humidity_obs"]["H5", "UncomfortableRight"] = 0.40
 
 
 def build_matrix_b(current_model):

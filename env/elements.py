@@ -1,4 +1,4 @@
-comforts = ["Uncomfortable", "Neutral", "Comfortable"]  # hidden state
+comforts = ["UncomfortableLeft", "NeutralLeft", "Comfortable", "NeutralRight", "UncomfortableRight"]  # hidden state
 
 agent_actions = ["IL", "DL", "IT", "DT", "NA"]  # Agent action
 agent_actions_2 = ["IL", "DL", "IT", "DT", "NA", "ACN2"]  # Agent action
@@ -9,9 +9,11 @@ lights = ["L0", "L1", "L2", "L3", "L4", "L5"]  # Observe Light
 humidity = ["H0", "H1", "H2", "H3", "H4", "H5"]  # Observe Humidity
 
 lst_pairing_state = [
-    "Uncomfortable_Uncomfortable", "Uncomfortable_Neutral", "Uncomfortable_Comfortable",
-    "Neutral_Uncomfortable", "Neutral_Neutral", "Neutral_Comfortable",
-    "Comfortable_Uncomfortable", "Comfortable_Neutral", "Comfortable_Comfortable"
+    "UncomfortableLeft_UncomfortableLeft", "UncomfortableLeft_NeutralLeft", "UncomfortableLeft_Comfortable", "UncomfortableLeft_NeutralRight", "UncomfortableLeft_UncomfortableRight",
+    "NeutralLeft_UncomfortableLeft", "NeutralLeft_NeutralLeft", "NeutralLeft_Comfortable", "NeutralLeft_NeutralRight", "NeutralLeft_UncomfortableRight",
+    "Comfortable_UncomfortableLeft", "Comfortable_NeutralLeft", "Comfortable_Comfortable", "Comfortable_NeutralRight", "Comfortable_UncomfortableRight",
+    "NeutralRight_UncomfortableLeft", "NeutralRight_NeutralLeft", "NeutralRight_Comfortable", "NeutralRight_NeutralRight", "NeutralRight_UncomfortableRight",
+    "UncomfortableRight_UncomfortableLeft", "UncomfortableRight_NeutralLeft", "UncomfortableRight_Comfortable", "UncomfortableRight_NeutralRight", "UncomfortableRight_UncomfortableRight"
 ]
 
 
