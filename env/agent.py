@@ -10,7 +10,7 @@ from jax import numpy as jnp
 import jax.tree_util as jtu
 from env.elements import comforts, agent_actions
 from env.environtment import \
-    temperatures, lights, humidity, environment_step, \
+    temperatures, lights, environment_step, \
     predict_next_state_belief
 from utils.util import sample_top_k_with_temperature
 
@@ -352,7 +352,6 @@ def infer_belief_once(
         model_agent,
         temperature_observed,
         light_observed,
-        humidity_observed,
         qs_prior_input=None,
 ):
     gamma = 1
@@ -361,12 +360,10 @@ def infer_belief_once(
 
     temperature_idx = temperatures.index(temperature_observed)
     light_idx = lights.index(light_observed)
-    humidity_idx = humidity.index(humidity_observed)
 
     observations = [
         jnp.full((agent.batch_size, 1), temperature_idx),
         jnp.full((agent.batch_size, 1), light_idx),
-        jnp.full((agent.batch_size, 1), humidity_idx),
     ]
 
     if qs_prior_input is None:
@@ -391,7 +388,6 @@ def infer_belief_once(
     print("\n===== BELIEF INFERENCE =====")
     print(f"Observed temperature: {temperature_observed}")
     print(f"Observed light:       {light_observed}")
-    print(f"Observed humidity:    {humidity_observed}")
 
     print("\nPosterior belief over comfort:")
     for i, state in enumerate(comforts):
@@ -407,7 +403,6 @@ def run_agent(
         model_agent,
         temperature_observed,
         light_observed,
-        humidity_observed,
         qs_prior_input=None,
         rng_key=None,
 ):
@@ -422,7 +417,6 @@ def run_agent(
 
     temperature_idx = temperatures.index(temperature_observed)
     light_idx = lights.index(light_observed)
-    humidity_idx = humidity.index(humidity_observed)
 
     # Each observation must have shape: (batch_size, time_dim)
     # agent.batch_size defaults to 1.
@@ -436,16 +430,10 @@ def run_agent(
         light_idx
     )
 
-    humidity_observation = jnp.full(
-        (agent.batch_size, 1),
-        humidity_idx
-    )
-
     # Multi-modality observation list
     observations = [
         temperature_observation,
         light_observation,
-        humidity_observation,
     ]
 
     if qs_prior_input is None:
@@ -474,7 +462,6 @@ def run_agent(
     print("\n===== INITIAL OBSERVATION =====")
     print(f"Observed temperature: {temperature_observed}")
     print(f"Observed light:       {light_observed}")
-    print(f"Observed humidity:        {humidity_observed}")
 
     print("\n===== DEBUG SHAPE =====")
     print("qs[0].shape:", qs[0].shape)
@@ -577,19 +564,16 @@ def run_agent(
     print(f"Current infer state used by simulator: {current_infer_state}")
     print(f"Executed action a_t: {chosen_action}")
 
-    (label_next_temperature, label_next_light, label_next_humidity, next_temperatures_index, next_lights_index,
-     next_humidity_index) = environment_step(
+    (label_next_temperature, label_next_light, next_temperatures_index, next_lights_index) = environment_step(
         action_input=chosen_action,
         current_temperatures=temperature_observed,
         current_lights=light_observed,
-        current_humidity=humidity_observed,
     )
 
     print("\n===== ENVIRONMENT RESULT =====")
     # print(f"Next true hidden state s_t+1: {next_true_state}")
     print(f"New temperature observation: {label_next_temperature}")
     print(f"New light observation:       {label_next_light}")
-    print(f"New humidity observation:        {label_next_humidity}")
 
     # =========================================================
     # Predict next prior q(s_{t+1}) using B and selected action
@@ -620,15 +604,9 @@ def run_agent(
         next_lights_index
     )
 
-    next_humidity_observation = jnp.full(
-        (agent.batch_size, 1),
-        next_humidity_index
-    )
-
     next_observations = [
         next_temperature_observation,
         next_light_observation,
-        next_humidity_observation,
     ]
 
     # infer_states expects qs_init with batch and time dimensions.
@@ -655,11 +633,9 @@ def run_agent(
     return {
         "current_temperature": temperature_observed,
         "current_light": light_observed,
-        "current_humidity": humidity_observed,
         "current_belief": comfort_belief,
         "next_temperature": label_next_temperature,
         "next_light": label_next_light,
-        "next_humidity": label_next_humidity,
         "predicted_prior_next": qs_prior_next,
         "next_belief": next_comfort_belief,
         "chosen_action": chosen_action,

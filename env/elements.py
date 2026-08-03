@@ -6,7 +6,6 @@ user_actions = ["uIL", "uDL", "uIT", "uDT", "uNA"]  # User feedback action
 
 temperatures = ["T0", "T1", "T2", "T3", "T4", "T5"]  # Observe Temperature
 lights = ["L0", "L1", "L2", "L3", "L4", "L5"]  # Observe Light
-humidity = ["H0", "H1", "H2", "H3", "H4", "H5"]  # Observe Humidity
 
 lst_pairing_state = [
     "UncomfortableLeft_UncomfortableLeft", "UncomfortableLeft_NeutralLeft", "UncomfortableLeft_Comfortable", "UncomfortableLeft_NeutralRight", "UncomfortableLeft_UncomfortableRight",
@@ -28,10 +27,6 @@ model_description = {
         },
         "light_obs": {
             "elements": lights,
-            "depends_on": ["comfort"],
-        },
-        "humidity_obs": {
-            "elements": humidity,
             "depends_on": ["comfort"],
         },
     },
@@ -61,10 +56,6 @@ def update_model_description():
             },
             "light_obs": {
                 "elements": lights,
-                "depends_on": ["comfort"],
-            },
-            "humidity_obs": {
-                "elements": humidity,
                 "depends_on": ["comfort"],
             },
         },

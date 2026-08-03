@@ -2,7 +2,7 @@ import jax
 from jax import numpy as jnp
 
 
-from env.elements import temperatures, lights, humidity, agent_actions
+from env.elements import temperatures, lights, agent_actions
 
 # ["UncomfortableLeft", "NeutralLeft", "Comfortable", "NeutralRight", "UncomfortableRight"]
 
@@ -247,11 +247,6 @@ def build_matrix_c(preferred_state, current_model):
             current_model.A["light_obs"][obs, preferred_state] + eps
         )
 
-    for obs in humidity:
-        current_model.C["humidity"][obs] = jnp.log(
-            current_model.A["humidity"][obs, preferred_state] + eps
-        )
-
 
 def build_matrix_d(current_model):
     # =========================================================
@@ -338,7 +333,7 @@ def predict_next_state_belief(
 
 
 def environment_step(action_input, current_temperatures,
-                     current_lights, current_humidity):
+                     current_lights):
     """
     Simulate environment transition and generate new observations.
 
@@ -346,10 +341,8 @@ def environment_step(action_input, current_temperatures,
     action: string, e.g. "IL"
     """
 
-
     next_temperatures_index = temperatures.index(current_temperatures)
     next_lights_index = lights.index(current_lights)
-    next_humidity_index = humidity.index(current_humidity)
 
     if action_input == "IL":
         next_lights_index = next_lights_index + 1
@@ -360,30 +353,27 @@ def environment_step(action_input, current_temperatures,
     if action_input == "DT":
         next_temperatures_index = next_temperatures_index - 1
     if action_input == "ACN1":
-        next_humidity_index = next_humidity_index + 1
+        next_lights_index = next_lights_index + 1
+        next_temperatures_index = next_temperatures_index - 1
     if action_input == "ACN2":
-        next_humidity_index = next_humidity_index - 1
+        next_lights_index = next_lights_index - 1
+        next_temperatures_index = next_temperatures_index + 1
 
     if next_temperatures_index < 0:
         next_temperatures_index = 0
     if next_lights_index < 0:
         next_lights_index = 0
-    if next_humidity_index < 0:
-        next_humidity_index = 0
 
     if next_temperatures_index > len(temperatures)-1:
         next_temperatures_index = len(temperatures)-1
     if next_lights_index > len(lights)-1:
         next_lights_index = len(lights)-1
-    if next_humidity_index > len(humidity)-1:
-        next_humidity_index = len(humidity)-1
 
     label_next_temperature = temperatures[next_temperatures_index]
     label_next_light = lights[next_lights_index]
-    label_next_humidity = humidity[next_humidity_index]
 
-    return (label_next_temperature, label_next_light, label_next_humidity, next_temperatures_index,
-            next_lights_index, next_humidity_index)
+    return (label_next_temperature, label_next_light, next_temperatures_index,
+            next_lights_index)
 # ======
 
 

@@ -18,7 +18,6 @@ agent_model = extend_action_space("ACN2")
 
 temperature_observed = "T4"
 light_observed = "L3"
-humidity_observed = "H4"
 
 # =========================================================
 # Initial recurrent variables
@@ -40,7 +39,6 @@ for t in range(10):
         model_agent=agent_model,
         temperature_observed=temperature_observed,
         light_observed=light_observed,
-        humidity_observed=humidity_observed,
         qs_prior_input=qs_prior,
         rng_key=rng_key,
     )
@@ -52,7 +50,6 @@ for t in range(10):
         "Current observation:",
         result["current_temperature"],
         result["current_light"],
-        result["current_humidity"],
     )
 
     print("Chosen action:", result["chosen_action"])
@@ -61,7 +58,6 @@ for t in range(10):
         "Next observation:",
         result["next_temperature"],
         result["next_light"],
-        result["next_humidity"],
     )
 
     print("Current belief:", result["current_belief"])
@@ -91,7 +87,6 @@ for t in range(10):
 
     temperature_observed = result["next_temperature"]
     light_observed = result["next_light"]
-    humidity_observed = result["next_humidity"]
 
     # =====================================================
     # Important:

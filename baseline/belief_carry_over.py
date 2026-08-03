@@ -23,7 +23,7 @@ observation_sequence = [
 qs_prior = None
 belief_history = []
 
-for t, (temperature_observed, light_observed, humidity_observed) in enumerate(
+for t, (temperature_observed, light_observed) in enumerate(
     observation_sequence,
     start=1,
 ):
@@ -33,7 +33,6 @@ for t, (temperature_observed, light_observed, humidity_observed) in enumerate(
         model_agent=agent_model,
         temperature_observed=temperature_observed,
         light_observed=light_observed,
-        humidity_observed=humidity_observed,
         qs_prior_input=qs_prior,
     )
 
@@ -41,7 +40,6 @@ for t, (temperature_observed, light_observed, humidity_observed) in enumerate(
         "step": t,
         "temperature": temperature_observed,
         "light": light_observed,
-        "humidity": humidity_observed,
         "belief": posterior_belief,
     })
 
@@ -53,22 +51,19 @@ def debug_observation_likelihood(
     model_agent,
     temperature_observed,
     light_observed,
-    humidity_observed,
 ):
     print("\n===== OBSERVATION LIKELIHOOD DEBUG =====")
-    print(f"Observation: {temperature_observed}, {light_observed}, {humidity_observed}")
+    print(f"Observation: {temperature_observed}, {light_observed}")
 
     for state in comforts:
         p_temp = model_agent.A["temperature"][temperature_observed, state]
         p_light = model_agent.A["light"][light_observed, state]
-        p_humidity = model_agent.A["humidity"][humidity_observed, state]
 
-        joint_likelihood = p_temp * p_light * p_humidity
+        joint_likelihood = p_temp * p_light
 
         print(
             f"{state:13s} | "
             f"P(T={temperature_observed}|s)={float(p_temp):.4f} | "
             f"P(L={light_observed}|s)={float(p_light):.4f} | "
-            f"P(H={humidity_observed}|s)={float(p_humidity):.4f} | "
             f"Joint={float(joint_likelihood):.6f}"
         )

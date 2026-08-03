@@ -10,7 +10,7 @@ from jax import numpy as jnp
 import jax.tree_util as jtu
 from env.elements import comforts, agent_actions
 from env.environtment import \
-    temperatures, lights, humidity, environment_step, \
+    temperatures, lights, environment_step, \
     predict_next_state_belief
 
 
