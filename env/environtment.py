@@ -32,8 +32,8 @@ def build_matrix_a(current_model):
     current_model.A["temperature_obs"]["T0", "NeutralRight"] = 0.05
     current_model.A["temperature_obs"]["T1", "NeutralRight"] = 0.10
     current_model.A["temperature_obs"]["T2", "NeutralRight"] = 0.20
-    current_model.A["temperature_obs"]["T3", "NeutralRight"] = 0.35
-    current_model.A["temperature_obs"]["T4", "NeutralRight"] = 0.25
+    current_model.A["temperature_obs"]["T3", "NeutralRight"] = 0.25
+    current_model.A["temperature_obs"]["T4", "NeutralRight"] = 0.35
     current_model.A["temperature_obs"]["T5", "NeutralRight"] = 0.05
 
     current_model.A["temperature_obs"]["T0", "UncomfortableRight"] = 0.05
@@ -44,15 +44,7 @@ def build_matrix_a(current_model):
     current_model.A["temperature_obs"]["T5", "UncomfortableRight"] = 0.40
 
     # light_obs define
-    # Assumption:
-    # - L0: too dark
-    # - L1: dim / low light
-    # - L2: moderate light
-    # - L3: bright light
-    #
-    # For Uncomfortable, extreme lighting conditions are more likely.
-    # For Neutral, middle lighting levels are more likely.
-    # For Comfortable, moderate / suitable lighting is more likely.
+
     current_model.A["light_obs"]["L0", "UncomfortableLeft"] = 0.25
     current_model.A["light_obs"]["L1", "UncomfortableLeft"] = 0.20
     current_model.A["light_obs"]["L2", "UncomfortableLeft"] = 0.15
@@ -77,8 +69,8 @@ def build_matrix_a(current_model):
     current_model.A["light_obs"]["L0", "NeutralRight"] = 0.10
     current_model.A["light_obs"]["L1", "NeutralRight"] = 0.20
     current_model.A["light_obs"]["L2", "NeutralRight"] = 0.20
-    current_model.A["light_obs"]["L3", "NeutralRight"] = 0.25
-    current_model.A["light_obs"]["L4", "NeutralRight"] = 0.15
+    current_model.A["light_obs"]["L3", "NeutralRight"] = 0.15
+    current_model.A["light_obs"]["L4", "NeutralRight"] = 0.25
     current_model.A["light_obs"]["L5", "NeutralRight"] = 0.10
 
     current_model.A["light_obs"]["L0", "UncomfortableRight"] = 0.10
@@ -87,45 +79,6 @@ def build_matrix_a(current_model):
     current_model.A["light_obs"]["L3", "UncomfortableRight"] = 0.15
     current_model.A["light_obs"]["L4", "UncomfortableRight"] = 0.20
     current_model.A["light_obs"]["L5", "UncomfortableRight"] = 0.25
-
-    # humidity_obs define
-    # Assumption:
-    # Todo Maybe remove humidity_obs
-
-    # current_model.A["humidity_obs"]["H0", "UncomfortableLeft"] = 0.40
-    # current_model.A["humidity_obs"]["H1", "UncomfortableLeft"] = 0.25
-    # current_model.A["humidity_obs"]["H2", "UncomfortableLeft"] = 0.15
-    # current_model.A["humidity_obs"]["H3", "UncomfortableLeft"] = 0.10
-    # current_model.A["humidity_obs"]["H4", "UncomfortableLeft"] = 0.05
-    # current_model.A["humidity_obs"]["H5", "UncomfortableLeft"] = 0.05
-    #
-    # current_model.A["humidity_obs"]["H0", "NeutralLeft"] = 0.05
-    # current_model.A["humidity_obs"]["H1", "NeutralLeft"] = 0.25
-    # current_model.A["humidity_obs"]["H2", "NeutralLeft"] = 0.35
-    # current_model.A["humidity_obs"]["H3", "NeutralLeft"] = 0.20
-    # current_model.A["humidity_obs"]["H4", "NeutralLeft"] = 0.10
-    # current_model.A["humidity_obs"]["H5", "NeutralLeft"] = 0.05
-    #
-    # current_model.A["humidity_obs"]["H0", "Comfortable"] = 0.05
-    # current_model.A["humidity_obs"]["H1", "Comfortable"] = 0.10
-    # current_model.A["humidity_obs"]["H2", "Comfortable"] = 0.20
-    # current_model.A["humidity_obs"]["H3", "Comfortable"] = 0.35
-    # current_model.A["humidity_obs"]["H4", "Comfortable"] = 0.20
-    # current_model.A["humidity_obs"]["H5", "Comfortable"] = 0.10
-    #
-    # current_model.A["humidity_obs"]["H0", "NeutralRight"] = 0.05
-    # current_model.A["humidity_obs"]["H1", "NeutralRight"] = 0.10
-    # current_model.A["humidity_obs"]["H2", "NeutralRight"] = 0.20
-    # current_model.A["humidity_obs"]["H3", "NeutralRight"] = 0.35
-    # current_model.A["humidity_obs"]["H4", "NeutralRight"] = 0.25
-    # current_model.A["humidity_obs"]["H5", "NeutralRight"] = 0.05
-    #
-    # current_model.A["humidity_obs"]["H0", "UncomfortableRight"] = 0.05
-    # current_model.A["humidity_obs"]["H1", "UncomfortableRight"] = 0.05
-    # current_model.A["humidity_obs"]["H2", "UncomfortableRight"] = 0.10
-    # current_model.A["humidity_obs"]["H3", "UncomfortableRight"] = 0.15
-    # current_model.A["humidity_obs"]["H4", "UncomfortableRight"] = 0.25
-    # current_model.A["humidity_obs"]["H5", "UncomfortableRight"] = 0.40
 
 
 def build_matrix_b(current_model):
