@@ -8,8 +8,8 @@ from utils.util import build_noisy_agent_b_from_env
 # Initialize agent model
 # =========================================================
 
-agent_model = extend_action_space("ACN1")
-agent_model = extend_action_space("ACN2")
+agent_model = extend_action_space("IL")
+agent_model = extend_action_space("DL")
 
 
 # =========================================================
@@ -17,7 +17,7 @@ agent_model = extend_action_space("ACN2")
 # =========================================================
 
 temperature_observed = "T4"
-light_observed = "L3"
+light_observed = "L2"
 
 # =========================================================
 # Initial recurrent variables
@@ -33,7 +33,9 @@ history = []
 # =========================================================
 
 for t in range(10):
-    print(f"\n================ AGENT LOOP STEP {t + 1} ================")
+    print(
+        f"\n================ AGENT LOOP STEP {t + 1} ================"
+    )
 
     result = run_agent(
         model_agent=agent_model,
@@ -60,37 +62,42 @@ for t in range(10):
         result["next_light"],
     )
 
-    print("Current belief:", result["current_belief"])
-    print("Predicted prior next:", result["predicted_prior_next"])
-    print("Next belief:", result["next_belief"])
+    print("Current posterior belief:", result["current_belief"])
+    print(
+        "Predicted prior for next step:",
+        result["predicted_prior_next"],
+    )
 
     # =====================================================
-    # Important:
-    # No Dirichlet B-learning here.
-    # The agent model remains fixed across steps.
+    # No Dirichlet B-learning in this loop.
+    #
+    # The transition model remains fixed across timesteps.
+    # agent_model is not updated here.
     # =====================================================
 
-    # agent_model is NOT updated.
+    # =====================================================
+    # The posterior at the current timestep has already
+    # been propagated through B using the selected action:
+    #
+    # q^-(s_t+1) = B[a_t] @ q(s_t)
+    #
+    # Therefore predicted_prior_next becomes the prior
+    # used with the next observation at timestep t + 1.
+    # =====================================================
+
+    qs_prior = result["predicted_prior_next"]
 
     # =====================================================
-    # Important:
-    # Next posterior becomes prior for next step
-    # =====================================================
-
-    qs_prior = result["next_belief"]
-
-    # =====================================================
-    # Important:
-    # Next observation becomes current observation
-    # for next step
+    # The environment output becomes the current
+    # observation for the next timestep.
     # =====================================================
 
     temperature_observed = result["next_temperature"]
     light_observed = result["next_light"]
 
     # =====================================================
-    # Important:
-    # Keep random key evolving
+    # Preserve the updated random key so the next action
+    # sampling uses a new random state.
     # =====================================================
 
     rng_key = result["rng_key"]

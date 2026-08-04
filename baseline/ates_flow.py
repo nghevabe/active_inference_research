@@ -1,5 +1,5 @@
 from env.agent import run_agent, extend_action_space, get_ates_positive_point, ates_positive_update, \
-    ates_update_matrix_positive
+    ates_update_matrix_positive, update_matrix_agent
 import jax
 import time
 
@@ -9,15 +9,22 @@ from env.elements import comforts, agent_actions
 # Initialize agent model
 # =========================================================
 
-agent_model = extend_action_space("ACN1")
-agent_model = extend_action_space("ACN2")
+agent_model = extend_action_space("IL")
+agent_model = extend_action_space("DL")
+
+# agent_model = update_matrix_agent()
+
+print(agent_model)
 
 
 # =========================================================
 # Initial observation
 # =========================================================
 
-temperature_observed = "T4"
+# temperature_observed = "T4"
+# light_observed = "L1"
+
+temperature_observed = "T5"
 light_observed = "L1"
 
 # =========================================================
@@ -42,7 +49,7 @@ for t in range(10):
         temperature_observed=temperature_observed,
         light_observed=light_observed,
         qs_prior_input=qs_prior,
-        rng_key=rng_key
+        rng_key=rng_key,
     )
 
     history.append(result)
@@ -64,36 +71,12 @@ for t in range(10):
 
     print("Current belief:", result["current_belief"])
     print("Predicted prior next:", result["predicted_prior_next"])
-    print("Next belief:", result["next_belief"])
 
-    # =====================================================
-    # Important:
-    # No Dirichlet B-learning here.
-    # The agent model remains fixed across steps.
-    # =====================================================
-
-    # agent_model is NOT updated.
-
-    # =====================================================
-    # Important:
-    # Next posterior becomes prior for next step
-    # =====================================================
-
-    qs_prior = result["next_belief"]
-
-    # =====================================================
-    # Important:
-    # Next observation becomes current observation
-    # for next step
-    # =====================================================
+    # Prior predicted by B becomes prior for the next observation.
+    qs_prior = result["predicted_prior_next"]
 
     temperature_observed = result["next_temperature"]
     light_observed = result["next_light"]
-
-    # =====================================================
-    # Important:
-    # Keep random key evolving
-    # =====================================================
 
     rng_key = result["rng_key"]
 

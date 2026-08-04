@@ -55,8 +55,8 @@ def build_matrix_a(current_model):
     current_model.A["temperature_obs"]["T0", "NeutralRight"] = 0.05
     current_model.A["temperature_obs"]["T1", "NeutralRight"] = 0.10
     current_model.A["temperature_obs"]["T2", "NeutralRight"] = 0.20
-    current_model.A["temperature_obs"]["T3", "NeutralRight"] = 0.35
-    current_model.A["temperature_obs"]["T4", "NeutralRight"] = 0.25
+    current_model.A["temperature_obs"]["T3", "NeutralRight"] = 0.25
+    current_model.A["temperature_obs"]["T4", "NeutralRight"] = 0.35
     current_model.A["temperature_obs"]["T5", "NeutralRight"] = 0.05
 
     current_model.A["temperature_obs"]["T0", "UncomfortableRight"] = 0.05
@@ -67,15 +67,7 @@ def build_matrix_a(current_model):
     current_model.A["temperature_obs"]["T5", "UncomfortableRight"] = 0.40
 
     # light_obs define
-    # Assumption:
-    # - L0: too dark
-    # - L1: dim / low light
-    # - L2: moderate light
-    # - L3: bright light
-    #
-    # For Uncomfortable, extreme lighting conditions are more likely.
-    # For Neutral, middle lighting levels are more likely.
-    # For Comfortable, moderate / suitable lighting is more likely.
+
     current_model.A["light_obs"]["L0", "UncomfortableLeft"] = 0.25
     current_model.A["light_obs"]["L1", "UncomfortableLeft"] = 0.20
     current_model.A["light_obs"]["L2", "UncomfortableLeft"] = 0.15
@@ -100,8 +92,8 @@ def build_matrix_a(current_model):
     current_model.A["light_obs"]["L0", "NeutralRight"] = 0.10
     current_model.A["light_obs"]["L1", "NeutralRight"] = 0.20
     current_model.A["light_obs"]["L2", "NeutralRight"] = 0.20
-    current_model.A["light_obs"]["L3", "NeutralRight"] = 0.25
-    current_model.A["light_obs"]["L4", "NeutralRight"] = 0.15
+    current_model.A["light_obs"]["L3", "NeutralRight"] = 0.15
+    current_model.A["light_obs"]["L4", "NeutralRight"] = 0.25
     current_model.A["light_obs"]["L5", "NeutralRight"] = 0.10
 
     current_model.A["light_obs"]["L0", "UncomfortableRight"] = 0.10
@@ -115,115 +107,137 @@ def build_matrix_a(current_model):
 def build_matrix_b(current_model):
     # fill in the transition model (B) tensor
     # note that it's specified as ["to", "from", "action"]
-    # Hidden states: Uncomfortable, Neutral, Comfortable
-    # Agent actions: IL, DL, IT, DT, NA
+    # Hidden states: "UncomfortableLeft", "NeutralLeft", "Comfortable", "NeutralRight", "UncomfortableRight"
+    # Agent actions: IT, DT, NA
     #
     # Assumption:
     # Each action has a different random transition distribution.
     # For each [from_state, action], probabilities over to_state sum to 1.0.
 
     # =========================================================
-    # IL: Increase Light
-    # =========================================================
-
-    # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "IL"] = 0.50
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "IL"] = 0.45
-    current_model.B["comfort"]["Comfortable", "Uncomfortable", "IL"] = 0.05
-
-    # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "IL"] = 0.35
-    current_model.B["comfort"]["Neutral", "Neutral", "IL"] = 0.50
-    current_model.B["comfort"]["Comfortable", "Neutral", "IL"] = 0.15
-
-    # From Comfortable
-    current_model.B["comfort"]["Uncomfortable", "Comfortable", "IL"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "IL"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Comfortable", "IL"] = 0.55
-
-    # =========================================================
-    # DL: Decrease Light
-    # =========================================================
-
-    # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "DL"] = 0.55
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "DL"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Uncomfortable", "DL"] = 0.05
-
-    # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "DL"] = 0.25
-    current_model.B["comfort"]["Neutral", "Neutral", "DL"] = 0.50
-    current_model.B["comfort"]["Comfortable", "Neutral", "DL"] = 0.25
-
-    # From Comfortable
-    current_model.B["comfort"]["Uncomfortable", "Comfortable", "DL"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "DL"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Comfortable", "DL"] = 0.55
-
-    # =========================================================
     # IT: Increase Temperature
     # =========================================================
 
-    # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "IT"] = 0.60
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "IT"] = 0.35
-    current_model.B["comfort"]["Comfortable", "Uncomfortable", "IT"] = 0.05
+    # From UncomfortableLeft
+    current_model.B["comfort"]["UncomfortableLeft", "UncomfortableLeft", "IT"] = 0.05
+    current_model.B["comfort"]["NeutralLeft", "UncomfortableLeft", "IT"] = 0.55
+    current_model.B["comfort"]["Comfortable", "UncomfortableLeft", "IT"] = 0.20
+    current_model.B["comfort"]["NeutralRight", "UncomfortableLeft", "IT"] = 0.15
+    current_model.B["comfort"]["UncomfortableRight", "UncomfortableLeft", "IT"] = 0.05
 
-    # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "IT"] = 0.45
-    current_model.B["comfort"]["Neutral", "Neutral", "IT"] = 0.45
-    current_model.B["comfort"]["Comfortable", "Neutral", "IT"] = 0.10
+    # From NeutralLeft
+    current_model.B["comfort"]["UncomfortableLeft", "NeutralLeft", "IT"] = 0.10
+    current_model.B["comfort"]["NeutralLeft", "NeutralLeft", "IT"] = 0.25
+    current_model.B["comfort"]["Comfortable", "NeutralLeft", "IT"] = 0.45
+    current_model.B["comfort"]["NeutralRight", "NeutralLeft", "IT"] = 0.15
+    current_model.B["comfort"]["UncomfortableRight", "NeutralLeft", "IT"] = 0.05
 
     # From Comfortable
-    current_model.B["comfort"]["Uncomfortable", "Comfortable", "IT"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "IT"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Comfortable", "IT"] = 0.55
+    current_model.B["comfort"]["UncomfortableLeft", "Comfortable", "IT"] = 0.10
+    current_model.B["comfort"]["NeutralLeft", "Comfortable", "IT"] = 0.10
+    current_model.B["comfort"]["Comfortable", "Comfortable", "IT"] = 0.20
+    current_model.B["comfort"]["NeutralRight", "Comfortable", "IT"] = 0.50
+    current_model.B["comfort"]["UncomfortableRight", "Comfortable", "IT"] = 0.10
+
+    # From NeutralRight
+    current_model.B["comfort"]["UncomfortableLeft", "NeutralRight", "IT"] = 0.00
+    current_model.B["comfort"]["NeutralLeft", "NeutralRight", "IT"] = 0.05
+    current_model.B["comfort"]["Comfortable", "NeutralRight", "IT"] = 0.10
+    current_model.B["comfort"]["NeutralRight", "NeutralRight", "IT"] = 0.25
+    current_model.B["comfort"]["UncomfortableRight", "NeutralRight", "IT"] = 0.60
+
+    # From UncomfortableRight
+    current_model.B["comfort"]["UncomfortableLeft", "UncomfortableRight", "IT"] = 0.00
+    current_model.B["comfort"]["NeutralLeft", "UncomfortableRight", "IT"] = 0.05
+    current_model.B["comfort"]["Comfortable", "UncomfortableRight", "IT"] = 0.10
+    current_model.B["comfort"]["NeutralRight", "UncomfortableRight", "IT"] = 0.15
+    current_model.B["comfort"]["UncomfortableRight", "UncomfortableRight", "IT"] = 0.70
 
     # =========================================================
     # DT: Decrease Temperature
     # =========================================================
 
-    # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "DT"] = 0.30
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "DT"] = 0.65
-    current_model.B["comfort"]["Comfortable", "Uncomfortable", "DT"] = 0.05
+    # From UncomfortableLeft
+    current_model.B["comfort"]["UncomfortableLeft", "UncomfortableLeft", "DT"] = 0.70
+    current_model.B["comfort"]["NeutralLeft", "UncomfortableLeft", "DT"] = 0.15
+    current_model.B["comfort"]["Comfortable", "UncomfortableLeft", "DT"] = 0.10
+    current_model.B["comfort"]["NeutralRight", "UncomfortableLeft", "DT"] = 0.05
+    current_model.B["comfort"]["UncomfortableRight", "UncomfortableLeft", "DT"] = 0.00
 
-    # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "DT"] = 0.15
-    current_model.B["comfort"]["Neutral", "Neutral", "DT"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Neutral", "DT"] = 0.45
+    # From NeutralLeft
+    current_model.B["comfort"]["UncomfortableLeft", "NeutralLeft", "DT"] = 0.50
+    current_model.B["comfort"]["NeutralLeft", "NeutralLeft", "DT"] = 0.20
+    current_model.B["comfort"]["Comfortable", "NeutralLeft", "DT"] = 0.15
+    current_model.B["comfort"]["NeutralRight", "NeutralLeft", "DT"] = 0.10
+    current_model.B["comfort"]["UncomfortableRight", "NeutralLeft", "DT"] = 0.05
 
     # From Comfortable
-    current_model.B["comfort"]["Uncomfortable", "Comfortable", "DT"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "DT"] = 0.45
-    current_model.B["comfort"]["Comfortable", "Comfortable", "DT"] = 0.50
+    current_model.B["comfort"]["UncomfortableLeft", "Comfortable", "DT"] = 0.10
+    current_model.B["comfort"]["NeutralLeft", "Comfortable", "DT"] = 0.45
+    current_model.B["comfort"]["Comfortable", "Comfortable", "DT"] = 0.20
+    current_model.B["comfort"]["NeutralRight", "Comfortable", "DT"] = 0.15
+    current_model.B["comfort"]["UncomfortableRight", "Comfortable", "DT"] = 0.10
+
+    # From NeutralRight
+    current_model.B["comfort"]["UncomfortableLeft", "NeutralRight", "DT"] = 0.10
+    current_model.B["comfort"]["NeutralLeft", "NeutralRight", "DT"] = 0.15
+    current_model.B["comfort"]["Comfortable", "NeutralRight", "DT"] = 0.45
+    current_model.B["comfort"]["NeutralRight", "NeutralRight", "DT"] = 0.25
+    current_model.B["comfort"]["UncomfortableRight", "NeutralRight", "DT"] = 0.05
+
+    # From UncomfortableRight
+    current_model.B["comfort"]["UncomfortableLeft", "UncomfortableRight", "DT"] = 0.10
+    current_model.B["comfort"]["NeutralLeft", "UncomfortableRight", "DT"] = 0.10
+    current_model.B["comfort"]["Comfortable", "UncomfortableRight", "DT"] = 0.10
+    current_model.B["comfort"]["NeutralRight", "UncomfortableRight", "DT"] = 0.45
+    current_model.B["comfort"]["UncomfortableRight", "UncomfortableRight", "DT"] = 0.25
 
     # =========================================================
     # NA: No Action
     # =========================================================
 
-    # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "NA"] = 0.90
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "NA"] = 0.05
-    current_model.B["comfort"]["Comfortable", "Uncomfortable", "NA"] = 0.05
+    # From UncomfortableLeft
+    current_model.B["comfort"]["UncomfortableLeft", "UncomfortableLeft", "NA"] = 0.90
+    current_model.B["comfort"]["NeutralLeft", "UncomfortableLeft", "NA"] = 0.04
+    current_model.B["comfort"]["Comfortable", "UncomfortableLeft", "NA"] = 0.02
+    current_model.B["comfort"]["NeutralRight", "UncomfortableLeft", "NA"] = 0.02
+    current_model.B["comfort"]["UncomfortableRight", "UncomfortableLeft", "NA"] = 0.02
 
-    # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "NA"] = 0.05
-    current_model.B["comfort"]["Neutral", "Neutral", "NA"] = 0.90
-    current_model.B["comfort"]["Comfortable", "Neutral", "NA"] = 0.05
+    # From NeutralLeft
+    current_model.B["comfort"]["UncomfortableLeft", "NeutralLeft", "NA"] = 0.04
+    current_model.B["comfort"]["NeutralLeft", "NeutralLeft", "NA"] = 0.90
+    current_model.B["comfort"]["Comfortable", "NeutralLeft", "NA"] = 0.04
+    current_model.B["comfort"]["NeutralRight", "NeutralLeft", "NA"] = 0.01
+    current_model.B["comfort"]["UncomfortableRight", "NeutralLeft", "NA"] = 0.01
 
     # From Comfortable
-    current_model.B["comfort"]["Uncomfortable", "Comfortable", "NA"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "NA"] = 0.05
+    current_model.B["comfort"]["UncomfortableLeft", "Comfortable", "NA"] = 0.01
+    current_model.B["comfort"]["NeutralLeft", "Comfortable", "NA"] = 0.04
     current_model.B["comfort"]["Comfortable", "Comfortable", "NA"] = 0.90
+    current_model.B["comfort"]["NeutralRight", "Comfortable", "NA"] = 0.04
+    current_model.B["comfort"]["UncomfortableRight", "Comfortable", "NA"] = 0.01
+
+    # From NeutralRight
+    current_model.B["comfort"]["UncomfortableLeft", "NeutralRight", "NA"] = 0.01
+    current_model.B["comfort"]["NeutralLeft", "NeutralRight", "NA"] = 0.01
+    current_model.B["comfort"]["Comfortable", "NeutralRight", "NA"] = 0.04
+    current_model.B["comfort"]["NeutralRight", "NeutralRight", "NA"] = 0.90
+    current_model.B["comfort"]["UncomfortableRight", "NeutralRight", "NA"] = 0.04
+
+    # From UncomfortableRight
+    current_model.B["comfort"]["UncomfortableLeft", "UncomfortableRight", "NA"] = 0.02
+    current_model.B["comfort"]["NeutralLeft", "UncomfortableRight", "NA"] = 0.02
+    current_model.B["comfort"]["Comfortable", "UncomfortableRight", "NA"] = 0.02
+    current_model.B["comfort"]["NeutralRight", "UncomfortableRight", "NA"] = 0.04
+    current_model.B["comfort"]["UncomfortableRight", "UncomfortableRight", "NA"] = 0.90
 
 
 def build_matrix_c(current_model):
     # Temperature preferences
     current_model.C["temperature_obs"]["T0"] = -4.0
     current_model.C["temperature_obs"]["T1"] = 2.0
-    current_model.C["temperature_obs"]["T2"] = 4.0
-    current_model.C["temperature_obs"]["T3"] = 2.0
+    current_model.C["temperature_obs"]["T2"] = 2.0
+    current_model.C["temperature_obs"]["T3"] = 4.0
     current_model.C["temperature_obs"]["T4"] = 1.0
     current_model.C["temperature_obs"]["T5"] = -4.0
 
@@ -246,10 +260,11 @@ def build_matrix_d(current_model):
     #
     # The agent initially believes that the user/environment is
     # most likely in the Uncomfortable state.
-    current_model.D["comfort"]["Uncomfortable"] = 0.65
-    current_model.D["comfort"]["Neutral"] = 0.30
-    current_model.D["comfort"]["Comfortable"] = 0.05
-
+    current_model.D["comfort"]["UncomfortableLeft"] = 0.05
+    current_model.D["comfort"]["NeutralLeft"] = 0.10
+    current_model.D["comfort"]["Comfortable"] = 0.65
+    current_model.D["comfort"]["NeutralRight"] = 0.15
+    current_model.D["comfort"]["UncomfortableRight"] = 0.05
     # ======
 
 
@@ -268,20 +283,31 @@ def add_slice_b_by_action(action_id):
     return current_model
 
 
-def calculate_average_distribution(current_model, state_to, state_from):
-    lst_item = current_model.B["comfort"][state_to, state_from, :]
-    filtered_list = [value for value in lst_item if value > 0]
-    total_item = 0.0
-    for item in filtered_list:
-        total_item = total_item + item
-    average = total_item / len(filtered_list)
-    return round(average, 2)
+def calculate_average_distribution(
+    current_model,
+    state_to,
+    state_from,
+):
+    source_actions = ["IT", "DT", "NA"]
+
+    return sum(
+        float(
+            current_model.B["comfort"][
+                state_to,
+                state_from,
+                action,
+            ]
+        )
+        for action in source_actions
+    ) / len(source_actions)
 
 
 def extend_action_space(action_id):
     append_action(action_id)
     add_slice_b_by_action(action_id)
+    print("Done_1")
     agent_model = update_matrix_agent()
+    print("Done_2")
     slice_index = 0
     for action in lst_action_extended:
         agent_model.B["comfort"][:, :, action] = lst_slice_b[slice_index]
@@ -530,7 +556,7 @@ def run_agent(
         q_pi=q_pi,
         rng_key=rng_key,
         agent_actions=agent_actions,
-        k=4,
+        k=3,
         temperature=0.1,
     )
 
@@ -584,47 +610,23 @@ def run_agent(
 
     print("\n===== PREDICTED PRIOR AFTER ACTION =====")
     for i, state in enumerate(comforts):
-        print(f"Prior q(s_t+1={state}) before new observation: {float(qs_prior_next[i]):.4f}")
-
-    # =========================================================
-    # Update q(s) via VFE using new observation
-    # =========================================================
-
-    next_temperature_observation = jnp.full(
-        (agent.batch_size, 1),
-        next_temperatures_index
-    )
-
-    next_light_observation = jnp.full(
-        (agent.batch_size, 1),
-        next_lights_index
-    )
-
-    next_observations = [
-        next_temperature_observation,
-        next_light_observation,
-    ]
-
-    # infer_states expects qs_init with batch and time dimensions.
-    # qs_prior_next has shape: (num_states,)
-    # Convert to: (batch_size, time_dim, num_states) = (1, 1, 3)
-    qs_init_next = [
-        jnp.expand_dims(
-            jnp.expand_dims(qs_prior_next, axis=0),
-            axis=1
+        print(
+            f"Prior q(s_t+1={state}) before new observation: "
+            f"{float(qs_prior_next[i]):.4f}"
         )
-    ]
 
-    qs_next = agent.infer_states(next_observations, qs_init_next)
-
-    next_comfort_belief = jnp.squeeze(qs_next[0], axis=(0, 1, 2))
-
-    print("\n===== UPDATED POSTERIOR q(s_t+1) VIA VFE =====")
-    for i, state in enumerate(comforts):
-        print(f"{state}: {float(next_comfort_belief[i]):.4f}")
-
-    next_comfort_idx = int(jnp.argmax(next_comfort_belief))
-    print(f"\nMost likely next comfort state: {comforts[next_comfort_idx]}")
+    # =========================================================
+    # Do not infer the next observation here.
+    #
+    # qs_prior_next is the predicted prior for the next timestep:
+    #
+    # q^-(s_t+1) = B[a_t] @ q(s_t)
+    #
+    # It will be passed into the next run_agent() call. At that
+    # point, the new observation will be processed exactly once:
+    #
+    # q(s_t+1) ∝ P(o_t+1 | s_t+1) * q^-(s_t+1)
+    # =========================================================
 
     return {
         "current_temperature": temperature_observed,
@@ -633,7 +635,6 @@ def run_agent(
         "next_temperature": label_next_temperature,
         "next_light": label_next_light,
         "predicted_prior_next": qs_prior_next,
-        "next_belief": next_comfort_belief,
         "chosen_action": chosen_action,
         "q_pi": q_pi,
         "G": G,

@@ -1,8 +1,6 @@
 comforts = ["UncomfortableLeft", "NeutralLeft", "Comfortable", "NeutralRight", "UncomfortableRight"]  # hidden state
 
-agent_actions = ["IL", "DL", "IT", "DT", "NA"]  # Agent action
-agent_actions_2 = ["IL", "DL", "IT", "DT", "NA", "ACN2"]  # Agent action
-user_actions = ["uIL", "uDL", "uIT", "uDT", "uNA"]  # User feedback action
+agent_actions = ["IT", "DT", "NA"]  # Agent action
 
 temperatures = ["T0", "T1", "T2", "T3", "T4", "T5"]  # Observe Temperature
 lights = ["L0", "L1", "L2", "L3", "L4", "L5"]  # Observe Light
@@ -78,5 +76,4 @@ def update_model_description():
 
 def append_action(action_id):
     agent_actions.append(action_id)
-    user_actions.append("u" + action_id)
     print("agent_actions: " + str(agent_actions))

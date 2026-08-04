@@ -230,10 +230,11 @@ def build_matrix_d(current_model):
     #
     # The agent initially believes that the user/environment is
     # most likely in the Uncomfortable state.
-    current_model.D["comfort"]["Uncomfortable"] = 0.30
-    current_model.D["comfort"]["Neutral"] = 0.65
-    current_model.D["comfort"]["Comfortable"] = 0.05
-
+    current_model.D["comfort"]["UncomfortableLeft"] = 0.05
+    current_model.D["comfort"]["NeutralLeft"] = 0.10
+    current_model.D["comfort"]["Comfortable"] = 0.65
+    current_model.D["comfort"]["NeutralRight"] = 0.15
+    current_model.D["comfort"]["UncomfortableRight"] = 0.05
     # ======
 
 
