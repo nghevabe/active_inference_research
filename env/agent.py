@@ -1,8 +1,7 @@
 
 from pymdp.distribution import compile_model
 from env.elements import update_model_description, lst_action_extended, lst_slice_b, \
-    lst_pairing_state, append_action
-
+    lst_pairing_state, append_action, base_actions
 
 import jax
 from pymdp.agent import Agent
@@ -283,23 +282,33 @@ def add_slice_b_by_action(action_id):
     return current_model
 
 
-def calculate_average_distribution(
-    current_model,
-    state_to,
-    state_from,
-):
-    source_actions = ["IT", "DT", "NA"]
+def calculate_average_distribution(current_model, state_to, state_from):
+    lst_item = current_model.B["comfort"][state_to, state_from, :]
+    filtered_list = lst_item[0:len(base_actions)]
+    total_item = 0.0
+    for item in filtered_list:
+        total_item = total_item + item
+    average = total_item / len(filtered_list)
+    return average
 
-    return sum(
-        float(
-            current_model.B["comfort"][
-                state_to,
-                state_from,
-                action,
-            ]
-        )
-        for action in source_actions
-    ) / len(source_actions)
+
+# def calculate_average_distribution(
+#     current_model,
+#     state_to,
+#     state_from,
+# ):
+#     source_actions = ["IT", "DT", "NA"]
+#
+#     return sum(
+#         float(
+#             current_model.B["comfort"][
+#                 state_to,
+#                 state_from,
+#                 action,
+#             ]
+#         )
+#         for action in source_actions
+#     ) / len(source_actions)
 
 
 def extend_action_space(action_id):

@@ -1,6 +1,7 @@
 comforts = ["UncomfortableLeft", "NeutralLeft", "Comfortable", "NeutralRight", "UncomfortableRight"]  # hidden state
 
-agent_actions = ["IT", "DT", "NA"]  # Agent action
+base_actions = ["IT", "DT", "NA"]  # Base action
+agent_actions = base_actions + []  # Agent action
 
 temperatures = ["T0", "T1", "T2", "T3", "T4", "T5"]  # Observe Temperature
 lights = ["L0", "L1", "L2", "L3", "L4", "L5"]  # Observe Light

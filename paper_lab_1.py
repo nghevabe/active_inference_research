@@ -22,3 +22,7 @@ run_agent(agent_model)
 
 # [0.24 0.45 0.31] => [0.17 0.38 0.45]
 # [0.24 0.45 0.31] => [0.14 0.35 0.50]
+
+#                      T0               T1, T2           T3           T4, T5               T6
+# comforts = ["UncomfortableLeft", "NeutralLeft", "Comfortable", "NeutralRight", "UncomfortableRight"]  # hidden state
+# temperatures = ["T0", "T1", "T2", "T3", "T4", "T5", "T6"]  # Observe Temperature

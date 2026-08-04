@@ -3,18 +3,12 @@ from env.agent import run_agent, extend_action_space, get_ates_positive_point, a
 import jax
 import time
 
-from env.elements import comforts, agent_actions
-
 # =========================================================
 # Initialize agent model
 # =========================================================
 
 agent_model = extend_action_space("IL")
 agent_model = extend_action_space("DL")
-
-# agent_model = update_matrix_agent()
-
-print(agent_model)
 
 
 # =========================================================
