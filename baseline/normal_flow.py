@@ -8,15 +8,15 @@ from utils.util import build_noisy_agent_b_from_env
 # Initialize agent model
 # =========================================================
 
-agent_model = extend_action_space("IL")
-agent_model = extend_action_space("DL")
+agent_model = extend_action_space("AIT")
+agent_model = extend_action_space("ADT")
 
 
 # =========================================================
 # Initial observation
 # =========================================================
 
-temperature_observed = "T4"
+temperature_observed = "T1"
 
 # =========================================================
 # Initial recurrent variables
@@ -31,7 +31,7 @@ history = []
 # Agent-environment interaction loop
 # =========================================================
 
-for t in range(10):
+for t in range(5):
     print(
         f"\n================ AGENT LOOP STEP {t + 1} ================"
     )

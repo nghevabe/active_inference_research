@@ -272,20 +272,25 @@ def environment_step(action_input, current_temperatures):
     action: string, e.g. "IL"
     """
 
+    #               T0       T1, T2       T3       T4, T5       T6
+    # comforts = ["Warm", "LittleCool", "Cool", "LittleCold", "Cold"]  # hidden state
+    # temperatures = ["T0", "T1", "T2", "T3", "T4", "T5", "T6"]  # Observe Temperature
+
     next_temperatures_index = temperatures.index(current_temperatures)
 
-    if action_input == "IT":
+    if action_input == "FIT" and next_temperatures_index <= 2:
         next_temperatures_index = next_temperatures_index + 1
-    if action_input == "DT":
+    if action_input == "FDT" and 0 < next_temperatures_index <= 2:
         next_temperatures_index = next_temperatures_index - 1
+
     if action_input == "NA":
         next_temperatures_index = next_temperatures_index
 
-    if next_temperatures_index < 0:
-        next_temperatures_index = 0
-
-    if next_temperatures_index > len(temperatures)-1:
-        next_temperatures_index = len(temperatures)-1
+    # New Action
+    if action_input == "AIT" and 2 < next_temperatures_index <= 4:
+        next_temperatures_index = next_temperatures_index + 1
+    if action_input == "ADT" and next_temperatures_index >= 2:
+        next_temperatures_index = next_temperatures_index - 1
 
     label_next_temperature = temperatures[next_temperatures_index]
 
