@@ -16,10 +16,8 @@ agent_model = extend_action_space("DL")
 # =========================================================
 
 # temperature_observed = "T4"
-# light_observed = "L1"
 
 temperature_observed = "T5"
-light_observed = "L1"
 
 # =========================================================
 # Initial recurrent variables
@@ -41,7 +39,6 @@ for t in range(10):
     result = run_agent(
         model_agent=agent_model,
         temperature_observed=temperature_observed,
-        light_observed=light_observed,
         qs_prior_input=qs_prior,
         rng_key=rng_key,
     )
@@ -51,16 +48,14 @@ for t in range(10):
     print("\n===== STEP SUMMARY =====")
     print(
         "Current observation:",
-        result["current_temperature"],
-        result["current_light"],
+        result["current_temperature"]
     )
 
     print("Chosen action:", result["chosen_action"])
 
     print(
         "Next observation:",
-        result["next_temperature"],
-        result["next_light"],
+        result["next_temperature"]
     )
 
     print("Current belief:", result["current_belief"])
@@ -70,11 +65,10 @@ for t in range(10):
     qs_prior = result["predicted_prior_next"]
 
     temperature_observed = result["next_temperature"]
-    light_observed = result["next_light"]
 
     rng_key = result["rng_key"]
 
     # each loop ask for input ates_action_id_input
-    # ates_point = get_ates_positive_point(ates_action_id_input, "Neutral", "Comfortable", agent_model, 70, 30)
-    # ates_dif = ates_positive_update(ates_action_id_input, "Neutral", "Comfortable", agent_model, 70, 30)
-    # new_model = ates_update_matrix_positive(ates_action_id_input, "Neutral", "Comfortable", agent_model, ates_dif, ates_point)
+    # ates_point = get_ates_positive_point(ates_action_id_input, "Neutral", "Cool", agent_model, 70, 30)
+    # ates_dif = ates_positive_update(ates_action_id_input, "Neutral", "Cool", agent_model, 70, 30)
+    # new_model = ates_update_matrix_positive(ates_action_id_input, "Neutral", "Cool", agent_model, ates_dif, ates_point)

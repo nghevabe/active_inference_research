@@ -24,7 +24,6 @@ agent_model = build_noisy_agent_b_from_env(
 # =========================================================
 
 temperature_observed = "T2"
-light_observed = "L1"
 
 # =========================================================
 # Initial recurrent variables
@@ -45,7 +44,6 @@ for t in range(5):
     result = run_agent(
         model_agent=agent_model,
         temperature_observed=temperature_observed,
-        light_observed=light_observed,
         qs_prior_input=qs_prior,
         rng_key=rng_key,
     )
@@ -55,16 +53,14 @@ for t in range(5):
     print("\n===== STEP SUMMARY =====")
     print(
         "Current observation:",
-        result["current_temperature"],
-        result["current_light"],
+        result["current_temperature"]
     )
 
     print("Chosen action:", result["chosen_action"])
 
     print(
         "Next observation:",
-        result["next_temperature"],
-        result["next_light"],
+        result["next_temperature"]
     )
 
     print("Current belief:", result["current_belief"])
@@ -93,7 +89,6 @@ for t in range(5):
     # =====================================================
 
     temperature_observed = result["next_temperature"]
-    light_observed = result["next_light"]
 
     # =====================================================
     # Important:

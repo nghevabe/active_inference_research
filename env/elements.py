@@ -1,17 +1,16 @@
-comforts = ["UncomfortableLeft", "NeutralLeft", "Comfortable", "NeutralRight", "UncomfortableRight"]  # hidden state
+comforts = ["Warm", "LittleCool", "Cool", "LittleCold", "Cold"]  # hidden state
 
-base_actions = ["IT", "DT", "NA"]  # Base action
+base_actions = ["FIT", "FDT", "NA"]  # Base action
 agent_actions = base_actions + []  # Agent action
 
-temperatures = ["T0", "T1", "T2", "T3", "T4", "T5"]  # Observe Temperature
-lights = ["L0", "L1", "L2", "L3", "L4", "L5"]  # Observe Light
+temperatures = ["T0", "T1", "T2", "T3", "T4", "T5", "T6"]  # Observe Temperature
 
 lst_pairing_state = [
-    "UncomfortableLeft_UncomfortableLeft", "UncomfortableLeft_NeutralLeft", "UncomfortableLeft_Comfortable", "UncomfortableLeft_NeutralRight", "UncomfortableLeft_UncomfortableRight",
-    "NeutralLeft_UncomfortableLeft", "NeutralLeft_NeutralLeft", "NeutralLeft_Comfortable", "NeutralLeft_NeutralRight", "NeutralLeft_UncomfortableRight",
-    "Comfortable_UncomfortableLeft", "Comfortable_NeutralLeft", "Comfortable_Comfortable", "Comfortable_NeutralRight", "Comfortable_UncomfortableRight",
-    "NeutralRight_UncomfortableLeft", "NeutralRight_NeutralLeft", "NeutralRight_Comfortable", "NeutralRight_NeutralRight", "NeutralRight_UncomfortableRight",
-    "UncomfortableRight_UncomfortableLeft", "UncomfortableRight_NeutralLeft", "UncomfortableRight_Comfortable", "UncomfortableRight_NeutralRight", "UncomfortableRight_UncomfortableRight"
+    "Warm_Warm", "Warm_LittleCool", "Warm_Cool", "Warm_LittleCold", "Warm_Cold",
+    "LittleCool_Warm", "LittleCool_LittleCool", "LittleCool_Cool", "LittleCool_LittleCold", "LittleCool_Cold",
+    "Cool_Warm", "Cool_LittleCool", "Cool_Cool", "Cool_LittleCold", "Cool_Cold",
+    "LittleCold_Warm", "LittleCold_LittleCool", "LittleCold_Cool", "LittleCold_LittleCold", "LittleCold_Cold",
+    "Cold_Warm", "Cold_LittleCool", "Cold_Cool", "Cold_LittleCold", "Cold_Cold"
 ]
 
 
@@ -22,10 +21,6 @@ model_description = {
     "observations": {
         "temperature_obs": {
             "elements": temperatures,
-            "depends_on": ["comfort"],
-        },
-        "light_obs": {
-            "elements": lights,
             "depends_on": ["comfort"],
         },
     },
@@ -51,10 +46,6 @@ def update_model_description():
         "observations": {
             "temperature_obs": {
                 "elements": temperatures,
-                "depends_on": ["comfort"],
-            },
-            "light_obs": {
-                "elements": lights,
                 "depends_on": ["comfort"],
             },
         },

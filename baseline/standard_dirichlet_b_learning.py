@@ -8,7 +8,7 @@ import jax.tree_util as jtu
 from env.agent import extend_action_space
 from env.elements import comforts, agent_actions
 from env.environtment import \
-    temperatures, lights, environment_step, \
+    temperatures, environment_step, \
     predict_next_state_belief
 from utils.util import extract_distribution_array_and_attr, sample_top_k_with_temperature, build_noisy_agent_b_from_env
 
@@ -16,7 +16,6 @@ from utils.util import extract_distribution_array_and_attr, sample_top_k_with_te
 def run_agent_standard_dirichlet_b_learning(
         model_agent,
         temperature_observed,
-        light_observed,
         qs_prior_input=None,
         alpha_B_input=None,
         rng_key=None,
@@ -31,7 +30,6 @@ def run_agent_standard_dirichlet_b_learning(
     agent = Agent(**model_agent, gamma=gamma, policy_len=1)
 
     temperature_idx = temperatures.index(temperature_observed)
-    light_idx = lights.index(light_observed)
 
     # Each observation must have shape: (batch_size, time_dim)
     # agent.batch_size defaults to 1.
@@ -40,15 +38,9 @@ def run_agent_standard_dirichlet_b_learning(
         temperature_idx
     )
 
-    light_observation = jnp.full(
-        (agent.batch_size, 1),
-        light_idx
-    )
-
     # Multi-modality observation list
     observations = [
         temperature_observation,
-        light_observation,
     ]
 
     if qs_prior_input is None:
@@ -76,7 +68,6 @@ def run_agent_standard_dirichlet_b_learning(
 
     print("\n===== INITIAL OBSERVATION =====")
     print(f"Observed temperature: {temperature_observed}")
-    print(f"Observed light:       {light_observed}")
 
     print("\n===== DEBUG SHAPE =====")
     print("qs[0].shape:", qs[0].shape)
@@ -189,16 +180,14 @@ def run_agent_standard_dirichlet_b_learning(
     print(f"Current infer state used by simulator: {current_infer_state}")
     print(f"Executed action a_t: {chosen_action}")
 
-    (label_next_temperature, label_next_light, next_temperatures_index, next_lights_index) = environment_step(
+    (label_next_temperature, next_temperatures_index) = environment_step(
         action_input=chosen_action,
-        current_temperatures=temperature_observed,
-        current_lights=light_observed,
+        current_temperatures=temperature_observed
     )
 
     print("\n===== ENVIRONMENT RESULT =====")
     # print(f"Next true hidden state s_t+1: {next_true_state}")
     print(f"New temperature observation: {label_next_temperature}")
-    print(f"New light observation:       {label_next_light}")
 
     # =========================================================
     # Predict next prior q(s_{t+1}) using B and selected action
@@ -224,14 +213,8 @@ def run_agent_standard_dirichlet_b_learning(
         next_temperatures_index
     )
 
-    next_light_observation = jnp.full(
-        (agent.batch_size, 1),
-        next_lights_index
-    )
-
     next_observations = [
-        next_temperature_observation,
-        next_light_observation,
+        next_temperature_observation
     ]
 
     # infer_states expects qs_init with batch and time dimensions.
@@ -280,10 +263,8 @@ def run_agent_standard_dirichlet_b_learning(
 
     return {
         "current_temperature": temperature_observed,
-        "current_light": light_observed,
         "current_belief": comfort_belief,
         "next_temperature": label_next_temperature,
-        "next_light": label_next_light,
         "predicted_prior_next": qs_prior_next,
         "next_belief": next_comfort_belief,
         "chosen_action": chosen_action,
@@ -448,7 +429,6 @@ agent_model = extend_action_space("ACN2")
 # =========================================================
 
 temperature_observed = "T4"
-light_observed = "L3"
 
 
 # =========================================================
@@ -472,7 +452,6 @@ for t in range(10):
     result = run_agent_standard_dirichlet_b_learning(
         model_agent=agent_model,
         temperature_observed=temperature_observed,
-        light_observed=light_observed,
         qs_prior_input=qs_prior,
         alpha_B_input=alpha_B,
         rng_key=rng_key,
@@ -483,16 +462,14 @@ for t in range(10):
     print("\n===== STEP SUMMARY =====")
     print(
         "Current observation:",
-        result["current_temperature"],
-        result["current_light"],
+        result["current_temperature"]
     )
 
     print("Chosen action:", result["chosen_action"])
 
     print(
         "Next observation:",
-        result["next_temperature"],
-        result["next_light"],
+        result["next_temperature"]
     )
 
     print("Current belief:", result["current_belief"])
@@ -528,7 +505,6 @@ for t in range(10):
     # =====================================================
 
     temperature_observed = result["next_temperature"]
-    light_observed = result["next_light"]
 
     # =====================================================
     # Important:

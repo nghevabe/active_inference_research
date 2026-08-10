@@ -10,7 +10,7 @@ from jax import numpy as jnp
 import jax.tree_util as jtu
 from env.elements import comforts, agent_actions
 from env.environtment import \
-    temperatures, lights, environment_step, \
+    temperatures, environment_step, \
     predict_next_state_belief
 
 
@@ -82,7 +82,7 @@ def build_noisy_agent_b_from_env(
     state_names = [
         "Uncomfortable",
         "Neutral",
-        "Comfortable",
+        "Cool",
     ]
 
     action_names = [
