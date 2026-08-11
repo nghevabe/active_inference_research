@@ -87,60 +87,60 @@ def build_matrix_b(current_model):
 
     # From Warm
     current_model.B["comfort"]["Warm", "Warm", "FIT"] = 0.10
-    current_model.B["comfort"]["LittleCool", "Warm", "FIT"] = 0.90
-    current_model.B["comfort"]["Cool", "Warm", "FIT"] = 0.00
+    current_model.B["comfort"]["LittleCool", "Warm", "FIT"] = 0.85
+    current_model.B["comfort"]["Cool", "Warm", "FIT"] = 0.05
     current_model.B["comfort"]["LittleCold", "Warm", "FIT"] = 0.00
     current_model.B["comfort"]["Cold", "Warm", "FIT"] = 0.00
 
     # From LittleCool
-    current_model.B["comfort"]["Warm", "LittleCool", "FIT"] = 0.00
-    current_model.B["comfort"]["LittleCool", "LittleCool", "FIT"] = 0.50
-    current_model.B["comfort"]["Cool", "LittleCool", "FIT"] = 0.50
-    current_model.B["comfort"]["LittleCold", "LittleCool", "FIT"] = 0.00
+    current_model.B["comfort"]["Warm", "LittleCool", "FIT"] = 0.05
+    current_model.B["comfort"]["LittleCool", "LittleCool", "FIT"] = 0.45
+    current_model.B["comfort"]["Cool", "LittleCool", "FIT"] = 0.45
+    current_model.B["comfort"]["LittleCold", "LittleCool", "FIT"] = 0.05
     current_model.B["comfort"]["Cold", "LittleCool", "FIT"] = 0.00
 
     # From Cool
     current_model.B["comfort"]["Warm", "Cool", "FIT"] = 0.00
-    current_model.B["comfort"]["LittleCool", "Cool", "FIT"] = 0.00
-    current_model.B["comfort"]["Cool", "Cool", "FIT"] = 1.00
-    current_model.B["comfort"]["LittleCold", "Cool", "FIT"] = 0.00
-    current_model.B["comfort"]["Cold", "Cool", "FIT"] = 0.00
+    current_model.B["comfort"]["LittleCool", "Cool", "FIT"] = 0.05
+    current_model.B["comfort"]["Cool", "Cool", "FIT"] = 0.45
+    current_model.B["comfort"]["LittleCold", "Cool", "FIT"] = 0.45
+    current_model.B["comfort"]["Cold", "Cool", "FIT"] = 0.05
 
     # From LittleCold
     current_model.B["comfort"]["Warm", "LittleCold", "FIT"] = 0.00
-    current_model.B["comfort"]["LittleCool", "LittleCold", "FIT"] = 0.00
-    current_model.B["comfort"]["Cool", "LittleCold", "FIT"] = 0.00
-    current_model.B["comfort"]["LittleCold", "LittleCold", "FIT"] = 1.00
-    current_model.B["comfort"]["Cold", "LittleCold", "FIT"] = 0.00
+    current_model.B["comfort"]["LittleCool", "LittleCold", "FIT"] = 0.05
+    current_model.B["comfort"]["Cool", "LittleCold", "FIT"] = 0.05
+    current_model.B["comfort"]["LittleCold", "LittleCold", "FIT"] = 0.45
+    current_model.B["comfort"]["Cold", "LittleCold", "FIT"] = 0.45
 
     # From Cold
     current_model.B["comfort"]["Warm", "Cold", "FIT"] = 0.00
     current_model.B["comfort"]["LittleCool", "Cold", "FIT"] = 0.00
     current_model.B["comfort"]["Cool", "Cold", "FIT"] = 0.00
-    current_model.B["comfort"]["LittleCold", "Cold", "FIT"] = 0.00
-    current_model.B["comfort"]["Cold", "Cold", "FIT"] = 1.00
+    current_model.B["comfort"]["LittleCold", "Cold", "FIT"] = 0.05
+    current_model.B["comfort"]["Cold", "Cold", "FIT"] = 0.95
 
     # =========================================================
     # FDT: Fan Decrease Temperature
     # =========================================================
 
     # From Warm
-    current_model.B["comfort"]["Warm", "Warm", "FDT"] = 1.00
-    current_model.B["comfort"]["LittleCool", "Warm", "FDT"] = 0.00
-    current_model.B["comfort"]["Cool", "Warm", "FDT"] = 0.00
+    current_model.B["comfort"]["Warm", "Warm", "FDT"] = 0.90
+    current_model.B["comfort"]["LittleCool", "Warm", "FDT"] = 0.05
+    current_model.B["comfort"]["Cool", "Warm", "FDT"] = 0.05
     current_model.B["comfort"]["LittleCold", "Warm", "FDT"] = 0.00
     current_model.B["comfort"]["Cold", "Warm", "FDT"] = 0.00
 
     # From LittleCool
-    current_model.B["comfort"]["Warm", "LittleCool", "FDT"] = 0.50
-    current_model.B["comfort"]["LittleCool", "LittleCool", "FDT"] = 0.50
-    current_model.B["comfort"]["Cool", "LittleCool", "FDT"] = 0.00
-    current_model.B["comfort"]["LittleCold", "LittleCool", "FDT"] = 0.00
+    current_model.B["comfort"]["Warm", "LittleCool", "FDT"] = 0.45
+    current_model.B["comfort"]["LittleCool", "LittleCool", "FDT"] = 0.45
+    current_model.B["comfort"]["Cool", "LittleCool", "FDT"] = 0.05
+    current_model.B["comfort"]["LittleCold", "LittleCool", "FDT"] = 0.05
     current_model.B["comfort"]["Cold", "LittleCool", "FDT"] = 0.00
 
     # From Cool
-    current_model.B["comfort"]["Warm", "Cool", "FDT"] = 0.00
-    current_model.B["comfort"]["LittleCool", "Cool", "FDT"] = 0.95
+    current_model.B["comfort"]["Warm", "Cool", "FDT"] = 0.05
+    current_model.B["comfort"]["LittleCool", "Cool", "FDT"] = 0.90
     current_model.B["comfort"]["Cool", "Cool", "FDT"] = 0.05
     current_model.B["comfort"]["LittleCold", "Cool", "FDT"] = 0.00
     current_model.B["comfort"]["Cold", "Cool", "FDT"] = 0.00
@@ -148,16 +148,16 @@ def build_matrix_b(current_model):
     # From LittleCold
     current_model.B["comfort"]["Warm", "LittleCold", "FDT"] = 0.00
     current_model.B["comfort"]["LittleCool", "LittleCold", "FDT"] = 0.00
-    current_model.B["comfort"]["Cool", "LittleCold", "FDT"] = 0.00
-    current_model.B["comfort"]["LittleCold", "LittleCold", "FDT"] = 1.00
-    current_model.B["comfort"]["Cold", "LittleCold", "FDT"] = 0.00
+    current_model.B["comfort"]["Cool", "LittleCold", "FDT"] = 0.05
+    current_model.B["comfort"]["LittleCold", "LittleCold", "FDT"] = 0.90
+    current_model.B["comfort"]["Cold", "LittleCold", "FDT"] = 0.05
 
     # From Cold
     current_model.B["comfort"]["Warm", "Cold", "FDT"] = 0.00
     current_model.B["comfort"]["LittleCool", "Cold", "FDT"] = 0.00
     current_model.B["comfort"]["Cool", "Cold", "FDT"] = 0.00
-    current_model.B["comfort"]["LittleCold", "Cold", "FDT"] = 0.00
-    current_model.B["comfort"]["Cold", "Cold", "FDT"] = 1.00
+    current_model.B["comfort"]["LittleCold", "Cold", "FDT"] = 0.05
+    current_model.B["comfort"]["Cold", "Cold", "FDT"] = 0.95
 
     # =========================================================
     # NA: No Action
@@ -201,23 +201,23 @@ def build_matrix_b(current_model):
 
 def build_matrix_c(current_model):
     # Temperature preferences T3
-    current_model.C["temperature_obs"]["T0"] = -4.0
-    current_model.C["temperature_obs"]["T1"] = 2.0
-    current_model.C["temperature_obs"]["T2"] = 2.0
-    current_model.C["temperature_obs"]["T3"] = 4.0
-    current_model.C["temperature_obs"]["T4"] = 1.0
-    current_model.C["temperature_obs"]["T5"] = -4.0
-    current_model.C["temperature_obs"]["T6"] = -4.0
+    # current_model.C["temperature_obs"]["T0"] = -4.0
+    # current_model.C["temperature_obs"]["T1"] = 2.0
+    # current_model.C["temperature_obs"]["T2"] = 2.0
+    # current_model.C["temperature_obs"]["T3"] = 4.0
+    # current_model.C["temperature_obs"]["T4"] = 1.0
+    # current_model.C["temperature_obs"]["T5"] = -4.0
+    # current_model.C["temperature_obs"]["T6"] = -4.0
 
 
     # Temperature preferences for T6
-    # current_model.C["temperature_obs"]["T0"] = -4.0
-    # current_model.C["temperature_obs"]["T1"] = 1.0
-    # current_model.C["temperature_obs"]["T2"] = 2.0
-    # current_model.C["temperature_obs"]["T3"] = 1.0
-    # current_model.C["temperature_obs"]["T4"] = 1.0
-    # current_model.C["temperature_obs"]["T5"] = -4.0
-    # current_model.C["temperature_obs"]["T6"] = 4.0
+    current_model.C["temperature_obs"]["T0"] = -4.0
+    current_model.C["temperature_obs"]["T1"] = 1.0
+    current_model.C["temperature_obs"]["T2"] = 2.0
+    current_model.C["temperature_obs"]["T3"] = 1.0
+    current_model.C["temperature_obs"]["T4"] = 1.0
+    current_model.C["temperature_obs"]["T5"] = -4.0
+    current_model.C["temperature_obs"]["T6"] = 4.0
 
     return current_model
 

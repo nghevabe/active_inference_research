@@ -3,12 +3,14 @@ from env.agent import run_agent, extend_action_space, get_ates_positive_point, a
 import jax
 import time
 
+from env.elements import base_actions
+
 # =========================================================
 # Initialize agent model
 # =========================================================
 
-agent_model = extend_action_space("IL")
-agent_model = extend_action_space("DL")
+agent_model = extend_action_space("AIT")
+agent_model = extend_action_space("ADT")
 
 
 # =========================================================
@@ -17,7 +19,7 @@ agent_model = extend_action_space("DL")
 
 # temperature_observed = "T4"
 
-temperature_observed = "T5"
+temperature_observed = "T1"
 
 # =========================================================
 # Initial recurrent variables
@@ -33,7 +35,7 @@ history = []
 # =========================================================
 
 
-for t in range(10):
+for t in range(20):
     print(f"\n================ AGENT LOOP STEP {t + 1} ================")
 
     result = run_agent(
@@ -52,6 +54,9 @@ for t in range(10):
     )
 
     print("Chosen action:", result["chosen_action"])
+
+    if result["chosen_action"] not in base_actions:
+        print("XXX_New_Action")
 
     print(
         "Next observation:",

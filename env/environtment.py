@@ -287,9 +287,9 @@ def environment_step(action_input, current_temperatures):
         next_temperatures_index = next_temperatures_index
 
     # New Action
-    if action_input == "AIT" and 2 < next_temperatures_index <= 4:
+    if action_input == "AIT" and 2 < next_temperatures_index <= 5:
         next_temperatures_index = next_temperatures_index + 1
-    if action_input == "ADT" and next_temperatures_index >= 2:
+    if action_input == "ADT" and next_temperatures_index > 3:
         next_temperatures_index = next_temperatures_index - 1
 
     label_next_temperature = temperatures[next_temperatures_index]
