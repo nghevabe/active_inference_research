@@ -101,17 +101,17 @@ def build_matrix_b(current_model):
 
     # From Cool
     current_model.B["comfort"]["Warm", "Cool", "FIT"] = 0.00
-    current_model.B["comfort"]["LittleCool", "Cool", "FIT"] = 0.05
-    current_model.B["comfort"]["Cool", "Cool", "FIT"] = 0.45
-    current_model.B["comfort"]["LittleCold", "Cool", "FIT"] = 0.45
-    current_model.B["comfort"]["Cold", "Cool", "FIT"] = 0.05
+    current_model.B["comfort"]["LittleCool", "Cool", "FIT"] = 0.00
+    current_model.B["comfort"]["Cool", "Cool", "FIT"] = 0.95
+    current_model.B["comfort"]["LittleCold", "Cool", "FIT"] = 0.05
+    current_model.B["comfort"]["Cold", "Cool", "FIT"] = 0.00
 
     # From LittleCold
     current_model.B["comfort"]["Warm", "LittleCold", "FIT"] = 0.00
-    current_model.B["comfort"]["LittleCool", "LittleCold", "FIT"] = 0.05
-    current_model.B["comfort"]["Cool", "LittleCold", "FIT"] = 0.05
-    current_model.B["comfort"]["LittleCold", "LittleCold", "FIT"] = 0.45
-    current_model.B["comfort"]["Cold", "LittleCold", "FIT"] = 0.45
+    current_model.B["comfort"]["LittleCool", "LittleCold", "FIT"] = 0.00
+    current_model.B["comfort"]["Cool", "LittleCold", "FIT"] = 0.00
+    current_model.B["comfort"]["LittleCold", "LittleCold", "FIT"] = 0.95
+    current_model.B["comfort"]["Cold", "LittleCold", "FIT"] = 0.05
 
     # From Cold
     current_model.B["comfort"]["Warm", "Cold", "FIT"] = 0.00
@@ -132,16 +132,16 @@ def build_matrix_b(current_model):
     current_model.B["comfort"]["Cold", "Warm", "FDT"] = 0.00
 
     # From LittleCool
-    current_model.B["comfort"]["Warm", "LittleCool", "FDT"] = 0.45
-    current_model.B["comfort"]["LittleCool", "LittleCool", "FDT"] = 0.45
-    current_model.B["comfort"]["Cool", "LittleCool", "FDT"] = 0.05
-    current_model.B["comfort"]["LittleCold", "LittleCool", "FDT"] = 0.05
+    current_model.B["comfort"]["Warm", "LittleCool", "FDT"] = 0.05
+    current_model.B["comfort"]["LittleCool", "LittleCool", "FDT"] = 0.95
+    current_model.B["comfort"]["Cool", "LittleCool", "FDT"] = 0.00
+    current_model.B["comfort"]["LittleCold", "LittleCool", "FDT"] = 0.00
     current_model.B["comfort"]["Cold", "LittleCool", "FDT"] = 0.00
 
     # From Cool
     current_model.B["comfort"]["Warm", "Cool", "FDT"] = 0.05
-    current_model.B["comfort"]["LittleCool", "Cool", "FDT"] = 0.90
-    current_model.B["comfort"]["Cool", "Cool", "FDT"] = 0.05
+    current_model.B["comfort"]["LittleCool", "Cool", "FDT"] = 0.95
+    current_model.B["comfort"]["Cool", "Cool", "FDT"] = 0.00
     current_model.B["comfort"]["LittleCold", "Cool", "FDT"] = 0.00
     current_model.B["comfort"]["Cold", "Cool", "FDT"] = 0.00
 
@@ -149,8 +149,8 @@ def build_matrix_b(current_model):
     current_model.B["comfort"]["Warm", "LittleCold", "FDT"] = 0.00
     current_model.B["comfort"]["LittleCool", "LittleCold", "FDT"] = 0.00
     current_model.B["comfort"]["Cool", "LittleCold", "FDT"] = 0.05
-    current_model.B["comfort"]["LittleCold", "LittleCold", "FDT"] = 0.90
-    current_model.B["comfort"]["Cold", "LittleCold", "FDT"] = 0.05
+    current_model.B["comfort"]["LittleCold", "LittleCold", "FDT"] = 0.95
+    current_model.B["comfort"]["Cold", "LittleCold", "FDT"] = 0.00
 
     # From Cold
     current_model.B["comfort"]["Warm", "Cold", "FDT"] = 0.00
@@ -523,7 +523,7 @@ def run_agent(
         q_pi=q_pi,
         rng_key=rng_key,
         agent_actions=agent_actions,
-        k=3,
+        k=4,
         temperature=0.1,
     )
 

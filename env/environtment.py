@@ -280,7 +280,7 @@ def environment_step(action_input, current_temperatures):
 
     if action_input == "FIT" and next_temperatures_index <= 2:
         next_temperatures_index = next_temperatures_index + 1
-    if action_input == "FDT" and 0 < next_temperatures_index <= 2:
+    if action_input == "FDT" and 0 < next_temperatures_index <= 3:
         next_temperatures_index = next_temperatures_index - 1
 
     if action_input == "NA":
@@ -290,6 +290,9 @@ def environment_step(action_input, current_temperatures):
     if action_input == "AIT" and 2 < next_temperatures_index <= 5:
         next_temperatures_index = next_temperatures_index + 1
     if action_input == "ADT" and next_temperatures_index > 3:
+        next_temperatures_index = next_temperatures_index - 1
+
+    if action_input == "XDT" and 0 < next_temperatures_index <= 3:
         next_temperatures_index = next_temperatures_index - 1
 
     label_next_temperature = temperatures[next_temperatures_index]

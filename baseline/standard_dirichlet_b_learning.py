@@ -19,7 +19,7 @@ from utils.util import extract_distribution_array_and_attr, sample_top_k_with_te
 
 # Existing known actions have correct / ground-truth-like B slices.
 # Only newly introduced actions are learned in this baseline.
-LEARNABLE_ACTIONS = {"AIT", "ADT"}
+LEARNABLE_ACTIONS = {"AIT", "ADT", "XDT"}
 
 DIRICHLET_PRIOR_STRENGTH = 16.0
 DIRICHLET_LEARNING_RATE = 1.0
@@ -963,6 +963,9 @@ agent_model = extend_action_space(
     "ADT"
 )
 
+agent_model = extend_action_space(
+    "XDT"
+)
 
 # =========================================================
 # Initial observation

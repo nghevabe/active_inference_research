@@ -178,3 +178,8 @@ def sample_top_k_with_temperature(
     chosen_action = agent_actions[chosen_action_idx]
 
     return chosen_action_idx, chosen_action, rng_key, top_indices, top_probs_temp
+
+
+def get_max_index(list_distribution):
+    max_distribution = max(list_distribution)
+    return list_distribution.index(max_distribution)

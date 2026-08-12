@@ -3,7 +3,8 @@ from env.agent import run_agent, extend_action_space, get_ates_positive_point, a
 import jax
 import time
 
-from env.elements import base_actions
+from env.elements import base_actions, agent_actions, comforts
+from utils.util import get_max_index
 
 # =========================================================
 # Initialize agent model
@@ -11,6 +12,7 @@ from env.elements import base_actions
 
 agent_model = extend_action_space("AIT")
 agent_model = extend_action_space("ADT")
+# agent_model = extend_action_space("XDT")
 
 
 # =========================================================
@@ -29,10 +31,21 @@ qs_prior = None
 rng_key = jax.random.PRNGKey(int(time.time()))
 
 history = []
+previous_belief = ""
+predicted_belief = ""
+previous_action = ""
 
 # =========================================================
 # Agent-environment interaction loop
 # =========================================================
+
+# comforts = ["Warm", "LittleCool", "Cool", "LittleCold", "Cold"]  # hidden state
+# print("ZZZ_")
+# print(agent_model.B["comfort"]["Warm", "Cool", "AIT"])
+# print(agent_model.B["comfort"]["LittleCool", "Cool", "AIT"])
+# print(agent_model.B["comfort"]["Cool", "Cool", "AIT"])
+# print(agent_model.B["comfort"]["LittleCold", "Cool", "AIT"])
+# print(agent_model.B["comfort"]["Cold", "Cool", "AIT"])
 
 
 for t in range(20):
@@ -65,6 +78,29 @@ for t in range(20):
 
     print("Current belief:", result["current_belief"])
     print("Predicted prior next:", result["predicted_prior_next"])
+
+    lst_current_distribution = result["current_belief"].tolist()
+    lst_predicted_distribution = result["predicted_prior_next"].tolist()
+
+    current_belief = comforts[get_max_index(lst_current_distribution)]
+
+    if current_belief != predicted_belief and predicted_belief != "" and previous_action not in base_actions:
+        print(f"predicted_belief: {predicted_belief}")
+        print(f"Negative update for {previous_belief} -> {predicted_belief} with {previous_action}")
+        point = get_ates_positive_point(previous_action, previous_belief, predicted_belief, agent_model, 70, 30)
+        print("XXX HIT negative point = ")
+        print(point)
+    if current_belief == predicted_belief and predicted_belief != "" and previous_action not in base_actions:
+        print(f"predicted_belief: {predicted_belief}")
+        print(f"Positive update for {previous_belief} -> {predicted_belief} with {previous_action}")
+        point = get_ates_positive_point(previous_action, previous_belief, predicted_belief, agent_model, 70, 30)
+        print("XXX HIT positive point = ")
+        print(point)
+
+
+    previous_belief = comforts[get_max_index(lst_current_distribution)]
+    predicted_belief = comforts[get_max_index(lst_predicted_distribution)]
+    previous_action = result["chosen_action"]
 
     # Prior predicted by B becomes prior for the next observation.
     qs_prior = result["predicted_prior_next"]

@@ -10,6 +10,7 @@ from utils.util import build_noisy_agent_b_from_env
 
 agent_model = extend_action_space("AIT")
 agent_model = extend_action_space("ADT")
+agent_model = extend_action_space("XDT")
 
 
 # =========================================================
@@ -31,7 +32,7 @@ history = []
 # Agent-environment interaction loop
 # =========================================================
 
-for t in range(5):
+for t in range(20):
     print(
         f"\n================ AGENT LOOP STEP {t + 1} ================"
     )
