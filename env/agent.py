@@ -210,14 +210,34 @@ def build_matrix_c(current_model):
     # current_model.C["temperature_obs"]["T6"] = -4.0
 
 
+    # # Temperature preferences for T6
+    # current_model.C["temperature_obs"]["T0"] = -4.0
+    # current_model.C["temperature_obs"]["T1"] = -2.0
+    # current_model.C["temperature_obs"]["T2"] = 0.0
+    # current_model.C["temperature_obs"]["T3"] = 1.0
+    # current_model.C["temperature_obs"]["T4"] = 2.0
+    # current_model.C["temperature_obs"]["T5"] = 4.0
+    # current_model.C["temperature_obs"]["T6"] = 6.0
+
+
+    # # Temperature preferences for T0
+    # current_model.C["temperature_obs"]["T0"] = 6.0
+    # current_model.C["temperature_obs"]["T1"] = 4.0
+    # current_model.C["temperature_obs"]["T2"] = 2.0
+    # current_model.C["temperature_obs"]["T3"] = 1.0
+    # current_model.C["temperature_obs"]["T4"] = 0.0
+    # current_model.C["temperature_obs"]["T5"] = -2.0
+    # current_model.C["temperature_obs"]["T6"] = -4.0
+
+
     # Temperature preferences for T6
-    current_model.C["temperature_obs"]["T0"] = -4.0
-    current_model.C["temperature_obs"]["T1"] = 1.0
-    current_model.C["temperature_obs"]["T2"] = 2.0
-    current_model.C["temperature_obs"]["T3"] = 1.0
-    current_model.C["temperature_obs"]["T4"] = 1.0
-    current_model.C["temperature_obs"]["T5"] = -4.0
-    current_model.C["temperature_obs"]["T6"] = 4.0
+    current_model.C["temperature_obs"]["T0"] = 0.0
+    current_model.C["temperature_obs"]["T1"] = 0.0
+    current_model.C["temperature_obs"]["T2"] = 0.0
+    current_model.C["temperature_obs"]["T3"] = 0.0
+    current_model.C["temperature_obs"]["T4"] = 0.0
+    current_model.C["temperature_obs"]["T5"] = 0.0
+    current_model.C["temperature_obs"]["T6"] = 6.0
 
     return current_model
 
@@ -407,18 +427,26 @@ def run_agent(
     # Run Active Inference agent
     # =========================================================
 
-    gamma = 1  # deterministic behavior; smaller gamma -> more stochastic behavior
+    gamma = 1
 
+    # ---------------------------------------------------------
     # Create agent
-    agent = Agent(**model_agent, gamma=gamma, policy_len=1)
+    # ---------------------------------------------------------
+    agent = Agent(
+        **model_agent,
+        gamma=gamma,
+        policy_len=1,
+    )
 
     temperature_idx = temperatures.index(temperature_observed)
 
-    # Each observation must have shape: (batch_size, time_dim)
+    # Each observation must have shape:
+    # (batch_size, time_dim)
+    #
     # agent.batch_size defaults to 1.
     temperature_observation = jnp.full(
         (agent.batch_size, 1),
-        temperature_idx
+        temperature_idx,
     )
 
     # Multi-modality observation list
@@ -426,144 +454,340 @@ def run_agent(
         temperature_observation
     ]
 
+    # =========================================================
+    # Prepare prior for hidden-state inference
+    # =========================================================
+
     if qs_prior_input is None:
-        # First run: use agent.D as initial prior
+        # -----------------------------------------------------
+        # First interaction step:
+        # use agent.D as the initial prior
+        # -----------------------------------------------------
         qs_init = jtu.tree_map(
             lambda x: jnp.expand_dims(x, 1),
-            agent.D
+            agent.D,
         )
     else:
-        # Later runs: use previous posterior belief as current prior
-        # qs_prior_input shape: (num_states,)
-        # required shape: (batch_size, time_dim, num_states)
+        # -----------------------------------------------------
+        # Later interaction steps:
+        #
+        # qs_prior_input is the predicted prior:
+        #
+        # q^-(s_t) = B[a_{t-1}] @ q(s_{t-1})
+        #
+        # Input shape:
+        # (num_states,)
+        #
+        # Required shape:
+        # (batch_size, time_dim, num_states)
+        # -----------------------------------------------------
         qs_init = [
             jnp.expand_dims(
-                jnp.expand_dims(qs_prior_input, axis=0),
-                axis=1
+                jnp.expand_dims(
+                    qs_prior_input,
+                    axis=0,
+                ),
+                axis=1,
             )
         ]
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Infer hidden states
-    # ---------------------------------------------------------
+    # =========================================================
 
-    qs = agent.infer_states(observations, qs_init)
+    qs = agent.infer_states(
+        observations,
+        qs_init,
+    )
 
     print("\n===== INITIAL OBSERVATION =====")
-    print(f"Observed temperature: {temperature_observed}")
+    print(
+        f"Observed temperature: "
+        f"{temperature_observed}"
+    )
 
     print("\n===== DEBUG SHAPE =====")
-    print("qs[0].shape:", qs[0].shape)
+    print(
+        "qs[0].shape:",
+        qs[0].shape,
+    )
 
-    # qs[0] currently has shape: (batch_size, 1, 1, num_states)
-    # Example: (1, 1, 1, 3)
-    # For printing, convert it to a clean vector: (3,)
-    comfort_belief = jnp.squeeze(qs[0], axis=(0, 1, 2))
+    # ---------------------------------------------------------
+    # qs[0] currently has shape:
+    #
+    # (batch_size, 1, 1, num_states)
+    #
+    # Example:
+    # (1, 1, 1, 5)
+    #
+    # Convert it to the full posterior belief vector:
+    #
+    # (num_states,)
+    #
+    # IMPORTANT:
+    # comfort_belief remains a SOFT posterior distribution.
+    # We do not convert it to one-hot.
+    # ---------------------------------------------------------
+    comfort_belief = jnp.squeeze(
+        qs[0],
+        axis=(0, 1, 2),
+    )
 
-    print("comfort_belief.shape:", comfort_belief.shape)
+    print(
+        "comfort_belief.shape:",
+        comfort_belief.shape,
+    )
 
-    print("\n===== POSTERIOR BELIEF OVER COMFORT =====")
+    print(
+        "\n===== POSTERIOR BELIEF OVER COMFORT ====="
+    )
+
     for i, state in enumerate(comforts):
-        print(f"{state}: {float(comfort_belief[i]):.4f}")
+        print(
+            f"{state}: "
+            f"{float(comfort_belief[i]):.4f}"
+        )
 
-    current_comfort_idx = int(jnp.argmax(comfort_belief))
-    print(f"\nMost likely comfort state: {comforts[current_comfort_idx]}")
+    # ---------------------------------------------------------
+    # MAP estimate of the current hidden comfort state.
+    #
+    # This is only the most probable state under the posterior:
+    #
+    # s_MAP = argmax_s q(s)
+    #
+    # IMPORTANT:
+    # This is NOT the true hidden state and does NOT replace
+    # the full soft posterior distribution.
+    # ---------------------------------------------------------
+    current_comfort_idx = int(
+        jnp.argmax(comfort_belief)
+    )
 
-    # ---------------------------------------------------------
-    # ---------------------------------------------------------
-    # ---------------------------------------------------------
+    current_comfort_map = comforts[
+        current_comfort_idx
+    ]
+
+    print(
+        f"\nMost likely comfort state "
+        f"(MAP estimate): "
+        f"{current_comfort_map}"
+    )
+
+    # =========================================================
     # Prepare posterior belief for policy inference
-    # ---------------------------------------------------------
-    # agent.infer_policies expects qs with shape:
+    # =========================================================
+    #
+    # agent.infer_policies expects:
+    #
     # (batch_size, time_dim, num_states)
     #
-    # Current qs[0] shape: (1, 1, 1, 3)
-    # We remove only the extra singleton axis at axis=2:
-    # Result shape: (1, 1, 3)
+    # Current qs[0] shape:
+    #
+    # (1, 1, 1, num_states)
+    #
+    # Remove only the extra singleton axis at axis=2:
+    #
+    # (1, 1, num_states)
+    # =========================================================
 
     qs_for_policy = [
-        jnp.squeeze(q, axis=2)
+        jnp.squeeze(
+            q,
+            axis=2,
+        )
         for q in qs
     ]
 
-    print("\n===== DEBUG POLICY INPUT SHAPE =====")
-    print("qs_for_policy[0].shape:", qs_for_policy[0].shape)
+    print(
+        "\n===== DEBUG POLICY INPUT SHAPE ====="
+    )
 
-    # ---------------------------------------------------------
-    # Infer policies and sample action
-    # ---------------------------------------------------------
+    print(
+        "qs_for_policy[0].shape:",
+        qs_for_policy[0].shape,
+    )
 
-    q_pi, G = agent.infer_policies(qs_for_policy)
+    # =========================================================
+    # Infer policies
+    # =========================================================
+
+    q_pi, G = agent.infer_policies(
+        qs_for_policy
+    )
 
     print("\n===== POLICY INFERENCE =====")
-    print("q_pi:", q_pi)
-    print("q_pi.shape:", q_pi.shape)
-    print("G:", G)
+    print(
+        "q_pi:",
+        q_pi,
+    )
+    print(
+        "q_pi.shape:",
+        q_pi.shape,
+    )
+    print(
+        "G:",
+        G,
+    )
 
-    # rng_key must match batch dimension.
-    # q_pi.shape = (batch_size, num_policies)
-    # Therefore rng_key.shape should be (batch_size, 2)
-    # ---------------------------------------------------------
-    # Custom stochastic sampling directly from q_pi
-    # ---------------------------------------------------------
+    # =========================================================
+    # Direct stochastic sampling from q_pi
+    # =========================================================
+    #
+    # IMPORTANT:
+    #
+    # We do NOT:
+    # - use top-k
+    # - apply an additional sampling temperature
+    # - modify q_pi before action selection
+    #
+    # Therefore:
+    #
+    # P(action = a) = q_pi[a]
+    #
+    # =========================================================
 
-    # Initialize rng_key once before the interaction loop.
-    # If this code is not inside a loop yet, placing it here is still fine.
+    # ---------------------------------------------------------
+    # Initialize RNG only if no RNG key was supplied.
+    #
+    # For formal experiments, it is better to initialize
+    # rng_key once outside run_agent(), for example:
+    #
+    # rng_key = jax.random.PRNGKey(RANDOM_SEED)
+    #
+    # and then pass the returned rng_key into the next step.
+    # ---------------------------------------------------------
     if rng_key is None:
         rng_key = jax.random.PRNGKey(25)
 
-    probs = q_pi[0]  # shape: (num_actions,)
-
-    # Split the key before sampling so each random draw uses a fresh subkey.
-    rng_key, action_sample_key = jax.random.split(rng_key)
-
-    # ======
-
-    chosen_action_idx, chosen_action, rng_key, top_indices, top_probs_temp = sample_top_k_with_temperature(
-        q_pi=q_pi,
-        rng_key=rng_key,
-        agent_actions=agent_actions,
-        k=4,
-        temperature=0.1,
+    # q_pi shape:
+    #
+    # (batch_size, num_policies)
+    #
+    # policy_len = 1, therefore each policy corresponds
+    # directly to one action in this experiment.
+    probs = jnp.asarray(
+        q_pi[0],
+        dtype=jnp.float32,
     )
 
-    # ======
+    # Numerical safety
+    probs = jnp.clip(
+        probs,
+        min=0.0,
+    )
 
-    # chosen_action_idx = int(jnp.argmax(q_pi[0]))
-    # chosen_action = agent_actions[chosen_action_idx]
+    probs_sum = jnp.sum(probs)
 
-    print("\n===== CUSTOM STOCHASTIC ACTION SELECTED =====")
-    print("probs:", probs)
-    print(f"Action chosen: {chosen_action}")
+    probs = jnp.where(
+        probs_sum > 0.0,
+        probs / probs_sum,
+        jnp.ones_like(probs) / probs.shape[0],
+    )
 
-    print("\n===== ACTION PROBABILITIES =====")
+    # ---------------------------------------------------------
+    # Split the RNG key exactly once for this action sample.
+    #
+    # rng_key:
+    # carried forward to the next interaction step
+    #
+    # action_sample_key:
+    # used only for the current random draw
+    # ---------------------------------------------------------
+    rng_key, action_sample_key = jax.random.split(
+        rng_key
+    )
+
+    chosen_action_idx = int(
+        jax.random.choice(
+            action_sample_key,
+            probs.shape[0],
+            p=probs,
+        )
+    )
+
+    chosen_action = agent_actions[
+        chosen_action_idx
+    ]
+
+    print(
+        "\n===== STOCHASTIC ACTION SELECTED "
+        "DIRECTLY FROM q_pi ====="
+    )
+
+    print(
+        "Sampling probabilities:",
+        probs,
+    )
+
+    print(
+        f"Action chosen: "
+        f"{chosen_action}"
+    )
+
+    print(
+        "\n===== ACTION PROBABILITIES ====="
+    )
+
     for i, action in enumerate(agent_actions):
-        print(f"{i}: {action:6s} | q_pi={float(q_pi[0][i]):.4f} | G={float(G[0][i]):.4f}")
+        print(
+            f"{i}: {action:6s} "
+            f"| q_pi={float(q_pi[0][i]):.4f} "
+            f"| sample_p={float(probs[i]):.4f} "
+            f"| G={float(G[0][i]):.4f}"
+        )
 
     # =========================================================
     # Execute action a_t in the environment
     # =========================================================
-
-    # In a real simulator, the environment should maintain its own true hidden state.
-    # For this first version, we approximate the current true state using the most
-    # likely inferred comfort state.
-    current_infer_state = comforts[current_comfort_idx]
+    #
+    # The environment transition is driven by:
+    #
+    # temperature_observed + chosen_action
+    #
+    # The MAP comfort state is diagnostic only.
+    # It is NOT treated as the true hidden state.
+    # =========================================================
 
     print("\n===== EXECUTE ACTION =====")
-    print(f"Current infer state used by simulator: {current_infer_state}")
-    print(f"Executed action a_t: {chosen_action}")
 
-    (label_next_temperature, next_temperatures_index) = environment_step(
+    print(
+        f"Current inferred comfort "
+        f"(MAP estimate only): "
+        f"{current_comfort_map}"
+    )
+
+    print(
+        f"Executed action a_t: "
+        f"{chosen_action}"
+    )
+
+    (
+        label_next_temperature,
+        next_temperatures_index,
+    ) = environment_step(
         action_input=chosen_action,
         current_temperatures=temperature_observed,
     )
 
     print("\n===== ENVIRONMENT RESULT =====")
-    # print(f"Next true hidden state s_t+1: {next_true_state}")
-    print(f"New temperature observation: {label_next_temperature}")
+
+    print(
+        f"New temperature observation: "
+        f"{label_next_temperature}"
+    )
 
     # =========================================================
-    # Predict next prior q(s_{t+1}) using B and selected action
+    # Predict next prior q^-(s_{t+1})
+    # using B and selected action
+    # =========================================================
+    #
+    # q^-(s_{t+1})
+    #     =
+    # B[a_t] @ q(s_t)
+    #
+    # IMPORTANT:
+    # We use the FULL SOFT posterior comfort_belief here,
+    # not its argmax/MAP state.
     # =========================================================
 
     qs_prior_next = predict_next_state_belief(
@@ -573,36 +797,70 @@ def run_agent(
         comforts_input=comforts,
     )
 
-    print("\n===== PREDICTED PRIOR AFTER ACTION =====")
+    print(
+        "\n===== PREDICTED PRIOR AFTER ACTION ====="
+    )
+
     for i, state in enumerate(comforts):
         print(
-            f"Prior q(s_t+1={state}) before new observation: "
+            f"Prior q(s_t+1={state}) "
+            f"before new observation: "
             f"{float(qs_prior_next[i]):.4f}"
         )
 
     # =========================================================
     # Do not infer the next observation here.
     #
-    # qs_prior_next is the predicted prior for the next timestep:
+    # qs_prior_next is the predicted prior for the next
+    # timestep:
     #
-    # q^-(s_t+1) = B[a_t] @ q(s_t)
+    # q^-(s_t+1)
+    #     =
+    # B[a_t] @ q(s_t)
     #
-    # It will be passed into the next run_agent() call. At that
-    # point, the new observation will be processed exactly once:
+    # It will be passed into the next run_agent() call.
     #
-    # q(s_t+1) ∝ P(o_t+1 | s_t+1) * q^-(s_t+1)
+    # At that point, the new observation is incorporated
+    # exactly once:
+    #
+    # q(s_t+1)
+    #     ∝
+    # P(o_t+1 | s_t+1)
+    # *
+    # q^-(s_t+1)
+    #
     # =========================================================
 
     return {
         "current_temperature": temperature_observed,
+
+        # Full soft posterior:
         "current_belief": comfort_belief,
+
+        # MAP estimate for diagnostics only:
+        "current_comfort_map_idx": current_comfort_idx,
+        "current_comfort_map": current_comfort_map,
+
+        # Environment output:
         "next_temperature": label_next_temperature,
+        "next_temperature_idx": next_temperatures_index,
+
+        # Predicted prior for next inference step:
         "predicted_prior_next": qs_prior_next,
+
+        # Selected action:
+        "chosen_action_idx": chosen_action_idx,
         "chosen_action": chosen_action,
+
+        # Policy inference:
         "q_pi": q_pi,
         "G": G,
+
+        # Actual sampling distribution:
+        "sampling_probs": probs,
+
+        # RNG state to carry to next step:
         "rng_key": rng_key,
     }
-
 
 # Baseline
