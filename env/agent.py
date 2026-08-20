@@ -1,4 +1,3 @@
-
 from pymdp.distribution import compile_model
 from env.elements import update_model_description, lst_action_extended, lst_slice_b, \
     lst_pairing_state, append_action, base_actions
@@ -209,7 +208,6 @@ def build_matrix_c(current_model):
     # current_model.C["temperature_obs"]["T5"] = -4.0
     # current_model.C["temperature_obs"]["T6"] = -4.0
 
-
     # # Temperature preferences for T6
     # current_model.C["temperature_obs"]["T0"] = -4.0
     # current_model.C["temperature_obs"]["T1"] = -2.0
@@ -219,7 +217,6 @@ def build_matrix_c(current_model):
     # current_model.C["temperature_obs"]["T5"] = 4.0
     # current_model.C["temperature_obs"]["T6"] = 6.0
 
-
     # # Temperature preferences for T0
     # current_model.C["temperature_obs"]["T0"] = 6.0
     # current_model.C["temperature_obs"]["T1"] = 4.0
@@ -228,7 +225,6 @@ def build_matrix_c(current_model):
     # current_model.C["temperature_obs"]["T4"] = 0.0
     # current_model.C["temperature_obs"]["T5"] = -2.0
     # current_model.C["temperature_obs"]["T6"] = -4.0
-
 
     # Temperature preferences for T6
     current_model.C["temperature_obs"]["T0"] = 0.0
@@ -316,34 +312,19 @@ def extend_action_space(action_id):
     return agent_model
 
 
-def get_ates_positive_point(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
+def get_ates_point(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
     current_transition_prob = current_model.B["comfort"][expect_state, current_state, ates_action_id]
-    positive_point = (1 - current_transition_prob) * upd_point_ratio / 100 * belief_prob / 100
-    return round(positive_point, 2)
+    point = (1 - current_transition_prob) * upd_point_ratio / 100 * belief_prob
+    return round(point, 2)
 
 
-def get_ates_negative_point(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
-    current_transition_prob = current_model.B["comfort"][expect_state, current_state, ates_action_id]
-    negative_point = (1 - current_transition_prob) * upd_point_ratio / 100 * belief_prob / 100
-    return round(negative_point, 2)
-
-
-def ates_positive_update(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
+def ates_update(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
     lst_transition_prob = current_model.B["comfort"][:, current_state, ates_action_id]
     remainder_prob_num = len(lst_transition_prob) - 1
-    ates_positive_point = get_ates_positive_point(ates_action_id, current_state, expect_state, current_model,
-                                                  belief_prob, upd_point_ratio)
-    ates_positive_remain_prob = ates_positive_point / remainder_prob_num
+    ates_point = get_ates_point(ates_action_id, current_state, expect_state, current_model,
+                                belief_prob, upd_point_ratio)
+    ates_positive_remain_prob = ates_point / remainder_prob_num
     return round(ates_positive_remain_prob, 3)
-
-
-def ates_negative_update(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
-    lst_transition_prob = current_model.B["comfort"][:, current_state, ates_action_id]
-    remainder_prob_num = len(lst_transition_prob) - 1
-    ates_negative_point = get_ates_negative_point(ates_action_id, current_state, expect_state, current_model,
-                                                  belief_prob, upd_point_ratio)
-    ates_negative_remain_prob = ates_negative_point / remainder_prob_num
-    return round(ates_negative_remain_prob, 3)
 
 
 def ates_update_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_diff, ates_point):
@@ -357,17 +338,6 @@ def ates_update_matrix_positive(ates_action_id, current_state, expect_state, cur
     return current_model
     # return current_model.B["comfort"][:, current_state, ates_action_id]
 
-
-def ates_update_matrix_negative(chosen_action_id, current_state, expect_state, current_model, ates_diff, ates_point):
-    current_model.B["comfort"][expect_state, current_state, chosen_action_id] -= ates_point
-    for item_str in lst_pairing_state:
-        state_str = item_str.split("_")
-        state_to = state_str[0]
-        state_from = state_str[1]
-        if state_from == current_state and state_to != expect_state:
-            current_model.B["comfort"][state_to, state_from, chosen_action_id] += ates_diff
-    return current_model
-    # return current_model.B["comfort"][:, current_state, chosen_action_id]
 
 
 def infer_belief_once(
