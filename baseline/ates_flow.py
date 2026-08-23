@@ -1,5 +1,5 @@
 from env.agent import run_agent, extend_action_space, \
-    ates_update_matrix_positive, update_matrix_agent, get_ates_point
+    ates_update_matrix_positive, update_matrix_agent, get_ates_point, ates_update
 import jax
 import time
 
@@ -10,17 +10,17 @@ from utils.util import get_max_index
 # Initialize agent model
 # =========================================================
 
-agent_model = extend_action_space("AIT")
-agent_model = extend_action_space("ADT")
-agent_model = extend_action_space("XDT")
+agent_model_init = extend_action_space("AIT")
+agent_model_init = extend_action_space("ADT")
+agent_model_init = extend_action_space("XDT")
 
 
-print("AIT matrix: ")
-print(agent_model.B["comfort"][:, :, "AIT"])
-print("ADT matrix: ")
-print(agent_model.B["comfort"][:, :, "ADT"])
-print("XDT matrix: ")
-print(agent_model.B["comfort"][:, :, "XDT"])
+# print("AIT matrix: ")
+# print(agent_model_init.B["comfort"][:, :, "AIT"])
+# print("ADT matrix: ")
+# print(agent_model_init.B["comfort"][:, :, "ADT"])
+# print("XDT matrix: ")
+# print(agent_model_init.B["comfort"][:, :, "XDT"])
 
 
 # =========================================================
@@ -44,9 +44,10 @@ previous_belief = ""
 previous_belief_distribution = 0
 predicted_belief = ""
 previous_action = ""
-belief_prob = 0.5
+belief_prob = 0.7
 
 summary_learning_log = []
+agent_model = agent_model_init
 
 for t in range(30):
     print(
@@ -115,7 +116,14 @@ for t in range(30):
         point = get_ates_point(previous_action, previous_belief, current_belief, agent_model, belief_prob, 30)
         str_log = f"STEP {t+1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
         summary_learning_log.append(str_log)
+        ates_dif = ates_update(previous_action, previous_belief, current_belief, agent_model, belief_prob, 30)
+        # agent_model = ates_update_matrix_positive(previous_action, previous_belief, current_belief, agent_model, ates_dif,
+        #                                         point)
         print(str_log)
+
+
+    print("XXX_Matrix_agent_model: ")
+    print(agent_model)
 
         # each loop ask for input ates_action_id_input
         # ates_point = get_ates_positive_point(ates_action_id_input, "Neutral", "Cool", agent_model, 70, 30)

@@ -320,10 +320,16 @@ def get_ates_point(ates_action_id, current_state, expect_state, current_model, b
 
 def ates_update(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
     lst_transition_prob = current_model.B["comfort"][:, current_state, ates_action_id]
-    remainder_prob_num = len(lst_transition_prob) - 1
+    filtered_list = [x for x in lst_transition_prob if x > 0]
+    remainder_prob_num = len(filtered_list) - 1
     ates_point = get_ates_point(ates_action_id, current_state, expect_state, current_model,
                                 belief_prob, upd_point_ratio)
     ates_positive_remain_prob = ates_point / remainder_prob_num
+
+    print("lst_transition_prob")
+    print(lst_transition_prob)
+    print("remainder_prob_num")
+    print(remainder_prob_num)
     return round(ates_positive_remain_prob, 3)
 
 
@@ -333,11 +339,17 @@ def ates_update_matrix_positive(ates_action_id, current_state, expect_state, cur
         state_str = item_str.split("_")
         state_to = state_str[0]
         state_from = state_str[1]
-        if state_from == current_state and state_to != expect_state:
+        matrix_value = current_model.B["comfort"][state_to, state_from, ates_action_id]
+        if state_from == current_state and state_to != expect_state and matrix_value > 0:
+        # if state_from == current_state and state_to != expect_state:
+            print("XXX_matrix_point:")
+            print(matrix_value)
+            print("XXX_ates_diff:")
+            print(ates_diff)
             current_model.B["comfort"][state_to, state_from, ates_action_id] -= ates_diff
+
     return current_model
     # return current_model.B["comfort"][:, current_state, ates_action_id]
-
 
 
 def infer_belief_once(
