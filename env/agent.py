@@ -318,18 +318,33 @@ def get_ates_point(ates_action_id, current_state, expect_state, current_model, b
     return round(point, 2)
 
 
+def normalization_matrix(ates_action_id, current_state, expect_state, current_model, ates_point):
+    print("-----------")
+    remain_sum_point = 0
+    for item in comforts:
+
+        if item != expect_state:
+            print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {current_model.B["comfort"][item, current_state, ates_action_id]}")
+            remain_sum_point = remain_sum_point + current_model.B["comfort"][item, current_state, ates_action_id]
+
+    print(f"XXX_previous sum = {remain_sum_point} - after sum = {remain_sum_point - ates_point}")
+
+    print("-----------")
+
+
 def ates_update(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
+
     lst_transition_prob = current_model.B["comfort"][:, current_state, ates_action_id]
-    filtered_list = [x for x in lst_transition_prob if x > 0]
-    remainder_prob_num = len(filtered_list) - 1
+    remainder_prob_num = len(lst_transition_prob) - 1
     ates_point = get_ates_point(ates_action_id, current_state, expect_state, current_model,
                                 belief_prob, upd_point_ratio)
+    normalization_matrix(ates_action_id, current_state, expect_state, current_model, ates_point)
     ates_positive_remain_prob = ates_point / remainder_prob_num
 
-    print("lst_transition_prob")
-    print(lst_transition_prob)
-    print("remainder_prob_num")
-    print(remainder_prob_num)
+    # print("lst_transition_prob")
+    # print(lst_transition_prob)
+    # print("remainder_prob_num")
+    # print(remainder_prob_num)
     return round(ates_positive_remain_prob, 3)
 
 

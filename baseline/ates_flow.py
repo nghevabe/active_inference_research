@@ -122,8 +122,8 @@ for t in range(30):
         print(str_log)
 
 
-    print("XXX_Matrix_agent_model: ")
-    print(agent_model)
+    # print("XXX_Matrix_agent_model: ")
+    # print(agent_model)
 
         # each loop ask for input ates_action_id_input
         # ates_point = get_ates_positive_point(ates_action_id_input, "Neutral", "Cool", agent_model, 70, 30)
