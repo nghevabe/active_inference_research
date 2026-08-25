@@ -322,14 +322,30 @@ def normalization_matrix(ates_action_id, current_state, expect_state, current_mo
     print("-----------")
     remain_sum_point = 0
     for item in comforts:
+        point_item = current_model.B["comfort"][item, current_state, ates_action_id]
 
         if item != expect_state:
-            print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {current_model.B["comfort"][item, current_state, ates_action_id]}")
-            remain_sum_point = remain_sum_point + current_model.B["comfort"][item, current_state, ates_action_id]
+            print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
+            remain_sum_point = remain_sum_point + point_item
+
+    for item in comforts:
+        point_item = current_model.B["comfort"][item, current_state, ates_action_id]
+        new_sum = remain_sum_point - ates_point
+
+        if item != expect_state:
+            new_point = point_item / remain_sum_point * new_sum
+            current_model.B["comfort"][item, current_state, ates_action_id] = new_point
+
+    print("***")
+
+    for item in comforts:
+        point_item = current_model.B["comfort"][item, current_state, ates_action_id]
+        print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
 
     print(f"XXX_previous sum = {remain_sum_point} - after sum = {remain_sum_point - ates_point}")
 
     print("-----------")
+    return current_model
 
 
 def ates_update(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
@@ -338,7 +354,6 @@ def ates_update(ates_action_id, current_state, expect_state, current_model, beli
     remainder_prob_num = len(lst_transition_prob) - 1
     ates_point = get_ates_point(ates_action_id, current_state, expect_state, current_model,
                                 belief_prob, upd_point_ratio)
-    normalization_matrix(ates_action_id, current_state, expect_state, current_model, ates_point)
     ates_positive_remain_prob = ates_point / remainder_prob_num
 
     # print("lst_transition_prob")
@@ -350,18 +365,19 @@ def ates_update(ates_action_id, current_state, expect_state, current_model, beli
 
 def ates_update_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_diff, ates_point):
     current_model.B["comfort"][expect_state, current_state, ates_action_id] += ates_point
-    for item_str in lst_pairing_state:
-        state_str = item_str.split("_")
-        state_to = state_str[0]
-        state_from = state_str[1]
-        matrix_value = current_model.B["comfort"][state_to, state_from, ates_action_id]
-        if state_from == current_state and state_to != expect_state and matrix_value > 0:
-        # if state_from == current_state and state_to != expect_state:
-            print("XXX_matrix_point:")
-            print(matrix_value)
-            print("XXX_ates_diff:")
-            print(ates_diff)
-            current_model.B["comfort"][state_to, state_from, ates_action_id] -= ates_diff
+    current_model = normalization_matrix(ates_action_id, current_state, expect_state, current_model, ates_point)
+    # for item_str in lst_pairing_state:
+    #     state_str = item_str.split("_")
+    #     state_to = state_str[0]
+    #     state_from = state_str[1]
+    #     matrix_value = current_model.B["comfort"][state_to, state_from, ates_action_id]
+    #     if state_from == current_state and state_to != expect_state and matrix_value > 0:
+    #     # if state_from == current_state and state_to != expect_state:
+    #         print("XXX_matrix_point:")
+    #         print(matrix_value)
+    #         print("XXX_ates_diff:")
+    #         print(ates_diff)
+    #         current_model.B["comfort"][state_to, state_from, ates_action_id] -= ates_diff
 
     return current_model
     # return current_model.B["comfort"][:, current_state, ates_action_id]

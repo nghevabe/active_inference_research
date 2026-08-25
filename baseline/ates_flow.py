@@ -29,6 +29,9 @@ agent_model_init = extend_action_space("XDT")
 
 # temperature_observed = "T4"
 
+print("XXX_Matrix_agent_model Before Learning: ")
+print(agent_model_init)
+
 temperature_observed = "T0"
 
 # =========================================================
@@ -117,13 +120,13 @@ for t in range(30):
         str_log = f"STEP {t+1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
         summary_learning_log.append(str_log)
         ates_dif = ates_update(previous_action, previous_belief, current_belief, agent_model, belief_prob, 30)
-        # agent_model = ates_update_matrix_positive(previous_action, previous_belief, current_belief, agent_model, ates_dif,
-        #                                         point)
+        agent_model = ates_update_matrix_positive(previous_action, previous_belief, current_belief, agent_model, ates_dif,
+                                                point)
         print(str_log)
 
 
-    # print("XXX_Matrix_agent_model: ")
-    # print(agent_model)
+    print("XXX_Matrix_agent_model After Learning: ")
+    print(agent_model)
 
         # each loop ask for input ates_action_id_input
         # ates_point = get_ates_positive_point(ates_action_id_input, "Neutral", "Cool", agent_model, 70, 30)
