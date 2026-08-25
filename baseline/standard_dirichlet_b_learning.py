@@ -15,66 +15,550 @@ from env.environtment import (
 from utils.util import extract_distribution_array_and_attr
 
 
-# =========================================================
-# Configuration
-# =========================================================
+# ============================================================
+# CONFIGURATION
+# ============================================================
 
-# Existing known actions have fixed / ground-truth-like B.
-# Only newly introduced actions are learned.
-LEARNABLE_ACTIONS = {
+# Only newly introduced actions are learnable.
+#
+# Known actions keep their original / ground-truth-like
+# transition model fixed.
+LEARNABLE_ACTIONS = (
     "AIT",
     "ADT",
     "XDT",
-}
+)
 
-# Dirichlet hyperparameters.
+
+# ------------------------------------------------------------
+# Dirichlet B-learning
+# ------------------------------------------------------------
+
 DIRICHLET_PRIOR_STRENGTH = 16.0
-DIRICHLET_LEARNING_RATE = 1.0
+DIRICHLET_LEARNING_RATE = 10.0
 DIRICHLET_EPSILON = 1e-6
 
-# Active Inference configuration.
+
+# ------------------------------------------------------------
+# Active Inference
+# ------------------------------------------------------------
+
 POLICY_LENGTH = 1
 GAMMA = 1.0
 
-# Experiment configuration.
+
+# ------------------------------------------------------------
+# Experiment
+# ------------------------------------------------------------
+
 INITIAL_TEMPERATURE = "T0"
 NUM_STEPS = 30
 
 # IMPORTANT:
-# Use deterministic seeds for reproducible experiments.
 #
-# When comparing:
+# Use exactly the same seed when comparing:
+#
 #   Average-B
 #   Dirichlet
 #   ATES
 #
-# use the SAME seed for each corresponding run.
 RANDOM_SEED = 50
 
 
-# =========================================================
-# Direct stochastic action sampling from q_pi
-# =========================================================
+# ============================================================
+# LOGGING UTILITIES
+# ============================================================
+
+def print_section(title):
+    print(
+        "\n"
+        "============================================================"
+    )
+    print(title)
+    print(
+        "============================================================"
+    )
+
+
+def print_subsection(title):
+    print(
+        "\n"
+        "------------------------------------------------------------"
+    )
+    print(title)
+    print(
+        "------------------------------------------------------------"
+    )
+
+
+def print_vector(
+    title,
+    vector,
+    labels,
+    precision=6,
+):
+    """
+    Print a probability / belief vector.
+    """
+
+    print(f"\n{title}")
+
+    for idx, label in enumerate(labels):
+        print(
+            f"  {label:12s}: "
+            f"{float(vector[idx]):.{precision}f}"
+        )
+
+
+def print_transition_evidence(
+    transition_count,
+):
+    """
+    Print soft transition evidence:
+
+        q_next[to]
+        *
+        q_current[from]
+
+    Matrix orientation:
+
+        rows    = TO state
+        columns = FROM state
+    """
+
+    print("\nSOFT TRANSITION EVIDENCE")
+    print(
+        "rows = TO state | columns = FROM state"
+    )
+
+    header = (
+        f"{'TO \\ FROM':12s}"
+        + "".join(
+            f"{state:>13s}"
+            for state in comforts
+        )
+    )
+
+    print(header)
+
+    for to_idx, to_state in enumerate(comforts):
+
+        row = f"{to_state:12s}"
+
+        for from_idx in range(len(comforts)):
+
+            value = float(
+                transition_count[
+                    to_idx,
+                    from_idx,
+                ]
+            )
+
+            row += f"{value:13.6f}"
+
+        print(row)
+
+
+def extract_b_array(
+    model_agent,
+):
+    """
+    Extract B tensor from pymdp distribution.
+
+    Returns
+    -------
+    B_array:
+        B[
+            to_state,
+            from_state,
+            action
+        ]
+
+    B_dist:
+        Original pymdp Distribution object.
+
+    b_attr:
+        Internal array attribute used by Distribution.
+    """
+
+    B_dist = model_agent["B"][0]
+
+    (
+        B_array,
+        b_attr,
+    ) = extract_distribution_array_and_attr(
+        B_dist
+    )
+
+    B_array = jnp.asarray(
+        B_array,
+        dtype=jnp.float32,
+    )
+
+    return (
+        B_array,
+        B_dist,
+        b_attr,
+    )
+
+
+def print_b_slice(
+    B_array,
+    action_input,
+    title=None,
+    precision=6,
+):
+    """
+    Print one action slice:
+
+        B[
+            to_state,
+            from_state,
+            action
+        ]
+
+    Matrix orientation:
+
+        rows    = TO state
+        columns = FROM state
+    """
+
+    action_idx = agent_actions.index(
+        action_input
+    )
+
+    if title is None:
+        title = f"B SLICE | ACTION = {action_input}"
+
+    print(f"\n{title}")
+
+    print(
+        "rows = TO state | columns = FROM state"
+    )
+
+    header = (
+        f"{'TO \\ FROM':12s}"
+        + "".join(
+            f"{state:>13s}"
+            for state in comforts
+        )
+    )
+
+    print(header)
+
+    for to_idx, to_state in enumerate(comforts):
+
+        row = f"{to_state:12s}"
+
+        for from_idx in range(len(comforts)):
+
+            value = float(
+                B_array[
+                    to_idx,
+                    from_idx,
+                    action_idx,
+                ]
+            )
+
+            row += (
+                f"{value:13.{precision}f}"
+            )
+
+        print(row)
+
+
+def print_b_delta_slice(
+    B_before,
+    B_after,
+    action_input,
+    precision=6,
+):
+    """
+    Print:
+
+        Delta B = B_after - B_before
+
+    for a single action.
+    """
+
+    action_idx = agent_actions.index(
+        action_input
+    )
+
+    print(
+        f"\nDELTA B | ACTION = {action_input}"
+    )
+
+    print(
+        "Delta B = B_after - B_before"
+    )
+
+    print(
+        "rows = TO state | columns = FROM state"
+    )
+
+    header = (
+        f"{'TO \\ FROM':12s}"
+        + "".join(
+            f"{state:>13s}"
+            for state in comforts
+        )
+    )
+
+    print(header)
+
+    for to_idx, to_state in enumerate(comforts):
+
+        row = f"{to_state:12s}"
+
+        for from_idx in range(len(comforts)):
+
+            delta = float(
+                B_after[
+                    to_idx,
+                    from_idx,
+                    action_idx,
+                ]
+                -
+                B_before[
+                    to_idx,
+                    from_idx,
+                    action_idx,
+                ]
+            )
+
+            row += (
+                f"{delta:+13.{precision}f}"
+            )
+
+        print(row)
+
+
+def print_b_update_comparison(
+    B_before,
+    B_after,
+    action_input,
+):
+    """
+    Standard learning log:
+
+        B BEFORE
+        B AFTER
+        DELTA B
+
+    This same format should later also be used
+    for ATES.
+    """
+
+    print_subsection(
+        f"B UPDATE COMPARISON | {action_input}"
+    )
+
+    print_b_slice(
+        B_array=B_before,
+        action_input=action_input,
+        title="B BEFORE LEARNING",
+    )
+
+    print_b_slice(
+        B_array=B_after,
+        action_input=action_input,
+        title="B AFTER LEARNING",
+    )
+
+    print_b_delta_slice(
+        B_before=B_before,
+        B_after=B_after,
+        action_input=action_input,
+    )
+
+
+def print_all_learnable_b_slices(
+    model_agent,
+    title,
+):
+    """
+    Print B slices for all learnable actions.
+    """
+
+    B_array, _, _ = extract_b_array(
+        model_agent
+    )
+
+    print_section(title)
+
+    for action in LEARNABLE_ACTIONS:
+
+        print_b_slice(
+            B_array=B_array,
+            action_input=action,
+        )
+
+
+def print_initial_final_b_comparison(
+    initial_model,
+    final_model,
+):
+    """
+    Compare B at experiment start and experiment end.
+
+    Useful for Dirichlet-vs-ATES evaluation.
+    """
+
+    (
+        B_initial,
+        _,
+        _,
+    ) = extract_b_array(
+        initial_model
+    )
+
+    (
+        B_final,
+        _,
+        _,
+    ) = extract_b_array(
+        final_model
+    )
+
+    print_section(
+        "GLOBAL INITIAL vs FINAL B COMPARISON"
+    )
+
+    for action in LEARNABLE_ACTIONS:
+
+        print_subsection(
+            f"ACTION = {action}"
+        )
+
+        print_b_slice(
+            B_array=B_initial,
+            action_input=action,
+            title="INITIAL B",
+        )
+
+        print_b_slice(
+            B_array=B_final,
+            action_input=action,
+            title="FINAL B",
+        )
+
+        print_b_delta_slice(
+            B_before=B_initial,
+            B_after=B_final,
+            action_input=action,
+        )
+
+
+# ============================================================
+# PYMDP DISTRIBUTION ASSIGNMENT
+# ============================================================
+
+def assign_distribution_array(
+    dist,
+    new_array,
+    attr_name,
+):
+    """
+    Assign updated array back into pymdp Distribution.
+
+    deepcopy is used to avoid mutating the original
+    Distribution object directly.
+    """
+
+    updated_dist = copy.deepcopy(
+        dist
+    )
+
+    # --------------------------------------------------------
+    # First try attribute detected by utility function
+    # --------------------------------------------------------
+
+    if attr_name is not None:
+
+        try:
+
+            setattr(
+                updated_dist,
+                attr_name,
+                new_array,
+            )
+
+            return updated_dist
+
+        except Exception:
+            pass
+
+    # --------------------------------------------------------
+    # Defensive fallbacks
+    # --------------------------------------------------------
+
+    candidate_attrs = [
+        "values",
+        "array",
+        "data",
+        "tensor",
+        "params",
+        "parameters",
+        "probabilities",
+        "probs",
+        "_values",
+        "_array",
+        "_data",
+        "_tensor",
+    ]
+
+    for attr in candidate_attrs:
+
+        if hasattr(
+            updated_dist,
+            attr,
+        ):
+
+            try:
+
+                setattr(
+                    updated_dist,
+                    attr,
+                    new_array,
+                )
+
+                return updated_dist
+
+            except Exception:
+                pass
+
+    # --------------------------------------------------------
+    # Last fallback
+    # --------------------------------------------------------
+
+    return new_array
+
+
+# ============================================================
+# DIRECT STOCHASTIC ACTION SAMPLING FROM q_pi
+# ============================================================
 
 def sample_action_from_q_pi(
     q_pi,
     rng_key,
 ):
     """
-    Sample directly from the policy posterior.
+    Sample directly from policy posterior.
 
     No:
-        - top-k filtering
-        - additional temperature scaling
-        - greedy transformation
+        - greedy argmax
+        - top-k
+        - extra temperature scaling
+        - manual probability transformation
 
-    Therefore:
+    For policy_len = 1:
+
+        each policy corresponds to one action
+
+    therefore:
 
         a_t ~ Q(pi)
-
-    For policy_len = 1, each policy corresponds to one action,
-    so q_pi[0] can directly be treated as the action
-    probability distribution.
     """
 
     probs = jnp.asarray(
@@ -88,20 +572,22 @@ def sample_action_from_q_pi(
         a_min=0.0,
     )
 
-    prob_sum = jnp.sum(probs)
+    prob_sum = jnp.sum(
+        probs
+    )
 
-    # Defensive fallback.
-    # Normally q_pi already sums to 1.
     probs = jnp.where(
         prob_sum > 0.0,
         probs / prob_sum,
-        jnp.ones_like(probs) / probs.shape[0],
+        jnp.ones_like(probs)
+        / probs.shape[0],
     )
 
     # JAX PRNG keys are immutable.
-    # Always split before using one for stochastic sampling.
-    rng_key, action_key = jax.random.split(
-        rng_key
+    rng_key, action_key = (
+        jax.random.split(
+            rng_key
+        )
     )
 
     chosen_action_idx = int(
@@ -112,9 +598,11 @@ def sample_action_from_q_pi(
         )
     )
 
-    chosen_action = agent_actions[
-        chosen_action_idx
-    ]
+    chosen_action = (
+        agent_actions[
+            chosen_action_idx
+        ]
+    )
 
     return (
         chosen_action_idx,
@@ -124,9 +612,327 @@ def sample_action_from_q_pi(
     )
 
 
-# =========================================================
-# Standard Dirichlet B-learning Agent
-# =========================================================
+# ============================================================
+# STANDARD DIRICHLET B-LEARNING
+# ============================================================
+
+def standard_dirichlet_b_learning_update(
+    model_agent,
+    qs_current,
+    qs_next,
+    action_input,
+    alpha_B_input=None,
+    learning_rate=1.0,
+    prior_strength=16.0,
+    epsilon=1e-6,
+):
+    """
+    Standard Dirichlet learning for transition model B.
+
+    ----------------------------------------------------------
+    B indexing
+    ----------------------------------------------------------
+
+        B[
+            to_state,
+            from_state,
+            action
+        ]
+
+    ----------------------------------------------------------
+    Soft transition evidence
+    ----------------------------------------------------------
+
+        N(
+            s_t = to,
+            s_{t-1} = from
+            |
+            action
+        )
+
+        =
+
+        q(s_t = to)
+        *
+        q(s_{t-1} = from)
+
+    Therefore:
+
+        transition_count
+
+        =
+
+        outer(
+            q_next,
+            q_current
+        )
+
+    ----------------------------------------------------------
+    Dirichlet update
+    ----------------------------------------------------------
+
+        alpha_new
+
+        =
+
+        alpha_old
+        +
+        learning_rate
+        *
+        transition_count
+
+    only for the executed action slice.
+
+    ----------------------------------------------------------
+    Posterior mean
+    ----------------------------------------------------------
+
+        B[to, from, action]
+
+        =
+
+        alpha[to, from, action]
+        /
+        sum_to alpha[to, from, action]
+
+    ----------------------------------------------------------
+    Important
+    ----------------------------------------------------------
+
+    Standard Dirichlet learning adds positive evidence.
+
+    It does NOT explicitly apply a negative transition
+    correction.
+
+    Some B probabilities may nevertheless decrease after
+    normalization because another TO-state received more
+    concentration mass.
+    """
+
+    # ========================================================
+    # Only new actions are learnable
+    # ========================================================
+
+    if action_input not in LEARNABLE_ACTIONS:
+
+        return (
+            model_agent,
+            alpha_B_input,
+        )
+
+    action_idx = agent_actions.index(
+        action_input
+    )
+
+    # ========================================================
+    # Extract CURRENT B
+    # ========================================================
+
+    (
+        B_current,
+        B_dist,
+        b_attr,
+    ) = extract_b_array(
+        model_agent
+    )
+
+    # Keep exact snapshot before learning.
+    B_before_update = jnp.array(
+        B_current,
+        copy=True,
+    )
+
+    # ========================================================
+    # Initialize / restore Dirichlet concentration
+    # ========================================================
+
+    if alpha_B_input is None:
+
+        # ----------------------------------------------------
+        # Current B becomes prior mean
+        #
+        # alpha_0 = B_initial * prior_strength
+        # ----------------------------------------------------
+
+        B_safe = jnp.clip(
+            B_current,
+            min=epsilon,
+        )
+
+        # Normalize across TO states:
+        #
+        # sum_to B[to, from, action] = 1
+        B_safe = (
+            B_safe
+            /
+            jnp.sum(
+                B_safe,
+                axis=0,
+                keepdims=True,
+            )
+        )
+
+        alpha_B = (
+            B_safe
+            *
+            prior_strength
+        )
+
+    else:
+
+        alpha_B = jnp.asarray(
+            alpha_B_input,
+            dtype=jnp.float32,
+        )
+
+        alpha_B = jnp.maximum(
+            alpha_B,
+            epsilon,
+        )
+
+    # ========================================================
+    # Prepare beliefs
+    # ========================================================
+
+    qs_current = jnp.asarray(
+        qs_current,
+        dtype=jnp.float32,
+    )
+
+    qs_next = jnp.asarray(
+        qs_next,
+        dtype=jnp.float32,
+    )
+
+    # ========================================================
+    # Soft transition evidence
+    # ========================================================
+
+    transition_count = jnp.outer(
+        qs_next,
+        qs_current,
+    )
+
+    # ========================================================
+    # Learning-event log
+    # ========================================================
+
+    print_section(
+        "STANDARD DIRICHLET B-LEARNING EVENT"
+    )
+
+    print(
+        f"Executed previous action : "
+        f"{action_input}"
+    )
+
+    print(
+        f"Action index             : "
+        f"{action_idx}"
+    )
+
+    print(
+        f"Prior strength           : "
+        f"{prior_strength}"
+    )
+
+    print(
+        f"Learning rate            : "
+        f"{learning_rate}"
+    )
+
+    print_vector(
+        title="q(s_t-1) | PREVIOUS BELIEF",
+        vector=qs_current,
+        labels=comforts,
+    )
+
+    print_vector(
+        title="q(s_t) | CURRENT BELIEF",
+        vector=qs_next,
+        labels=comforts,
+    )
+
+    print_transition_evidence(
+        transition_count
+    )
+
+    # ========================================================
+    # Dirichlet concentration update
+    # ========================================================
+
+    alpha_B = alpha_B.at[
+        :,
+        :,
+        action_idx,
+    ].add(
+        learning_rate
+        *
+        transition_count
+    )
+
+    # ========================================================
+    # Convert alpha -> posterior mean B
+    # ========================================================
+
+    denominator = jnp.sum(
+        alpha_B,
+        axis=0,
+        keepdims=True,
+    )
+
+    denominator = jnp.maximum(
+        denominator,
+        epsilon,
+    )
+
+    B_updated = (
+        alpha_B
+        /
+        denominator
+    )
+
+    # ========================================================
+    # Standardized B log
+    # ========================================================
+
+    print_b_update_comparison(
+        B_before=B_before_update,
+        B_after=B_updated,
+        action_input=action_input,
+    )
+
+    # ========================================================
+    # Put UPDATED B back into model
+    # ========================================================
+
+    updated_model_agent = dict(
+        model_agent
+    )
+
+    B_list = list(
+        updated_model_agent["B"]
+    )
+
+    B_list[0] = assign_distribution_array(
+        dist=B_dist,
+        new_array=B_updated,
+        attr_name=b_attr,
+    )
+
+    updated_model_agent["B"] = (
+        B_list
+    )
+
+    return (
+        updated_model_agent,
+        alpha_B,
+    )
+
+
+# ============================================================
+# ONE AGENT-ENVIRONMENT INTERACTION STEP
+# ============================================================
 
 def run_agent_standard_dirichlet_b_learning(
     model_agent,
@@ -138,79 +944,58 @@ def run_agent_standard_dirichlet_b_learning(
     rng_key=None,
 ):
     """
-    Run one interaction step using Standard Dirichlet
-    B-learning.
+    One Active Inference interaction step with
+    Standard Dirichlet B-learning.
 
-    Interaction architecture:
+    Sequence:
 
         predicted prior q^-(s_t)
                 +
-          observation o_t
+           observation o_t
                 |
                 v
-         posterior q(s_t)
+          posterior q(s_t)
                 |
                 v
-       learn previous transition
-
-       q(s_{t-1}),
-       a_{t-1},
-       q(s_t)
-
+        learn transition
+        from previous step
                 |
                 v
           infer policies
                 |
                 v
-         sample action a_t
+        sample action a_t
                 |
                 v
-          environment step
+        environment step
                 |
                 v
-       observation o_{t+1}
+        observation o_(t+1)
                 |
                 v
-     predict prior q^-(s_{t+1})
-                |
-                v
-              return
+        predict q^-(s_(t+1))
 
-    Important:
+    Learning is delayed by one interaction because transition:
 
-    1. o_t is inferred exactly once.
+        s_(t-1)
+           --a_(t-1)-->
+        s_t
 
-    2. q(s_t) is the current posterior.
-
-    3. q(s_t) is NOT blindly reused as the next prior.
-
-    4. The next prior is:
-
-           q^-(s_{t+1})
-               =
-           B[a_t] @ q(s_t)
-
-    5. Standard Dirichlet B-learning is applied only to
-       newly introduced actions:
-
-           AIT
-           ADT
-           XDT
-
-    6. Known actions keep their original B slices fixed.
-
-    7. Action selection is sampled DIRECTLY from q_pi.
-       No additional top-k or temperature transformation.
+    can only be learned after observation o_t allows inference
+    of q(s_t).
     """
 
     if rng_key is None:
-        rng_key = jax.random.PRNGKey(
-            RANDOM_SEED
+
+        rng_key = (
+            jax.random.PRNGKey(
+                RANDOM_SEED
+            )
         )
 
-    # =====================================================
-    # 1. Create inference agent using CURRENT B
-    # =====================================================
+    # ========================================================
+    # 1. Agent using CURRENT B
+    # ========================================================
 
     inference_agent = Agent(
         **model_agent,
@@ -218,35 +1003,37 @@ def run_agent_standard_dirichlet_b_learning(
         policy_len=POLICY_LENGTH,
     )
 
-    # =====================================================
-    # 2. Build current observation
-    # =====================================================
+    # ========================================================
+    # 2. Observation
+    # ========================================================
 
-    temperature_idx = temperatures.index(
-        temperature_observed
+    temperature_idx = (
+        temperatures.index(
+            temperature_observed
+        )
     )
 
-    temperature_observation = jnp.full(
-        (
-            inference_agent.batch_size,
-            1,
-        ),
-        temperature_idx,
+    temperature_observation = (
+        jnp.full(
+            (
+                inference_agent.batch_size,
+                1,
+            ),
+            temperature_idx,
+        )
     )
 
     observations = [
         temperature_observation,
     ]
 
-    # =====================================================
-    # 3. Prepare prior q^-(s_t)
-    # =====================================================
+    # ========================================================
+    # 3. Prior q^-(s_t)
+    # ========================================================
 
     if qs_prior_input is None:
-        # First interaction step:
-        #
-        # use model D as initial hidden-state prior.
 
+        # First interaction uses D.
         qs_init = jtu.tree_map(
             lambda x: jnp.expand_dims(
                 x,
@@ -256,23 +1043,6 @@ def run_agent_standard_dirichlet_b_learning(
         )
 
     else:
-        # Later interaction steps:
-        #
-        # qs_prior_input:
-        #
-        #     q^-(s_t)
-        #
-        # Expected input:
-        #
-        #     (num_states,)
-        #
-        # Agent expects:
-        #
-        #     (
-        #       batch_size,
-        #       time_dim,
-        #       num_states
-        #     )
 
         qs_init = [
             jnp.expand_dims(
@@ -284,55 +1054,19 @@ def run_agent_standard_dirichlet_b_learning(
             )
         ]
 
-    # =====================================================
-    # 4. Infer CURRENT hidden state exactly once
-    # =====================================================
+    # ========================================================
+    # 4. Infer CURRENT state
+    # ========================================================
 
     qs = inference_agent.infer_states(
         observations,
         qs_init,
     )
 
-    # Current shape:
-    #
-    #     qs[0]:
-    #       (
-    #         batch_size,
-    #         time_dim,
-    #         extra_dim,
-    #         num_states
-    #       )
-    #
-    # In this environment:
-    #
-    #     (1, 1, 1, 5)
-
     comfort_belief = jnp.squeeze(
         qs[0],
         axis=(0, 1, 2),
     )
-
-    print(
-        "\n===== CURRENT OBSERVATION ====="
-    )
-
-    print(
-        f"Observed temperature: "
-        f"{temperature_observed}"
-    )
-
-    print(
-        "\n===== POSTERIOR BELIEF "
-        "OVER COMFORT ====="
-    )
-
-    for i, state in enumerate(
-        comforts
-    ):
-        print(
-            f"{state}: "
-            f"{float(comfort_belief[i]):.4f}"
-        )
 
     current_comfort_idx = int(
         jnp.argmax(
@@ -340,59 +1074,53 @@ def run_agent_standard_dirichlet_b_learning(
         )
     )
 
-    current_infer_state = comforts[
-        current_comfort_idx
-    ]
+    current_infer_state = (
+        comforts[
+            current_comfort_idx
+        ]
+    )
+
+    print_subsection(
+        "CURRENT STATE INFERENCE"
+    )
 
     print(
-        "\nMost likely comfort state:",
+        "Observed temperature:",
+        temperature_observed,
+    )
+
+    print_vector(
+        title="Posterior q(s_t)",
+        vector=comfort_belief,
+        labels=comforts,
+    )
+
+    print(
+        "\nMost likely state:",
         current_infer_state,
     )
 
-    # =====================================================
+    # ========================================================
     # 5. Learn PREVIOUS transition
-    # =====================================================
-    #
-    # At interaction t we now have:
-    #
-    #     previous_belief
-    #         =
-    #     q(s_{t-1})
-    #
-    #     previous_action
-    #         =
-    #     a_{t-1}
-    #
-    #     comfort_belief
-    #         =
-    #     q(s_t)
-    #
-    # Thus transition t-1 -> t can now be learned.
-    # =====================================================
+    # ========================================================
 
-    updated_model_agent = model_agent
-    alpha_B_updated = alpha_B_input
+    updated_model_agent = (
+        model_agent
+    )
+
+    alpha_B_updated = (
+        alpha_B_input
+    )
 
     if (
         previous_belief is not None
         and previous_action is not None
     ):
 
-        print(
-            "\n===== STANDARD DIRICHLET "
-            "B-LEARNING ====="
-        )
-
-        if previous_action in LEARNABLE_ACTIONS:
-
-            print(
-                "Learning previous transition:"
-            )
-
-            print(
-                f"Previous action: "
-                f"{previous_action}"
-            )
+        if (
+            previous_action
+            in LEARNABLE_ACTIONS
+        ):
 
             (
                 updated_model_agent,
@@ -416,36 +1144,36 @@ def run_agent_standard_dirichlet_b_learning(
                 )
             )
 
-            print_updated_b_slice(
-                model_agent=updated_model_agent,
-                action_input=previous_action,
+        else:
+
+            print_subsection(
+                "B-LEARNING SKIPPED"
             )
 
-        else:
             print(
-                f"Skip action {previous_action}: "
-                "known action, B slice is fixed."
+                f"Previous action = "
+                f"{previous_action}"
+            )
+
+            print(
+                "Reason: known action; "
+                "B slice is fixed."
             )
 
     else:
-        print(
-            "\n===== STANDARD DIRICHLET "
-            "B-LEARNING ====="
+
+        print_subsection(
+            "B-LEARNING SKIPPED"
         )
 
         print(
-            "No previous transition available "
-            "(first interaction step)."
+            "Reason: first interaction; "
+            "no previous transition exists."
         )
 
-    # =====================================================
-    # 6. Recreate Agent using UPDATED B
-    # =====================================================
-    #
-    # If the previous transition updated B,
-    # the current policy inference should immediately
-    # use that new B.
-    # =====================================================
+    # ========================================================
+    # 6. Recreate agent using UPDATED B
+    # ========================================================
 
     policy_agent = Agent(
         **updated_model_agent,
@@ -453,9 +1181,9 @@ def run_agent_standard_dirichlet_b_learning(
         policy_len=POLICY_LENGTH,
     )
 
-    # =====================================================
-    # 7. Prepare CURRENT posterior for policy inference
-    # =====================================================
+    # ========================================================
+    # 7. Current posterior for policy inference
+    # ========================================================
 
     qs_for_policy = [
         jnp.squeeze(
@@ -465,26 +1193,18 @@ def run_agent_standard_dirichlet_b_learning(
         for q in qs
     ]
 
-    print(
-        "\n===== DEBUG POLICY INPUT "
-        "SHAPE ====="
-    )
-
-    print(
-        "qs_for_policy[0].shape:",
-        qs_for_policy[0].shape,
-    )
-
-    # =====================================================
+    # ========================================================
     # 8. Infer policies
-    # =====================================================
+    # ========================================================
 
-    q_pi, G = policy_agent.infer_policies(
-        qs_for_policy
+    q_pi, G = (
+        policy_agent.infer_policies(
+            qs_for_policy
+        )
     )
 
-    print(
-        "\n===== POLICY INFERENCE ====="
+    print_subsection(
+        "POLICY INFERENCE"
     )
 
     print(
@@ -493,18 +1213,13 @@ def run_agent_standard_dirichlet_b_learning(
     )
 
     print(
-        "q_pi.shape:",
-        q_pi.shape,
-    )
-
-    print(
         "G:",
         G,
     )
 
-    # =====================================================
-    # 9. Sample action DIRECTLY from q_pi
-    # =====================================================
+    # ========================================================
+    # 9. Sample directly from q_pi
+    # ========================================================
 
     (
         chosen_action_idx,
@@ -517,115 +1232,98 @@ def run_agent_standard_dirichlet_b_learning(
     )
 
     print(
-        "\n===== STOCHASTIC ACTION "
-        "SELECTED DIRECTLY FROM q_pi ====="
-    )
-
-    print(
-        "Sampling probabilities:",
-        action_probs,
-    )
-
-    print(
-        f"Action chosen: "
-        f"{chosen_action}"
-    )
-
-    print(
-        "\n===== ACTION PROBABILITIES ====="
+        "\nACTION PROBABILITIES"
     )
 
     for i, action in enumerate(
         agent_actions
     ):
+
         print(
-            f"{i}: "
-            f"{action:6s} "
-            f"| q_pi="
-            f"{float(q_pi[0][i]):.4f} "
-            f"| sample_p="
-            f"{float(action_probs[i]):.4f} "
-            f"| G="
-            f"{float(G[0][i]):.4f}"
+            f"  {i:2d} | "
+            f"{action:6s} | "
+            f"q_pi="
+            f"{float(q_pi[0][i]):.6f} | "
+            f"sample_p="
+            f"{float(action_probs[i]):.6f} | "
+            f"G="
+            f"{float(G[0][i]):.6f}"
         )
 
-    # =====================================================
-    # 10. Execute CURRENT action in environment
-    # =====================================================
-
     print(
-        "\n===== EXECUTE ACTION ====="
+        "\nChosen action:",
+        chosen_action,
     )
 
-    print(
-        "Current inferred state:",
-        current_infer_state,
-    )
-
-    print(
-        f"Executed action a_t: "
-        f"{chosen_action}"
-    )
+    # ========================================================
+    # 10. Execute CURRENT action
+    # ========================================================
 
     (
         label_next_temperature,
         next_temperature_index,
     ) = environment_step(
         action_input=chosen_action,
-        current_temperatures=temperature_observed,
+        current_temperatures=(
+            temperature_observed
+        ),
+    )
+
+    print_subsection(
+        "ENVIRONMENT TRANSITION"
     )
 
     print(
-        "\n===== ENVIRONMENT RESULT ====="
+        "Current observation :",
+        temperature_observed,
     )
 
     print(
-        "New temperature observation:",
+        "Current state       :",
+        current_infer_state,
+    )
+
+    print(
+        "Executed action     :",
+        chosen_action,
+    )
+
+    print(
+        "Next observation    :",
         label_next_temperature,
     )
 
-    # =====================================================
-    # 11. Predict NEXT PRIOR only
-    # =====================================================
+    # ========================================================
+    # 11. Predict NEXT prior
+    # ========================================================
     #
-    # IMPORTANT:
+    # Do NOT infer next observation here.
     #
-    # Do NOT infer label_next_temperature here.
+    # q^-(s_(t+1))
     #
-    # That observation belongs to the NEXT interaction.
+    # =
     #
-    #
-    #     q^-(s_{t+1})
-    #
-    #         =
-    #
-    #     B[a_t] @ q(s_t)
-    #
-    # =====================================================
+    # B[a_t] @ q(s_t)
+    # ========================================================
 
-    qs_prior_next = predict_next_state_belief(
-        model=updated_model_agent,
-        qs_current=comfort_belief,
-        action_input=chosen_action,
-        comforts_input=comforts,
-    )
-
-    print(
-        "\n===== PREDICTED PRIOR "
-        "AFTER ACTION ====="
-    )
-
-    for i, state in enumerate(
-        comforts
-    ):
-        print(
-            f"Prior q^-(s_t+1={state}): "
-            f"{float(qs_prior_next[i]):.4f}"
+    qs_prior_next = (
+        predict_next_state_belief(
+            model=updated_model_agent,
+            qs_current=comfort_belief,
+            action_input=chosen_action,
+            comforts_input=comforts,
         )
+    )
 
-    # =====================================================
-    # 12. Return interaction result
-    # =====================================================
+    print_vector(
+        title="Predicted prior q^-(s_t+1)",
+        vector=qs_prior_next,
+        labels=comforts,
+    )
+
+    # ========================================================
+    # 12. Return
+    # ========================================================
 
     return {
         "current_temperature":
@@ -672,461 +1370,9 @@ def run_agent_standard_dirichlet_b_learning(
     }
 
 
-# =========================================================
-# Standard Dirichlet B-learning update
-# =========================================================
-
-def standard_dirichlet_b_learning_update(
-    model_agent,
-    qs_current,
-    qs_next,
-    action_input,
-    alpha_B_input=None,
-    learning_rate=1.0,
-    prior_strength=16.0,
-    epsilon=1e-6,
-):
-    """
-    Standard Dirichlet learning for transition model B.
-
-    B indexing convention:
-
-        B[
-            to_state,
-            from_state,
-            action
-        ]
-
-    The soft transition evidence is:
-
-        N(to, from | action)
-
-            =
-
-        q_next[to]
-            *
-        q_current[from]
-
-    Therefore:
-
-        transition_count
-
-            =
-
-        outer(
-            q_next,
-            q_current,
-        )
-
-    Standard Dirichlet learning only ADDS observed
-    transition evidence.
-
-    There is no explicit negative update.
-
-    This function updates only actions included in:
-
-        LEARNABLE_ACTIONS
-    """
-
-    # =====================================================
-    # Only new actions are learnable
-    # =====================================================
-
-    if action_input not in LEARNABLE_ACTIONS:
-        return (
-            model_agent,
-            alpha_B_input,
-        )
-
-    action_idx = agent_actions.index(
-        action_input
-    )
-
-    # =====================================================
-    # Extract B tensor
-    # =====================================================
-
-    B_dist = model_agent["B"][0]
-
-    (
-        B_current,
-        b_attr,
-    ) = extract_distribution_array_and_attr(
-        B_dist
-    )
-
-    B_current = jnp.asarray(
-        B_current,
-        dtype=jnp.float32,
-    )
-
-    print(
-        "\n===== DEBUG B-LEARNING ====="
-    )
-
-    print(
-        "type(model_agent['B']):",
-        type(model_agent["B"]),
-    )
-
-    print(
-        "type(B_dist):",
-        type(B_dist),
-    )
-
-    print(
-        "B attr used:",
-        b_attr,
-    )
-
-    print(
-        "B_current.shape:",
-        B_current.shape,
-    )
-
-    # =====================================================
-    # Initialize Dirichlet concentration tensor
-    # =====================================================
-    #
-    # We use current B as the prior mean:
-    #
-    #     alpha_0
-    #
-    #         =
-    #
-    #     B_initial * prior_strength
-    #
-    #
-    # Dirichlet requires alpha > 0,
-    # therefore exact zero entries are replaced with epsilon.
-    # =====================================================
-
-    if alpha_B_input is None:
-
-        B_safe = jnp.clip(
-            B_current,
-            min=epsilon,
-        )
-
-        # Normalize over TO state.
-        #
-        # B:
-        #
-        #     [to, from, action]
-        #
-        # For every:
-        #
-        #     (from, action)
-        #
-        # sum_to B[to, from, action] = 1
-
-        B_safe = (
-            B_safe
-            / jnp.sum(
-                B_safe,
-                axis=0,
-                keepdims=True,
-            )
-        )
-
-        alpha_B = (
-            B_safe
-            * prior_strength
-        )
-
-    else:
-        alpha_B = jnp.asarray(
-            alpha_B_input,
-            dtype=jnp.float32,
-        )
-
-        # Defensive numerical safety.
-        alpha_B = jnp.maximum(
-            alpha_B,
-            epsilon,
-        )
-
-    # =====================================================
-    # Soft transition evidence
-    # =====================================================
-    #
-    # qs_current:
-    #
-    #     q(s_{t-1})
-    #
-    # qs_next:
-    #
-    #     q(s_t)
-    #
-    #
-    # transition_count:
-    #
-    #     [
-    #       to_state,
-    #       from_state
-    #     ]
-    #
-    # =====================================================
-
-    qs_current = jnp.asarray(
-        qs_current,
-        dtype=jnp.float32,
-    )
-
-    qs_next = jnp.asarray(
-        qs_next,
-        dtype=jnp.float32,
-    )
-
-    transition_count = jnp.outer(
-        qs_next,
-        qs_current,
-    )
-
-    print(
-        "transition_count.shape:",
-        transition_count.shape,
-    )
-
-    print(
-        "action_input:",
-        action_input,
-    )
-
-    print(
-        "action_idx:",
-        action_idx,
-    )
-
-    # =====================================================
-    # Add evidence only to the executed action slice
-    # =====================================================
-
-    alpha_B = alpha_B.at[
-        :,
-        :,
-        action_idx,
-    ].add(
-        learning_rate
-        * transition_count
-    )
-
-    # =====================================================
-    # Convert concentration parameters back to B
-    # =====================================================
-    #
-    # Dirichlet mean:
-    #
-    #         alpha_i
-    #     ----------------
-    #       sum_j alpha_j
-    #
-    #
-    # Normalize across TO states:
-    #
-    #     axis = 0
-    #
-    # because:
-    #
-    #     B[to, from, action]
-    # =====================================================
-
-    denominator = jnp.sum(
-        alpha_B,
-        axis=0,
-        keepdims=True,
-    )
-
-    denominator = jnp.maximum(
-        denominator,
-        epsilon,
-    )
-
-    B_updated = (
-        alpha_B
-        / denominator
-    )
-
-    # =====================================================
-    # Put UPDATED B back into model
-    # =====================================================
-
-    updated_model_agent = dict(
-        model_agent
-    )
-
-    B_list = list(
-        updated_model_agent["B"]
-    )
-
-    B_list[0] = assign_distribution_array(
-        dist=B_dist,
-        new_array=B_updated,
-        attr_name=b_attr,
-    )
-
-    updated_model_agent["B"] = B_list
-
-    return (
-        updated_model_agent,
-        alpha_B,
-    )
-
-
-# =========================================================
-# Print updated B slice
-# =========================================================
-
-def print_updated_b_slice(
-    model_agent,
-    action_input,
-):
-    """
-    Print:
-
-        B[
-            to_state,
-            from_state,
-            action_input
-        ]
-
-    for debugging Dirichlet learning.
-    """
-
-    action_idx = agent_actions.index(
-        action_input
-    )
-
-    B_dist = model_agent["B"][0]
-
-    (
-        B_array,
-        _,
-    ) = extract_distribution_array_and_attr(
-        B_dist
-    )
-
-    print(
-        f"\n===== UPDATED B SLICE: "
-        f"{action_input} ====="
-    )
-
-    for (
-        from_idx,
-        from_state,
-    ) in enumerate(
-        comforts
-    ):
-
-        print(
-            f"\nFrom state: "
-            f"{from_state}"
-        )
-
-        for (
-            to_idx,
-            to_state,
-        ) in enumerate(
-            comforts
-        ):
-
-            prob = B_array[
-                to_idx,
-                from_idx,
-                action_idx,
-            ]
-
-            print(
-                f"  To {to_state}: "
-                f"{float(prob):.4f}"
-            )
-
-
-# =========================================================
-# Assign updated array into pymdp Distribution
-# =========================================================
-
-def assign_distribution_array(
-    dist,
-    new_array,
-    attr_name,
-):
-    """
-    Assign updated array back into the same
-    pymdp Distribution object representation.
-
-    A deepcopy is used so the original distribution is not
-    directly mutated.
-    """
-
-    updated_dist = copy.deepcopy(
-        dist
-    )
-
-    # First try the attribute discovered by:
-    #
-    # extract_distribution_array_and_attr()
-
-    if attr_name is not None:
-        try:
-            setattr(
-                updated_dist,
-                attr_name,
-                new_array,
-            )
-
-            return updated_dist
-
-        except Exception:
-            pass
-
-    # Defensive fallbacks for possible Distribution
-    # implementations.
-
-    candidate_attrs = [
-        "values",
-        "array",
-        "data",
-        "tensor",
-        "params",
-        "parameters",
-        "probabilities",
-        "probs",
-        "_values",
-        "_array",
-        "_data",
-        "_tensor",
-    ]
-
-    for attr in candidate_attrs:
-
-        if hasattr(
-            updated_dist,
-            attr,
-        ):
-            try:
-                setattr(
-                    updated_dist,
-                    attr,
-                    new_array,
-                )
-
-                return updated_dist
-
-            except Exception:
-                pass
-
-    # Last fallback:
-    #
-    # Return raw JAX array if the Agent implementation
-    # accepts it.
-
-    return new_array
-
-
-# =========================================================
-# Finalize LAST pending transition
-# =========================================================
+# ============================================================
+# FINALIZE LAST PENDING TRANSITION
+# ============================================================
 
 def finalize_standard_dirichlet_b_learning(
     model_agent,
@@ -1137,37 +1383,27 @@ def finalize_standard_dirichlet_b_learning(
     alpha_B_input,
 ):
     """
-    Learn the final pending transition after the interaction
-    loop has finished.
+    Learn final pending transition.
 
-    Why this is needed:
+    With delayed transition learning:
 
-    B-learning for action a_t occurs only after observation
-    o_{t+1} becomes available.
+        action a_t
 
-    Therefore after N environment actions, the final action
-    still has one pending transition.
+    can only be learned after:
 
-    We infer the final observation once:
+        observation o_(t+1)
 
-        q(s_T)
+    is available.
 
-    and use:
-
-        q(s_{T-1})
-        a_{T-1}
-        q(s_T)
-
-    to perform the last B update.
-
-    No policy inference or environment action is performed
-    here.
+    Therefore, after N environment actions, one transition
+    remains pending.
     """
 
     if (
         previous_belief is None
         or previous_action is None
     ):
+
         return (
             model_agent,
             alpha_B_input,
@@ -1180,25 +1416,29 @@ def finalize_standard_dirichlet_b_learning(
         policy_len=POLICY_LENGTH,
     )
 
-    temperature_idx = temperatures.index(
-        temperature_observed
+    temperature_idx = (
+        temperatures.index(
+            temperature_observed
+        )
     )
 
-    temperature_observation = jnp.full(
-        (
-            agent.batch_size,
-            1,
-        ),
-        temperature_idx,
+    temperature_observation = (
+        jnp.full(
+            (
+                agent.batch_size,
+                1,
+            ),
+            temperature_idx,
+        )
     )
 
     observations = [
         temperature_observation,
     ]
 
-    # =====================================================
+    # ========================================================
     # Prepare final prior
-    # =====================================================
+    # ========================================================
 
     if qs_prior_input is None:
 
@@ -1222,9 +1462,9 @@ def finalize_standard_dirichlet_b_learning(
             )
         ]
 
-    # =====================================================
-    # Infer final posterior
-    # =====================================================
+    # ========================================================
+    # Final state inference
+    # ========================================================
 
     qs = agent.infer_states(
         observations,
@@ -1236,30 +1476,24 @@ def finalize_standard_dirichlet_b_learning(
         axis=(0, 1, 2),
     )
 
-    print(
-        "\n===== FINAL OBSERVATION ====="
+    print_section(
+        "FINAL PENDING TRANSITION"
     )
 
     print(
-        "Observed temperature:",
+        "Final observation:",
         temperature_observed,
     )
 
-    print(
-        "\n===== FINAL POSTERIOR ====="
+    print_vector(
+        title="Final posterior q(s_T)",
+        vector=final_belief,
+        labels=comforts,
     )
 
-    for i, state in enumerate(
-        comforts
-    ):
-        print(
-            f"{state}: "
-            f"{float(final_belief[i]):.4f}"
-        )
-
-    # =====================================================
-    # Known action -> no B learning
-    # =====================================================
+    # ========================================================
+    # Known action: no learning
+    # ========================================================
 
     if (
         previous_action
@@ -1267,9 +1501,12 @@ def finalize_standard_dirichlet_b_learning(
     ):
 
         print(
-            "\nFinal transition uses known action "
-            f"{previous_action}; "
-            "skip B-learning."
+            "\nFinal action:",
+            previous_action,
+        )
+
+        print(
+            "Known action -> skip B-learning."
         )
 
         return (
@@ -1278,23 +1515,9 @@ def finalize_standard_dirichlet_b_learning(
             final_belief,
         )
 
-    # =====================================================
+    # ========================================================
     # Learn final transition
-    # =====================================================
-
-    print(
-        "\n===== FINAL STANDARD "
-        "DIRICHLET B-LEARNING ====="
-    )
-
-    print(
-        "Learning final transition:"
-    )
-
-    print(
-        f"Previous action: "
-        f"{previous_action}"
-    )
+    # ========================================================
 
     (
         updated_model_agent,
@@ -1316,11 +1539,6 @@ def finalize_standard_dirichlet_b_learning(
         ),
     )
 
-    print_updated_b_slice(
-        model_agent=updated_model_agent,
-        action_input=previous_action,
-    )
-
     return (
         updated_model_agent,
         alpha_B_updated,
@@ -1328,9 +1546,9 @@ def finalize_standard_dirichlet_b_learning(
     )
 
 
-# =========================================================
-# Build model with NEW actions
-# =========================================================
+# ============================================================
+# BUILD MODEL WITH NEW ACTIONS
+# ============================================================
 
 agent_model = extend_action_space(
     "AIT"
@@ -1345,23 +1563,40 @@ agent_model = extend_action_space(
 )
 
 
-# =========================================================
-# Initial observation
-# =========================================================
+# ============================================================
+# SAVE INITIAL MODEL
+# ============================================================
+#
+# Important for experiment-level:
+#
+#     Initial B
+#         vs
+#     Final B
+#
+# comparison.
+# ============================================================
+
+initial_agent_model = copy.deepcopy(
+    agent_model
+)
+
+
+# ============================================================
+# INITIAL OBSERVATION
+# ============================================================
 
 temperature_observed = (
     INITIAL_TEMPERATURE
 )
 
 
-# =========================================================
-# Recurrent variables
-# =========================================================
+# ============================================================
+# RECURRENT VARIABLES
+# ============================================================
 
-# Predicted prior:
+# Predicted hidden-state prior:
 #
 #     q^-(s_t)
-
 qs_prior = None
 
 
@@ -1372,109 +1607,98 @@ qs_prior = None
 #         from,
 #         action
 #     ]
-
 alpha_B = None
 
 
-# Needed because B-learning is delayed until the NEXT
-# posterior becomes available.
-
+# Previous posterior/action needed for delayed learning.
 previous_belief = None
 previous_action = None
 
 
-# Reproducible random number generator.
-
+# Reproducible stochastic action sampling.
 rng_key = jax.random.PRNGKey(
     RANDOM_SEED
 )
 
 
-# Save interaction history.
-
+# Interaction history.
 history = []
 
 
-# =========================================================
-# Experiment information
-# =========================================================
+# ============================================================
+# EXPERIMENT HEADER
+# ============================================================
 
-print(
-    "\n========================================"
+print_section(
+    "STANDARD DIRICHLET B-LEARNING EXPERIMENT"
 )
 
 print(
-    "STANDARD DIRICHLET B-LEARNING"
-)
-
-print(
-    "========================================"
-)
-
-print(
-    f"Initial temperature: "
+    f"Initial temperature        : "
     f"{INITIAL_TEMPERATURE}"
 )
 
 print(
-    f"Number of steps: "
+    f"Number of steps            : "
     f"{NUM_STEPS}"
 )
 
 print(
-    f"Random seed: "
+    f"Random seed                : "
     f"{RANDOM_SEED}"
 )
 
 print(
-    f"Policy length: "
+    f"Policy length              : "
     f"{POLICY_LENGTH}"
 )
 
 print(
-    f"Gamma: "
+    f"Gamma                      : "
     f"{GAMMA}"
 )
 
 print(
-    f"Dirichlet prior strength: "
+    f"Dirichlet prior strength   : "
     f"{DIRICHLET_PRIOR_STRENGTH}"
 )
 
 print(
-    f"Dirichlet learning rate: "
+    f"Dirichlet learning rate    : "
     f"{DIRICHLET_LEARNING_RATE}"
 )
 
 print(
-    "Action selection: "
+    "Action selection           : "
     "DIRECT SAMPLE FROM q_pi"
 )
 
 print(
-    "Learnable actions:",
-    LEARNABLE_ACTIONS,
+    "Learnable actions          : "
+    f"{LEARNABLE_ACTIONS}"
 )
 
 
-# =========================================================
-# Agent-environment interaction loop
-# =========================================================
+# ============================================================
+# INITIAL B
+# ============================================================
+
+print_all_learnable_b_slices(
+    model_agent=agent_model,
+    title="INITIAL B SLICES",
+)
+
+
+# ============================================================
+# AGENT-ENVIRONMENT LOOP
+# ============================================================
 
 for t in range(
     NUM_STEPS
 ):
 
-    print(
-        "\n========================================"
-    )
-
-    print(
-        f"AGENT LOOP STEP {t + 1}"
-    )
-
-    print(
-        "========================================"
+    print_section(
+        f"AGENT LOOP STEP {t + 1:02d}"
     )
 
     result = (
@@ -1499,81 +1723,67 @@ for t in range(
         result
     )
 
-    # =====================================================
-    # Step summary
-    # =====================================================
+    # ========================================================
+    # STEP SUMMARY
+    # ========================================================
 
-    print(
-        "\n===== STEP SUMMARY ====="
+    print_subsection(
+        "STEP SUMMARY"
     )
 
     print(
-        "Current observation:",
+        f"Step                : "
+        f"{t + 1}"
+    )
+
+    print(
+        "Current observation :",
         result[
             "current_temperature"
         ],
     )
 
     print(
-        "Current belief:",
+        "Inferred state      :",
         result[
-            "current_belief"
+            "current_inferred_state"
         ],
     )
 
     print(
-        "Chosen action:",
+        "Chosen action       :",
         result[
             "chosen_action"
         ],
     )
 
     print(
-        "Next observation:",
+        "Next observation    :",
         result[
             "next_temperature"
         ],
     )
 
-    print(
-        "Predicted prior next:",
-        result[
-            "predicted_prior_next"
-        ],
-    )
-
-    # =====================================================
-    # UPDATED B becomes model for next interaction
-    # =====================================================
+    # ========================================================
+    # Updated B becomes next model
+    # ========================================================
 
     agent_model = result[
         "updated_model_agent"
     ]
 
-    # =====================================================
-    # Preserve Dirichlet concentration tensor
-    # =====================================================
+    # ========================================================
+    # Preserve alpha
+    # ========================================================
 
     alpha_B = result[
         "alpha_B"
     ]
 
-    # =====================================================
-    # Save CURRENT posterior/action
-    #
-    # At the NEXT interaction:
-    #
-    #     current_belief
-    #
-    # becomes:
-    #
-    #     q(s_{t-1})
-    #
-    # and chosen_action becomes:
-    #
-    #     a_{t-1}
-    #
-    # =====================================================
+    # ========================================================
+    # Current posterior/action become previous values
+    # at next interaction
+    # ========================================================
 
     previous_belief = result[
         "current_belief"
@@ -1583,34 +1793,34 @@ for t in range(
         "chosen_action"
     ]
 
-    # =====================================================
-    # Predicted PRIOR becomes next prior
-    # =====================================================
+    # ========================================================
+    # Predicted next prior
+    # ========================================================
 
     qs_prior = result[
         "predicted_prior_next"
     ]
 
-    # =====================================================
-    # Environment observation becomes next observation
-    # =====================================================
+    # ========================================================
+    # Environment observation
+    # ========================================================
 
     temperature_observed = result[
         "next_temperature"
     ]
 
-    # =====================================================
-    # Preserve updated JAX PRNG key
-    # =====================================================
+    # ========================================================
+    # Updated PRNG key
+    # ========================================================
 
     rng_key = result[
         "rng_key"
     ]
 
 
-# =========================================================
-# Learn final pending transition
-# =========================================================
+# ============================================================
+# FINAL PENDING TRANSITION
+# ============================================================
 
 (
     agent_model,
@@ -1626,21 +1836,12 @@ for t in range(
 )
 
 
-# =========================================================
-# Final experiment summary
-# =========================================================
+# ============================================================
+# FINAL EXPERIMENT SUMMARY
+# ============================================================
 
-print(
-    "\n========================================"
-)
-
-print(
-    "STANDARD DIRICHLET "
-    "B-LEARNING FINISHED"
-)
-
-print(
-    "========================================"
+print_section(
+    "STANDARD DIRICHLET B-LEARNING FINISHED"
 )
 
 print(
@@ -1658,14 +1859,20 @@ print(
     RANDOM_SEED,
 )
 
-print(
-    "\n===== ACTION HISTORY ====="
+
+# ============================================================
+# ACTION HISTORY
+# ============================================================
+
+print_subsection(
+    "ACTION HISTORY"
 )
 
 for step_idx, item in enumerate(
     history,
     start=1,
 ):
+
     print(
         f"Step {step_idx:02d}: "
         f"{item['current_temperature']} "
@@ -1674,28 +1881,35 @@ for step_idx, item in enumerate(
     )
 
 
-# =========================================================
-# Target-reaching statistics
-# =========================================================
+# ============================================================
+# TARGET-REACHING STATISTICS
+# ============================================================
 
 TARGET_TEMPERATURE = "T6"
 
 first_target_step = None
 
+
 for step_idx, item in enumerate(
     history,
     start=1,
 ):
+
     if (
         item["next_temperature"]
-        == TARGET_TEMPERATURE
+        ==
+        TARGET_TEMPERATURE
     ):
-        first_target_step = step_idx
+
+        first_target_step = (
+            step_idx
+        )
+
         break
 
 
-print(
-    "\n===== TARGET SUMMARY ====="
+print_subsection(
+    "TARGET SUMMARY"
 )
 
 print(
@@ -1706,16 +1920,38 @@ print(
 if first_target_step is None:
 
     print(
-        "Target reached: NO"
+        "Target reached:",
+        "NO",
     )
 
 else:
 
     print(
-        "Target reached: YES"
+        "Target reached:",
+        "YES",
     )
 
     print(
         "First target transition step:",
         first_target_step,
     )
+
+
+# ============================================================
+# FINAL B SLICES
+# ============================================================
+
+print_all_learnable_b_slices(
+    model_agent=agent_model,
+    title="FINAL B SLICES",
+)
+
+
+# ============================================================
+# INITIAL vs FINAL B
+# ============================================================
+
+print_initial_final_b_comparison(
+    initial_model=initial_agent_model,
+    final_model=agent_model,
+)
