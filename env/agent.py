@@ -1,8 +1,6 @@
-
 from pymdp.distribution import compile_model
 from env.elements import update_model_description, lst_action_extended, lst_slice_b, \
-    lst_pairing_state, append_action
-
+    lst_pairing_state, append_action, base_actions
 
 import jax
 from pymdp.agent import Agent
@@ -10,7 +8,7 @@ from jax import numpy as jnp
 import jax.tree_util as jtu
 from env.elements import comforts, agent_actions
 from env.environtment import \
-    temperatures, lights, humidity, environment_step, \
+    temperatures, environment_step, \
     predict_next_state_belief
 from utils.util import sample_top_k_with_temperature
 
@@ -19,7 +17,7 @@ def update_matrix_agent():
     current_model = compile_model(update_model_description())
     build_matrix_a(current_model)
     build_matrix_b(current_model)
-    # build_matrix_c("Comfortable", current_model)
+    # build_matrix_c("Cool", current_model)
     build_matrix_c(current_model)
     build_matrix_d(current_model)
     return current_model
@@ -31,213 +29,211 @@ def update_model_agent(current_model_description):
 
 def build_matrix_a(current_model):
     # temperature_obs define
-    current_model.A["temperature_obs"]["T0", "Uncomfortable"] = 0.35
-    current_model.A["temperature_obs"]["T1", "Uncomfortable"] = 0.10
-    current_model.A["temperature_obs"]["T2", "Uncomfortable"] = 0.05
-    current_model.A["temperature_obs"]["T3", "Uncomfortable"] = 0.10
-    current_model.A["temperature_obs"]["T4", "Uncomfortable"] = 0.10
-    current_model.A["temperature_obs"]["T5", "Uncomfortable"] = 0.30
+    current_model.A["temperature_obs"]["T0", "Warm"] = 0.85
+    current_model.A["temperature_obs"]["T1", "Warm"] = 0.10
+    current_model.A["temperature_obs"]["T2", "Warm"] = 0.05
+    current_model.A["temperature_obs"]["T3", "Warm"] = 0.00
+    current_model.A["temperature_obs"]["T4", "Warm"] = 0.00
+    current_model.A["temperature_obs"]["T5", "Warm"] = 0.00
+    current_model.A["temperature_obs"]["T6", "Warm"] = 0.00
 
-    current_model.A["temperature_obs"]["T0", "Neutral"] = 0.10
-    current_model.A["temperature_obs"]["T1", "Neutral"] = 0.25
-    current_model.A["temperature_obs"]["T2", "Neutral"] = 0.20
-    current_model.A["temperature_obs"]["T3", "Neutral"] = 0.25
-    current_model.A["temperature_obs"]["T4", "Neutral"] = 0.15
-    current_model.A["temperature_obs"]["T5", "Neutral"] = 0.05
+    current_model.A["temperature_obs"]["T0", "LittleCool"] = 0.10
+    current_model.A["temperature_obs"]["T1", "LittleCool"] = 0.40
+    current_model.A["temperature_obs"]["T2", "LittleCool"] = 0.40
+    current_model.A["temperature_obs"]["T3", "LittleCool"] = 0.10
+    current_model.A["temperature_obs"]["T4", "LittleCool"] = 0.00
+    current_model.A["temperature_obs"]["T5", "LittleCool"] = 0.00
+    current_model.A["temperature_obs"]["T6", "LittleCool"] = 0.00
 
-    current_model.A["temperature_obs"]["T0", "Comfortable"] = 0.05
-    current_model.A["temperature_obs"]["T1", "Comfortable"] = 0.20
-    current_model.A["temperature_obs"]["T2", "Comfortable"] = 0.40
-    current_model.A["temperature_obs"]["T3", "Comfortable"] = 0.20
-    current_model.A["temperature_obs"]["T4", "Comfortable"] = 0.10
-    current_model.A["temperature_obs"]["T5", "Comfortable"] = 0.05
+    current_model.A["temperature_obs"]["T0", "Cool"] = 0.00
+    current_model.A["temperature_obs"]["T1", "Cool"] = 0.05
+    current_model.A["temperature_obs"]["T2", "Cool"] = 0.05
+    current_model.A["temperature_obs"]["T3", "Cool"] = 0.80
+    current_model.A["temperature_obs"]["T4", "Cool"] = 0.05
+    current_model.A["temperature_obs"]["T5", "Cool"] = 0.05
+    current_model.A["temperature_obs"]["T6", "Cool"] = 0.00
 
-    # light_obs define
-    # Assumption:
-    # - L0: too dark
-    # - L1: dim / low light
-    # - L2: moderate light
-    # - L3: bright light
-    #
-    # For Uncomfortable, extreme lighting conditions are more likely.
-    # For Neutral, middle lighting levels are more likely.
-    # For Comfortable, moderate / suitable lighting is more likely.
-    current_model.A["light_obs"]["L0", "Uncomfortable"] = 0.30
-    current_model.A["light_obs"]["L1", "Uncomfortable"] = 0.15
-    current_model.A["light_obs"]["L2", "Uncomfortable"] = 0.10
-    current_model.A["light_obs"]["L3", "Uncomfortable"] = 0.05
-    current_model.A["light_obs"]["L4", "Uncomfortable"] = 0.15
-    current_model.A["light_obs"]["L5", "Uncomfortable"] = 0.25
+    current_model.A["temperature_obs"]["T0", "LittleCold"] = 0.00
+    current_model.A["temperature_obs"]["T1", "LittleCold"] = 0.00
+    current_model.A["temperature_obs"]["T2", "LittleCold"] = 0.00
+    current_model.A["temperature_obs"]["T3", "LittleCold"] = 0.10
+    current_model.A["temperature_obs"]["T4", "LittleCold"] = 0.40
+    current_model.A["temperature_obs"]["T5", "LittleCold"] = 0.40
+    current_model.A["temperature_obs"]["T6", "LittleCold"] = 0.10
 
-    current_model.A["light_obs"]["L0", "Neutral"] = 0.10
-    current_model.A["light_obs"]["L1", "Neutral"] = 0.15
-    current_model.A["light_obs"]["L2", "Neutral"] = 0.25
-    current_model.A["light_obs"]["L3", "Neutral"] = 0.15
-    current_model.A["light_obs"]["L4", "Neutral"] = 0.30
-    current_model.A["light_obs"]["L5", "Neutral"] = 0.05
-
-    current_model.A["light_obs"]["L0", "Comfortable"] = 0.05
-    current_model.A["light_obs"]["L1", "Comfortable"] = 0.15
-    current_model.A["light_obs"]["L2", "Comfortable"] = 0.20
-    current_model.A["light_obs"]["L3", "Comfortable"] = 0.35
-    current_model.A["light_obs"]["L4", "Comfortable"] = 0.20
-    current_model.A["light_obs"]["L5", "Comfortable"] = 0.05
-
-    # humidity_obs define
-    # Assumption:
-
-    current_model.A["humidity_obs"]["H0", "Uncomfortable"] = 0.25
-    current_model.A["humidity_obs"]["H1", "Uncomfortable"] = 0.10
-    current_model.A["humidity_obs"]["H2", "Uncomfortable"] = 0.05
-    current_model.A["humidity_obs"]["H3", "Uncomfortable"] = 0.15
-    current_model.A["humidity_obs"]["H4", "Uncomfortable"] = 0.15
-    current_model.A["humidity_obs"]["H5", "Uncomfortable"] = 0.30
-
-    current_model.A["humidity_obs"]["H0", "Neutral"] = 0.05
-    current_model.A["humidity_obs"]["H1", "Neutral"] = 0.25
-    current_model.A["humidity_obs"]["H2", "Neutral"] = 0.20
-    current_model.A["humidity_obs"]["H3", "Neutral"] = 0.30
-    current_model.A["humidity_obs"]["H4", "Neutral"] = 0.15
-    current_model.A["humidity_obs"]["H5", "Neutral"] = 0.05
-
-    current_model.A["humidity_obs"]["H0", "Comfortable"] = 0.05
-    current_model.A["humidity_obs"]["H1", "Comfortable"] = 0.15
-    current_model.A["humidity_obs"]["H2", "Comfortable"] = 0.25
-    current_model.A["humidity_obs"]["H3", "Comfortable"] = 0.35
-    current_model.A["humidity_obs"]["H4", "Comfortable"] = 0.15
-    current_model.A["humidity_obs"]["H5", "Comfortable"] = 0.05
+    current_model.A["temperature_obs"]["T0", "Cold"] = 0.00
+    current_model.A["temperature_obs"]["T1", "Cold"] = 0.00
+    current_model.A["temperature_obs"]["T2", "Cold"] = 0.00
+    current_model.A["temperature_obs"]["T3", "Cold"] = 0.00
+    current_model.A["temperature_obs"]["T4", "Cold"] = 0.05
+    current_model.A["temperature_obs"]["T5", "Cold"] = 0.10
+    current_model.A["temperature_obs"]["T6", "Cold"] = 0.85
 
 
 def build_matrix_b(current_model):
     # fill in the transition model (B) tensor
     # note that it's specified as ["to", "from", "action"]
-    # Hidden states: Uncomfortable, Neutral, Comfortable
-    # Agent actions: IL, DL, IT, DT, NA
+    # Hidden states: "Warm", "LittleCool", "Cool", "LittleCold", "Cold"
+    # Agent actions: FIT, FDT, NA
     #
     # Assumption:
     # Each action has a different random transition distribution.
     # For each [from_state, action], probabilities over to_state sum to 1.0.
 
     # =========================================================
-    # IL: Increase Light
+    # FIT: Fan Increase Temperature
     # =========================================================
 
-    # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "IL"] = 0.50
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "IL"] = 0.45
-    current_model.B["comfort"]["Comfortable", "Uncomfortable", "IL"] = 0.05
+    # From Warm
+    current_model.B["comfort"]["Warm", "Warm", "FIT"] = 0.10
+    current_model.B["comfort"]["LittleCool", "Warm", "FIT"] = 0.85
+    current_model.B["comfort"]["Cool", "Warm", "FIT"] = 0.05
+    current_model.B["comfort"]["LittleCold", "Warm", "FIT"] = 0.00
+    current_model.B["comfort"]["Cold", "Warm", "FIT"] = 0.00
 
-    # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "IL"] = 0.35
-    current_model.B["comfort"]["Neutral", "Neutral", "IL"] = 0.50
-    current_model.B["comfort"]["Comfortable", "Neutral", "IL"] = 0.15
+    # From LittleCool
+    current_model.B["comfort"]["Warm", "LittleCool", "FIT"] = 0.05
+    current_model.B["comfort"]["LittleCool", "LittleCool", "FIT"] = 0.45
+    current_model.B["comfort"]["Cool", "LittleCool", "FIT"] = 0.45
+    current_model.B["comfort"]["LittleCold", "LittleCool", "FIT"] = 0.05
+    current_model.B["comfort"]["Cold", "LittleCool", "FIT"] = 0.00
 
-    # From Comfortable
-    current_model.B["comfort"]["Uncomfortable", "Comfortable", "IL"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "IL"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Comfortable", "IL"] = 0.55
+    # From Cool
+    current_model.B["comfort"]["Warm", "Cool", "FIT"] = 0.00
+    current_model.B["comfort"]["LittleCool", "Cool", "FIT"] = 0.00
+    current_model.B["comfort"]["Cool", "Cool", "FIT"] = 0.95
+    current_model.B["comfort"]["LittleCold", "Cool", "FIT"] = 0.05
+    current_model.B["comfort"]["Cold", "Cool", "FIT"] = 0.00
 
-    # =========================================================
-    # DL: Decrease Light
-    # =========================================================
+    # From LittleCold
+    current_model.B["comfort"]["Warm", "LittleCold", "FIT"] = 0.00
+    current_model.B["comfort"]["LittleCool", "LittleCold", "FIT"] = 0.00
+    current_model.B["comfort"]["Cool", "LittleCold", "FIT"] = 0.00
+    current_model.B["comfort"]["LittleCold", "LittleCold", "FIT"] = 0.95
+    current_model.B["comfort"]["Cold", "LittleCold", "FIT"] = 0.05
 
-    # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "DL"] = 0.55
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "DL"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Uncomfortable", "DL"] = 0.05
-
-    # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "DL"] = 0.25
-    current_model.B["comfort"]["Neutral", "Neutral", "DL"] = 0.50
-    current_model.B["comfort"]["Comfortable", "Neutral", "DL"] = 0.25
-
-    # From Comfortable
-    current_model.B["comfort"]["Uncomfortable", "Comfortable", "DL"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "DL"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Comfortable", "DL"] = 0.55
-
-    # =========================================================
-    # IT: Increase Temperature
-    # =========================================================
-
-    # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "IT"] = 0.60
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "IT"] = 0.35
-    current_model.B["comfort"]["Comfortable", "Uncomfortable", "IT"] = 0.05
-
-    # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "IT"] = 0.45
-    current_model.B["comfort"]["Neutral", "Neutral", "IT"] = 0.45
-    current_model.B["comfort"]["Comfortable", "Neutral", "IT"] = 0.10
-
-    # From Comfortable
-    current_model.B["comfort"]["Uncomfortable", "Comfortable", "IT"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "IT"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Comfortable", "IT"] = 0.55
+    # From Cold
+    current_model.B["comfort"]["Warm", "Cold", "FIT"] = 0.00
+    current_model.B["comfort"]["LittleCool", "Cold", "FIT"] = 0.00
+    current_model.B["comfort"]["Cool", "Cold", "FIT"] = 0.00
+    current_model.B["comfort"]["LittleCold", "Cold", "FIT"] = 0.05
+    current_model.B["comfort"]["Cold", "Cold", "FIT"] = 0.95
 
     # =========================================================
-    # DT: Decrease Temperature
+    # FDT: Fan Decrease Temperature
     # =========================================================
 
-    # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "DT"] = 0.30
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "DT"] = 0.65
-    current_model.B["comfort"]["Comfortable", "Uncomfortable", "DT"] = 0.05
+    # From Warm
+    current_model.B["comfort"]["Warm", "Warm", "FDT"] = 0.90
+    current_model.B["comfort"]["LittleCool", "Warm", "FDT"] = 0.05
+    current_model.B["comfort"]["Cool", "Warm", "FDT"] = 0.05
+    current_model.B["comfort"]["LittleCold", "Warm", "FDT"] = 0.00
+    current_model.B["comfort"]["Cold", "Warm", "FDT"] = 0.00
 
-    # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "DT"] = 0.15
-    current_model.B["comfort"]["Neutral", "Neutral", "DT"] = 0.40
-    current_model.B["comfort"]["Comfortable", "Neutral", "DT"] = 0.45
+    # From LittleCool
+    current_model.B["comfort"]["Warm", "LittleCool", "FDT"] = 0.05
+    current_model.B["comfort"]["LittleCool", "LittleCool", "FDT"] = 0.95
+    current_model.B["comfort"]["Cool", "LittleCool", "FDT"] = 0.00
+    current_model.B["comfort"]["LittleCold", "LittleCool", "FDT"] = 0.00
+    current_model.B["comfort"]["Cold", "LittleCool", "FDT"] = 0.00
 
-    # From Comfortable
-    current_model.B["comfort"]["Uncomfortable", "Comfortable", "DT"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "DT"] = 0.45
-    current_model.B["comfort"]["Comfortable", "Comfortable", "DT"] = 0.50
+    # From Cool
+    current_model.B["comfort"]["Warm", "Cool", "FDT"] = 0.05
+    current_model.B["comfort"]["LittleCool", "Cool", "FDT"] = 0.95
+    current_model.B["comfort"]["Cool", "Cool", "FDT"] = 0.00
+    current_model.B["comfort"]["LittleCold", "Cool", "FDT"] = 0.00
+    current_model.B["comfort"]["Cold", "Cool", "FDT"] = 0.00
+
+    # From LittleCold
+    current_model.B["comfort"]["Warm", "LittleCold", "FDT"] = 0.00
+    current_model.B["comfort"]["LittleCool", "LittleCold", "FDT"] = 0.00
+    current_model.B["comfort"]["Cool", "LittleCold", "FDT"] = 0.05
+    current_model.B["comfort"]["LittleCold", "LittleCold", "FDT"] = 0.95
+    current_model.B["comfort"]["Cold", "LittleCold", "FDT"] = 0.00
+
+    # From Cold
+    current_model.B["comfort"]["Warm", "Cold", "FDT"] = 0.00
+    current_model.B["comfort"]["LittleCool", "Cold", "FDT"] = 0.00
+    current_model.B["comfort"]["Cool", "Cold", "FDT"] = 0.00
+    current_model.B["comfort"]["LittleCold", "Cold", "FDT"] = 0.05
+    current_model.B["comfort"]["Cold", "Cold", "FDT"] = 0.95
 
     # =========================================================
     # NA: No Action
     # =========================================================
 
-    # From Uncomfortable
-    current_model.B["comfort"]["Uncomfortable", "Uncomfortable", "NA"] = 0.90
-    current_model.B["comfort"]["Neutral", "Uncomfortable", "NA"] = 0.05
-    current_model.B["comfort"]["Comfortable", "Uncomfortable", "NA"] = 0.05
+    # From Warm
+    current_model.B["comfort"]["Warm", "Warm", "NA"] = 1.00
+    current_model.B["comfort"]["LittleCool", "Warm", "NA"] = 0.00
+    current_model.B["comfort"]["Cool", "Warm", "NA"] = 0.00
+    current_model.B["comfort"]["LittleCold", "Warm", "NA"] = 0.00
+    current_model.B["comfort"]["Cold", "Warm", "NA"] = 0.00
 
-    # From Neutral
-    current_model.B["comfort"]["Uncomfortable", "Neutral", "NA"] = 0.05
-    current_model.B["comfort"]["Neutral", "Neutral", "NA"] = 0.90
-    current_model.B["comfort"]["Comfortable", "Neutral", "NA"] = 0.05
+    # From LittleCool
+    current_model.B["comfort"]["Warm", "LittleCool", "NA"] = 0.00
+    current_model.B["comfort"]["LittleCool", "LittleCool", "NA"] = 1.00
+    current_model.B["comfort"]["Cool", "LittleCool", "NA"] = 0.00
+    current_model.B["comfort"]["LittleCold", "LittleCool", "NA"] = 0.00
+    current_model.B["comfort"]["Cold", "LittleCool", "NA"] = 0.00
 
-    # From Comfortable
-    current_model.B["comfort"]["Uncomfortable", "Comfortable", "NA"] = 0.05
-    current_model.B["comfort"]["Neutral", "Comfortable", "NA"] = 0.05
-    current_model.B["comfort"]["Comfortable", "Comfortable", "NA"] = 0.90
+    # From Cool
+    current_model.B["comfort"]["Warm", "Cool", "NA"] = 0.00
+    current_model.B["comfort"]["LittleCool", "Cool", "NA"] = 0.00
+    current_model.B["comfort"]["Cool", "Cool", "NA"] = 1.00
+    current_model.B["comfort"]["LittleCold", "Cool", "NA"] = 0.00
+    current_model.B["comfort"]["Cold", "Cool", "NA"] = 0.00
+
+    # From LittleCold
+    current_model.B["comfort"]["Warm", "LittleCold", "NA"] = 0.00
+    current_model.B["comfort"]["LittleCool", "LittleCold", "NA"] = 0.00
+    current_model.B["comfort"]["Cool", "LittleCold", "NA"] = 0.00
+    current_model.B["comfort"]["LittleCold", "LittleCold", "NA"] = 1.00
+    current_model.B["comfort"]["Cold", "LittleCold", "NA"] = 0.00
+
+    # From Cold
+    current_model.B["comfort"]["Warm", "Cold", "NA"] = 0.00
+    current_model.B["comfort"]["LittleCool", "Cold", "NA"] = 0.00
+    current_model.B["comfort"]["Cool", "Cold", "NA"] = 0.00
+    current_model.B["comfort"]["LittleCold", "Cold", "NA"] = 0.00
+    current_model.B["comfort"]["Cold", "Cold", "NA"] = 1.00
 
 
 def build_matrix_c(current_model):
-    # Temperature preferences
-    current_model.C["temperature_obs"]["T0"] = -4.0
-    current_model.C["temperature_obs"]["T1"] = 2.0
-    current_model.C["temperature_obs"]["T2"] = 4.0
-    current_model.C["temperature_obs"]["T3"] = 2.0
-    current_model.C["temperature_obs"]["T4"] = 1.0
-    current_model.C["temperature_obs"]["T5"] = -4.0
+    # Temperature preferences T3
+    # current_model.C["temperature_obs"]["T0"] = -4.0
+    # current_model.C["temperature_obs"]["T1"] = 2.0
+    # current_model.C["temperature_obs"]["T2"] = 2.0
+    # current_model.C["temperature_obs"]["T3"] = 4.0
+    # current_model.C["temperature_obs"]["T4"] = 1.0
+    # current_model.C["temperature_obs"]["T5"] = -4.0
+    # current_model.C["temperature_obs"]["T6"] = -4.0
 
-    # Light preferences
-    current_model.C["light_obs"]["L0"] = -3.0
-    current_model.C["light_obs"]["L1"] = 1.0
-    current_model.C["light_obs"]["L2"] = 2.0
-    current_model.C["light_obs"]["L3"] = 4.0
-    current_model.C["light_obs"]["L4"] = 2.0
-    current_model.C["light_obs"]["L5"] = -2.0
+    # # Temperature preferences for T6
+    # current_model.C["temperature_obs"]["T0"] = -4.0
+    # current_model.C["temperature_obs"]["T1"] = -2.0
+    # current_model.C["temperature_obs"]["T2"] = 0.0
+    # current_model.C["temperature_obs"]["T3"] = 1.0
+    # current_model.C["temperature_obs"]["T4"] = 2.0
+    # current_model.C["temperature_obs"]["T5"] = 4.0
+    # current_model.C["temperature_obs"]["T6"] = 6.0
 
-    # Humidity preferences
-    current_model.C["humidity_obs"]["H0"] = -4.0
-    current_model.C["humidity_obs"]["H1"] = 1.0
-    current_model.C["humidity_obs"]["H2"] = 4.0
-    current_model.C["humidity_obs"]["H3"] = 1.0
-    current_model.C["humidity_obs"]["H4"] = 2.0
-    current_model.C["humidity_obs"]["H5"] = -4.0
+    # # Temperature preferences for T0
+    # current_model.C["temperature_obs"]["T0"] = 6.0
+    # current_model.C["temperature_obs"]["T1"] = 4.0
+    # current_model.C["temperature_obs"]["T2"] = 2.0
+    # current_model.C["temperature_obs"]["T3"] = 1.0
+    # current_model.C["temperature_obs"]["T4"] = 0.0
+    # current_model.C["temperature_obs"]["T5"] = -2.0
+    # current_model.C["temperature_obs"]["T6"] = -4.0
+
+    # Temperature preferences for T6
+    current_model.C["temperature_obs"]["T0"] = 0.0
+    current_model.C["temperature_obs"]["T1"] = 0.0
+    current_model.C["temperature_obs"]["T2"] = 0.0
+    current_model.C["temperature_obs"]["T3"] = 0.0
+    current_model.C["temperature_obs"]["T4"] = 0.0
+    current_model.C["temperature_obs"]["T5"] = 0.0
+    current_model.C["temperature_obs"]["T6"] = 6.0
 
     return current_model
 
@@ -250,10 +246,11 @@ def build_matrix_d(current_model):
     #
     # The agent initially believes that the user/environment is
     # most likely in the Uncomfortable state.
-    current_model.D["comfort"]["Uncomfortable"] = 0.65
-    current_model.D["comfort"]["Neutral"] = 0.30
-    current_model.D["comfort"]["Comfortable"] = 0.05
-
+    current_model.D["comfort"]["Warm"] = 0.05
+    current_model.D["comfort"]["LittleCool"] = 0.05
+    current_model.D["comfort"]["Cool"] = 0.75
+    current_model.D["comfort"]["LittleCold"] = 0.10
+    current_model.D["comfort"]["Cold"] = 0.05
     # ======
 
 
@@ -274,18 +271,39 @@ def add_slice_b_by_action(action_id):
 
 def calculate_average_distribution(current_model, state_to, state_from):
     lst_item = current_model.B["comfort"][state_to, state_from, :]
-    filtered_list = [value for value in lst_item if value > 0]
+    filtered_list = lst_item[0:len(base_actions)]
     total_item = 0.0
     for item in filtered_list:
         total_item = total_item + item
     average = total_item / len(filtered_list)
-    return round(average, 2)
+    return average
+
+
+# def calculate_average_distribution(
+#     current_model,
+#     state_to,
+#     state_from,
+# ):
+#     source_actions = ["IT", "DT", "NA"]
+#
+#     return sum(
+#         float(
+#             current_model.B["comfort"][
+#                 state_to,
+#                 state_from,
+#                 action,
+#             ]
+#         )
+#         for action in source_actions
+#     ) / len(source_actions)
 
 
 def extend_action_space(action_id):
     append_action(action_id)
     add_slice_b_by_action(action_id)
+    print("Done_1")
     agent_model = update_matrix_agent()
+    print("Done_2")
     slice_index = 0
     for action in lst_action_extended:
         agent_model.B["comfort"][:, :, action] = lst_slice_b[slice_index]
@@ -294,65 +312,80 @@ def extend_action_space(action_id):
     return agent_model
 
 
-def get_ates_positive_point(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
+def get_ates_point(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
     current_transition_prob = current_model.B["comfort"][expect_state, current_state, ates_action_id]
-    positive_point = (1 - current_transition_prob) * upd_point_ratio / 100 * belief_prob / 100
-    return round(positive_point, 2)
+    point = (1 - current_transition_prob) * upd_point_ratio / 100 * belief_prob
+    return round(point, 2)
 
 
-def get_ates_negative_point(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
-    current_transition_prob = current_model.B["comfort"][expect_state, current_state, ates_action_id]
-    negative_point = (1 - current_transition_prob) * upd_point_ratio / 100 * belief_prob / 100
-    return round(negative_point, 2)
+def normalization_matrix(ates_action_id, current_state, expect_state, current_model, ates_point):
+    print("-----------")
+    remain_sum_point = 0
+    for item in comforts:
+        point_item = current_model.B["comfort"][item, current_state, ates_action_id]
+
+        if item != expect_state:
+            print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
+            remain_sum_point = remain_sum_point + point_item
+
+    for item in comforts:
+        point_item = current_model.B["comfort"][item, current_state, ates_action_id]
+        new_sum = remain_sum_point - ates_point
+
+        if item != expect_state:
+            new_point = point_item / remain_sum_point * new_sum
+            current_model.B["comfort"][item, current_state, ates_action_id] = new_point
+
+    print("***")
+
+    for item in comforts:
+        point_item = current_model.B["comfort"][item, current_state, ates_action_id]
+        print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
+
+    print(f"XXX_previous sum = {remain_sum_point} - after sum = {remain_sum_point - ates_point}")
+
+    print("-----------")
+    return current_model
 
 
-def ates_positive_update(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
+def ates_update(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
+
     lst_transition_prob = current_model.B["comfort"][:, current_state, ates_action_id]
     remainder_prob_num = len(lst_transition_prob) - 1
-    ates_positive_point = get_ates_positive_point(ates_action_id, current_state, expect_state, current_model,
-                                                  belief_prob, upd_point_ratio)
-    ates_positive_remain_prob = ates_positive_point / remainder_prob_num
+    ates_point = get_ates_point(ates_action_id, current_state, expect_state, current_model,
+                                belief_prob, upd_point_ratio)
+    ates_positive_remain_prob = ates_point / remainder_prob_num
+
+    # print("lst_transition_prob")
+    # print(lst_transition_prob)
+    # print("remainder_prob_num")
+    # print(remainder_prob_num)
     return round(ates_positive_remain_prob, 3)
-
-
-def ates_negative_update(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
-    lst_transition_prob = current_model.B["comfort"][:, current_state, ates_action_id]
-    remainder_prob_num = len(lst_transition_prob) - 1
-    ates_negative_point = get_ates_negative_point(ates_action_id, current_state, expect_state, current_model,
-                                                  belief_prob, upd_point_ratio)
-    ates_negative_remain_prob = ates_negative_point / remainder_prob_num
-    return round(ates_negative_remain_prob, 3)
 
 
 def ates_update_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_diff, ates_point):
     current_model.B["comfort"][expect_state, current_state, ates_action_id] += ates_point
-    for item_str in lst_pairing_state:
-        state_str = item_str.split("_")
-        state_to = state_str[0]
-        state_from = state_str[1]
-        if state_from == current_state and state_to != expect_state:
-            current_model.B["comfort"][state_to, state_from, ates_action_id] -= ates_diff
+    current_model = normalization_matrix(ates_action_id, current_state, expect_state, current_model, ates_point)
+    # for item_str in lst_pairing_state:
+    #     state_str = item_str.split("_")
+    #     state_to = state_str[0]
+    #     state_from = state_str[1]
+    #     matrix_value = current_model.B["comfort"][state_to, state_from, ates_action_id]
+    #     if state_from == current_state and state_to != expect_state and matrix_value > 0:
+    #     # if state_from == current_state and state_to != expect_state:
+    #         print("XXX_matrix_point:")
+    #         print(matrix_value)
+    #         print("XXX_ates_diff:")
+    #         print(ates_diff)
+    #         current_model.B["comfort"][state_to, state_from, ates_action_id] -= ates_diff
+
     return current_model
     # return current_model.B["comfort"][:, current_state, ates_action_id]
-
-
-def ates_update_matrix_negative(chosen_action_id, current_state, expect_state, current_model, ates_diff, ates_point):
-    current_model.B["comfort"][expect_state, current_state, chosen_action_id] -= ates_point
-    for item_str in lst_pairing_state:
-        state_str = item_str.split("_")
-        state_to = state_str[0]
-        state_from = state_str[1]
-        if state_from == current_state and state_to != expect_state:
-            current_model.B["comfort"][state_to, state_from, chosen_action_id] += ates_diff
-    return current_model
-    # return current_model.B["comfort"][:, current_state, chosen_action_id]
 
 
 def infer_belief_once(
         model_agent,
         temperature_observed,
-        light_observed,
-        humidity_observed,
         qs_prior_input=None,
 ):
     gamma = 1
@@ -360,13 +393,9 @@ def infer_belief_once(
     agent = Agent(**model_agent, gamma=gamma, policy_len=1)
 
     temperature_idx = temperatures.index(temperature_observed)
-    light_idx = lights.index(light_observed)
-    humidity_idx = humidity.index(humidity_observed)
 
     observations = [
-        jnp.full((agent.batch_size, 1), temperature_idx),
-        jnp.full((agent.batch_size, 1), light_idx),
-        jnp.full((agent.batch_size, 1), humidity_idx),
+        jnp.full((agent.batch_size, 1), temperature_idx)
     ]
 
     if qs_prior_input is None:
@@ -390,8 +419,6 @@ def infer_belief_once(
 
     print("\n===== BELIEF INFERENCE =====")
     print(f"Observed temperature: {temperature_observed}")
-    print(f"Observed light:       {light_observed}")
-    print(f"Observed humidity:    {humidity_observed}")
 
     print("\nPosterior belief over comfort:")
     for i, state in enumerate(comforts):
@@ -406,8 +433,6 @@ def infer_belief_once(
 def run_agent(
         model_agent,
         temperature_observed,
-        light_observed,
-        humidity_observed,
         qs_prior_input=None,
         rng_key=None,
 ):
@@ -415,184 +440,367 @@ def run_agent(
     # Run Active Inference agent
     # =========================================================
 
-    gamma = 1  # deterministic behavior; smaller gamma -> more stochastic behavior
+    gamma = 1
 
+    # ---------------------------------------------------------
     # Create agent
-    agent = Agent(**model_agent, gamma=gamma, policy_len=1)
+    # ---------------------------------------------------------
+    agent = Agent(
+        **model_agent,
+        gamma=gamma,
+        policy_len=1,
+    )
 
     temperature_idx = temperatures.index(temperature_observed)
-    light_idx = lights.index(light_observed)
-    humidity_idx = humidity.index(humidity_observed)
 
-    # Each observation must have shape: (batch_size, time_dim)
+    # Each observation must have shape:
+    # (batch_size, time_dim)
+    #
     # agent.batch_size defaults to 1.
     temperature_observation = jnp.full(
         (agent.batch_size, 1),
-        temperature_idx
-    )
-
-    light_observation = jnp.full(
-        (agent.batch_size, 1),
-        light_idx
-    )
-
-    humidity_observation = jnp.full(
-        (agent.batch_size, 1),
-        humidity_idx
+        temperature_idx,
     )
 
     # Multi-modality observation list
     observations = [
-        temperature_observation,
-        light_observation,
-        humidity_observation,
+        temperature_observation
     ]
 
+    # =========================================================
+    # Prepare prior for hidden-state inference
+    # =========================================================
+
     if qs_prior_input is None:
-        # First run: use agent.D as initial prior
+        # -----------------------------------------------------
+        # First interaction step:
+        # use agent.D as the initial prior
+        # -----------------------------------------------------
         qs_init = jtu.tree_map(
             lambda x: jnp.expand_dims(x, 1),
-            agent.D
+            agent.D,
         )
     else:
-        # Later runs: use previous posterior belief as current prior
-        # qs_prior_input shape: (num_states,)
-        # required shape: (batch_size, time_dim, num_states)
+        # -----------------------------------------------------
+        # Later interaction steps:
+        #
+        # qs_prior_input is the predicted prior:
+        #
+        # q^-(s_t) = B[a_{t-1}] @ q(s_{t-1})
+        #
+        # Input shape:
+        # (num_states,)
+        #
+        # Required shape:
+        # (batch_size, time_dim, num_states)
+        # -----------------------------------------------------
         qs_init = [
             jnp.expand_dims(
-                jnp.expand_dims(qs_prior_input, axis=0),
-                axis=1
+                jnp.expand_dims(
+                    qs_prior_input,
+                    axis=0,
+                ),
+                axis=1,
             )
         ]
 
-    # ---------------------------------------------------------
+    # =========================================================
     # Infer hidden states
-    # ---------------------------------------------------------
+    # =========================================================
 
-    qs = agent.infer_states(observations, qs_init)
+    qs = agent.infer_states(
+        observations,
+        qs_init,
+    )
 
     print("\n===== INITIAL OBSERVATION =====")
-    print(f"Observed temperature: {temperature_observed}")
-    print(f"Observed light:       {light_observed}")
-    print(f"Observed humidity:        {humidity_observed}")
+    print(
+        f"Observed temperature: "
+        f"{temperature_observed}"
+    )
 
     print("\n===== DEBUG SHAPE =====")
-    print("qs[0].shape:", qs[0].shape)
+    print(
+        "qs[0].shape:",
+        qs[0].shape,
+    )
 
-    # qs[0] currently has shape: (batch_size, 1, 1, num_states)
-    # Example: (1, 1, 1, 3)
-    # For printing, convert it to a clean vector: (3,)
-    comfort_belief = jnp.squeeze(qs[0], axis=(0, 1, 2))
+    # ---------------------------------------------------------
+    # qs[0] currently has shape:
+    #
+    # (batch_size, 1, 1, num_states)
+    #
+    # Example:
+    # (1, 1, 1, 5)
+    #
+    # Convert it to the full posterior belief vector:
+    #
+    # (num_states,)
+    #
+    # IMPORTANT:
+    # comfort_belief remains a SOFT posterior distribution.
+    # We do not convert it to one-hot.
+    # ---------------------------------------------------------
+    comfort_belief = jnp.squeeze(
+        qs[0],
+        axis=(0, 1, 2),
+    )
 
-    print("comfort_belief.shape:", comfort_belief.shape)
+    print(
+        "comfort_belief.shape:",
+        comfort_belief.shape,
+    )
 
-    print("\n===== POSTERIOR BELIEF OVER COMFORT =====")
+    print(
+        "\n===== POSTERIOR BELIEF OVER COMFORT ====="
+    )
+
     for i, state in enumerate(comforts):
-        print(f"{state}: {float(comfort_belief[i]):.4f}")
+        print(
+            f"{state}: "
+            f"{float(comfort_belief[i]):.4f}"
+        )
 
-    current_comfort_idx = int(jnp.argmax(comfort_belief))
-    print(f"\nMost likely comfort state: {comforts[current_comfort_idx]}")
+    # ---------------------------------------------------------
+    # MAP estimate of the current hidden comfort state.
+    #
+    # This is only the most probable state under the posterior:
+    #
+    # s_MAP = argmax_s q(s)
+    #
+    # IMPORTANT:
+    # This is NOT the true hidden state and does NOT replace
+    # the full soft posterior distribution.
+    # ---------------------------------------------------------
+    current_comfort_idx = int(
+        jnp.argmax(comfort_belief)
+    )
 
-    # ---------------------------------------------------------
-    # ---------------------------------------------------------
-    # ---------------------------------------------------------
+    current_comfort_map = comforts[
+        current_comfort_idx
+    ]
+
+    print(
+        f"\nMost likely comfort state "
+        f"(MAP estimate): "
+        f"{current_comfort_map}"
+    )
+
+    # =========================================================
     # Prepare posterior belief for policy inference
-    # ---------------------------------------------------------
-    # agent.infer_policies expects qs with shape:
+    # =========================================================
+    #
+    # agent.infer_policies expects:
+    #
     # (batch_size, time_dim, num_states)
     #
-    # Current qs[0] shape: (1, 1, 1, 3)
-    # We remove only the extra singleton axis at axis=2:
-    # Result shape: (1, 1, 3)
+    # Current qs[0] shape:
+    #
+    # (1, 1, 1, num_states)
+    #
+    # Remove only the extra singleton axis at axis=2:
+    #
+    # (1, 1, num_states)
+    # =========================================================
 
     qs_for_policy = [
-        jnp.squeeze(q, axis=2)
+        jnp.squeeze(
+            q,
+            axis=2,
+        )
         for q in qs
     ]
 
-    print("\n===== DEBUG POLICY INPUT SHAPE =====")
-    print("qs_for_policy[0].shape:", qs_for_policy[0].shape)
+    print(
+        "\n===== DEBUG POLICY INPUT SHAPE ====="
+    )
 
-    # ---------------------------------------------------------
-    # Infer policies and sample action
-    # ---------------------------------------------------------
+    print(
+        "qs_for_policy[0].shape:",
+        qs_for_policy[0].shape,
+    )
 
-    q_pi, G = agent.infer_policies(qs_for_policy)
+    # =========================================================
+    # Infer policies
+    # =========================================================
+
+    q_pi, G = agent.infer_policies(
+        qs_for_policy
+    )
 
     print("\n===== POLICY INFERENCE =====")
-    print("q_pi:", q_pi)
-    print("q_pi.shape:", q_pi.shape)
-    print("G:", G)
+    print(
+        "q_pi:",
+        q_pi,
+    )
+    print(
+        "q_pi.shape:",
+        q_pi.shape,
+    )
+    print(
+        "G:",
+        G,
+    )
 
-    # rng_key must match batch dimension.
-    # q_pi.shape = (batch_size, num_policies)
-    # Therefore rng_key.shape should be (batch_size, 2)
-    # ---------------------------------------------------------
-    # Custom stochastic sampling directly from q_pi
-    # ---------------------------------------------------------
+    # =========================================================
+    # Direct stochastic sampling from q_pi
+    # =========================================================
+    #
+    # IMPORTANT:
+    #
+    # We do NOT:
+    # - use top-k
+    # - apply an additional sampling temperature
+    # - modify q_pi before action selection
+    #
+    # Therefore:
+    #
+    # P(action = a) = q_pi[a]
+    #
+    # =========================================================
 
-    # Initialize rng_key once before the interaction loop.
-    # If this code is not inside a loop yet, placing it here is still fine.
+    # ---------------------------------------------------------
+    # Initialize RNG only if no RNG key was supplied.
+    #
+    # For formal experiments, it is better to initialize
+    # rng_key once outside run_agent(), for example:
+    #
+    # rng_key = jax.random.PRNGKey(RANDOM_SEED)
+    #
+    # and then pass the returned rng_key into the next step.
+    # ---------------------------------------------------------
     if rng_key is None:
         rng_key = jax.random.PRNGKey(25)
 
-    probs = q_pi[0]  # shape: (num_actions,)
-
-    # Split the key before sampling so each random draw uses a fresh subkey.
-    rng_key, action_sample_key = jax.random.split(rng_key)
-
-    # ======
-
-    chosen_action_idx, chosen_action, rng_key, top_indices, top_probs_temp = sample_top_k_with_temperature(
-        q_pi=q_pi,
-        rng_key=rng_key,
-        agent_actions=agent_actions,
-        k=4,
-        temperature=0.1,
+    # q_pi shape:
+    #
+    # (batch_size, num_policies)
+    #
+    # policy_len = 1, therefore each policy corresponds
+    # directly to one action in this experiment.
+    probs = jnp.asarray(
+        q_pi[0],
+        dtype=jnp.float32,
     )
 
-    # ======
+    # Numerical safety
+    probs = jnp.clip(
+        probs,
+        min=0.0,
+    )
 
-    # chosen_action_idx = int(jnp.argmax(q_pi[0]))
-    # chosen_action = agent_actions[chosen_action_idx]
+    probs_sum = jnp.sum(probs)
 
-    print("\n===== CUSTOM STOCHASTIC ACTION SELECTED =====")
-    print("probs:", probs)
-    print(f"Action chosen: {chosen_action}")
+    probs = jnp.where(
+        probs_sum > 0.0,
+        probs / probs_sum,
+        jnp.ones_like(probs) / probs.shape[0],
+    )
 
-    print("\n===== ACTION PROBABILITIES =====")
+    # ---------------------------------------------------------
+    # Split the RNG key exactly once for this action sample.
+    #
+    # rng_key:
+    # carried forward to the next interaction step
+    #
+    # action_sample_key:
+    # used only for the current random draw
+    # ---------------------------------------------------------
+    rng_key, action_sample_key = jax.random.split(
+        rng_key
+    )
+
+    chosen_action_idx = int(
+        jax.random.choice(
+            action_sample_key,
+            probs.shape[0],
+            p=probs,
+        )
+    )
+
+    chosen_action = agent_actions[
+        chosen_action_idx
+    ]
+
+    print(
+        "\n===== STOCHASTIC ACTION SELECTED "
+        "DIRECTLY FROM q_pi ====="
+    )
+
+    print(
+        "Sampling probabilities:",
+        probs,
+    )
+
+    print(
+        f"Action chosen: "
+        f"{chosen_action}"
+    )
+
+    print(
+        "\n===== ACTION PROBABILITIES ====="
+    )
+
     for i, action in enumerate(agent_actions):
-        print(f"{i}: {action:6s} | q_pi={float(q_pi[0][i]):.4f} | G={float(G[0][i]):.4f}")
+        print(
+            f"{i}: {action:6s} "
+            f"| q_pi={float(q_pi[0][i]):.4f} "
+            f"| sample_p={float(probs[i]):.4f} "
+            f"| G={float(G[0][i]):.4f}"
+        )
 
     # =========================================================
     # Execute action a_t in the environment
     # =========================================================
-
-    # In a real simulator, the environment should maintain its own true hidden state.
-    # For this first version, we approximate the current true state using the most
-    # likely inferred comfort state.
-    current_infer_state = comforts[current_comfort_idx]
+    #
+    # The environment transition is driven by:
+    #
+    # temperature_observed + chosen_action
+    #
+    # The MAP comfort state is diagnostic only.
+    # It is NOT treated as the true hidden state.
+    # =========================================================
 
     print("\n===== EXECUTE ACTION =====")
-    print(f"Current infer state used by simulator: {current_infer_state}")
-    print(f"Executed action a_t: {chosen_action}")
 
-    (label_next_temperature, label_next_light, label_next_humidity, next_temperatures_index, next_lights_index,
-     next_humidity_index) = environment_step(
+    print(
+        f"Current inferred comfort "
+        f"(MAP estimate only): "
+        f"{current_comfort_map}"
+    )
+
+    print(
+        f"Executed action a_t: "
+        f"{chosen_action}"
+    )
+
+    (
+        label_next_temperature,
+        next_temperatures_index,
+    ) = environment_step(
         action_input=chosen_action,
         current_temperatures=temperature_observed,
-        current_lights=light_observed,
-        current_humidity=humidity_observed,
     )
 
     print("\n===== ENVIRONMENT RESULT =====")
-    # print(f"Next true hidden state s_t+1: {next_true_state}")
-    print(f"New temperature observation: {label_next_temperature}")
-    print(f"New light observation:       {label_next_light}")
-    print(f"New humidity observation:        {label_next_humidity}")
+
+    print(
+        f"New temperature observation: "
+        f"{label_next_temperature}"
+    )
 
     # =========================================================
-    # Predict next prior q(s_{t+1}) using B and selected action
+    # Predict next prior q^-(s_{t+1})
+    # using B and selected action
+    # =========================================================
+    #
+    # q^-(s_{t+1})
+    #     =
+    # B[a_t] @ q(s_t)
+    #
+    # IMPORTANT:
+    # We use the FULL SOFT posterior comfort_belief here,
+    # not its argmax/MAP state.
     # =========================================================
 
     qs_prior_next = predict_next_state_belief(
@@ -602,71 +810,70 @@ def run_agent(
         comforts_input=comforts,
     )
 
-    print("\n===== PREDICTED PRIOR AFTER ACTION =====")
+    print(
+        "\n===== PREDICTED PRIOR AFTER ACTION ====="
+    )
+
     for i, state in enumerate(comforts):
-        print(f"Prior q(s_t+1={state}) before new observation: {float(qs_prior_next[i]):.4f}")
-
-    # =========================================================
-    # Update q(s) via VFE using new observation
-    # =========================================================
-
-    next_temperature_observation = jnp.full(
-        (agent.batch_size, 1),
-        next_temperatures_index
-    )
-
-    next_light_observation = jnp.full(
-        (agent.batch_size, 1),
-        next_lights_index
-    )
-
-    next_humidity_observation = jnp.full(
-        (agent.batch_size, 1),
-        next_humidity_index
-    )
-
-    next_observations = [
-        next_temperature_observation,
-        next_light_observation,
-        next_humidity_observation,
-    ]
-
-    # infer_states expects qs_init with batch and time dimensions.
-    # qs_prior_next has shape: (num_states,)
-    # Convert to: (batch_size, time_dim, num_states) = (1, 1, 3)
-    qs_init_next = [
-        jnp.expand_dims(
-            jnp.expand_dims(qs_prior_next, axis=0),
-            axis=1
+        print(
+            f"Prior q(s_t+1={state}) "
+            f"before new observation: "
+            f"{float(qs_prior_next[i]):.4f}"
         )
-    ]
 
-    qs_next = agent.infer_states(next_observations, qs_init_next)
-
-    next_comfort_belief = jnp.squeeze(qs_next[0], axis=(0, 1, 2))
-
-    print("\n===== UPDATED POSTERIOR q(s_t+1) VIA VFE =====")
-    for i, state in enumerate(comforts):
-        print(f"{state}: {float(next_comfort_belief[i]):.4f}")
-
-    next_comfort_idx = int(jnp.argmax(next_comfort_belief))
-    print(f"\nMost likely next comfort state: {comforts[next_comfort_idx]}")
+    # =========================================================
+    # Do not infer the next observation here.
+    #
+    # qs_prior_next is the predicted prior for the next
+    # timestep:
+    #
+    # q^-(s_t+1)
+    #     =
+    # B[a_t] @ q(s_t)
+    #
+    # It will be passed into the next run_agent() call.
+    #
+    # At that point, the new observation is incorporated
+    # exactly once:
+    #
+    # q(s_t+1)
+    #     ∝
+    # P(o_t+1 | s_t+1)
+    # *
+    # q^-(s_t+1)
+    #
+    # =========================================================
 
     return {
         "current_temperature": temperature_observed,
-        "current_light": light_observed,
-        "current_humidity": humidity_observed,
+
+        # Full soft posterior:
         "current_belief": comfort_belief,
+
+        # MAP estimate for diagnostics only:
+        "current_comfort_map_idx": current_comfort_idx,
+        "current_comfort_map": current_comfort_map,
+
+        # Environment output:
         "next_temperature": label_next_temperature,
-        "next_light": label_next_light,
-        "next_humidity": label_next_humidity,
+        "next_temperature_idx": next_temperatures_index,
+
+        # Predicted prior for next inference step:
         "predicted_prior_next": qs_prior_next,
-        "next_belief": next_comfort_belief,
+
+        # Selected action:
+        "chosen_action_idx": chosen_action_idx,
         "chosen_action": chosen_action,
+
+        # Policy inference:
         "q_pi": q_pi,
         "G": G,
+
+        # Actual sampling distribution:
+        "sampling_probs": probs,
+
+        # RNG state to carry to next step:
         "rng_key": rng_key,
     }
-
 
 # Baseline

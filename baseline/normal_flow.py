@@ -1,31 +1,32 @@
 from env.agent import run_agent, extend_action_space
 import jax
 import time
-
+from env.elements import base_actions, agent_actions, comforts
 from utils.util import build_noisy_agent_b_from_env
 
 # =========================================================
 # Initialize agent model
 # =========================================================
 
-agent_model = extend_action_space("ACN1")
-agent_model = extend_action_space("ACN2")
+
+agent_model = extend_action_space("AIT")
+agent_model = extend_action_space("ADT")
+agent_model = extend_action_space("XDT")
 
 
 # =========================================================
 # Initial observation
 # =========================================================
 
-temperature_observed = "T4"
-light_observed = "L3"
-humidity_observed = "H4"
+temperature_observed = "T0"
 
 # =========================================================
 # Initial recurrent variables
 # =========================================================
 
 qs_prior = None
-rng_key = jax.random.PRNGKey(int(time.time()))
+RANDOM_SEED = 40
+rng_key = jax.random.PRNGKey(RANDOM_SEED)
 
 history = []
 
@@ -33,69 +34,104 @@ history = []
 # Agent-environment interaction loop
 # =========================================================
 
-for t in range(10):
-    print(f"\n================ AGENT LOOP STEP {t + 1} ================")
+for t in range(30):
+    print(
+        f"\n================ AGENT LOOP STEP {t + 1} ================"
+    )
 
+    # =========================================================
+    # Run one Active Inference interaction step
+    # =========================================================
     result = run_agent(
         model_agent=agent_model,
         temperature_observed=temperature_observed,
-        light_observed=light_observed,
-        humidity_observed=humidity_observed,
         qs_prior_input=qs_prior,
         rng_key=rng_key,
     )
 
     history.append(result)
 
+    # =========================================================
+    # Step summary
+    # =========================================================
     print("\n===== STEP SUMMARY =====")
+
     print(
         "Current observation:",
         result["current_temperature"],
-        result["current_light"],
-        result["current_humidity"],
     )
 
-    print("Chosen action:", result["chosen_action"])
+    print(
+        "Chosen action:",
+        result["chosen_action"],
+    )
+
+    if result["chosen_action"] not in base_actions:
+        print("XXX_New_Action")
 
     print(
         "Next observation:",
         result["next_temperature"],
-        result["next_light"],
-        result["next_humidity"],
     )
 
-    print("Current belief:", result["current_belief"])
-    print("Predicted prior next:", result["predicted_prior_next"])
-    print("Next belief:", result["next_belief"])
+    print(
+        "Current belief:",
+        result["current_belief"],
+    )
 
-    # =====================================================
-    # Important:
-    # No Dirichlet B-learning here.
-    # The agent model remains fixed across steps.
-    # =====================================================
+    print(
+        "Current comfort MAP estimate:",
+        result["current_comfort_map"],
+    )
 
-    # agent_model is NOT updated.
+    print(
+        "Predicted prior next:",
+        result["predicted_prior_next"],
+    )
 
-    # =====================================================
-    # Important:
-    # Next posterior becomes prior for next step
-    # =====================================================
+    # =========================================================
+    # Keep the FULL SOFT posterior
+    # =========================================================
+    #
+    # IMPORTANT:
+    #
+    # Do not convert:
+    #
+    # q(s_t)
+    #
+    # into:
+    #
+    # argmax(q(s_t))
+    #
+    # here.
+    #
+    # The complete posterior distribution is preserved for
+    # later ATES processing.
+    # =========================================================
 
-    qs_prior = result["next_belief"]
+    current_belief = result["current_belief"]
 
-    # =====================================================
-    # Important:
-    # Next observation becomes current observation
-    # for next step
-    # =====================================================
+    # Optional diagnostic only:
+    current_comfort_map = result["current_comfort_map"]
 
+    # =========================================================
+    # Predicted prior for next timestep
+    # =========================================================
+    #
+    # q^-(s_t+1)
+    #     =
+    # B[a_t] @ q(s_t)
+    #
+    # This becomes the prior when the next observation arrives.
+    # =========================================================
+    qs_prior = result["predicted_prior_next"]
+
+    # =========================================================
+    # Move environment observation forward
+    # =========================================================
     temperature_observed = result["next_temperature"]
-    light_observed = result["next_light"]
-    humidity_observed = result["next_humidity"]
 
-    # =====================================================
-    # Important:
-    # Keep random key evolving
-    # =====================================================
-
+    # =========================================================
+    # Carry RNG state forward
+    # =========================================================
     rng_key = result["rng_key"]
