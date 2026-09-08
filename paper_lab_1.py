@@ -1,10 +1,67 @@
 from env.agent import extend_action_space, run_agent
 
 
-agent_model = extend_action_space("ACN1")
-agent_model = extend_action_space("ACN2")
+# agent_model = extend_action_space("ACN1")
+# agent_model = extend_action_space("ACN2")
+#
+# run_agent(agent_model)
 
-run_agent(agent_model)
+
+dict_test = [
+{
+    "state": "Warm",
+    "distribute": 0.8279234766960144,
+},
+{
+    "state": "LittleCool",
+    "distribute": 0.9613120555877686,
+},
+{
+    "state": "LittleCool",
+    "distribute": 0.9613121747970581,
+},
+{
+    "state": "LittleCool",
+    "distribute": 0.9913740754127502,
+},
+]
+
+
+def get_state_belief_most(
+        step_log
+):
+
+    dict_state = {}
+    for item in step_log:
+        dict_state[item["state"]] = 0.0
+
+    for item in step_log:
+        dict_state[item["state"]] = dict_state.get(item["state"]) + item["distribute"]
+
+    print(dict_state)
+
+    dict_counter = {}
+    for key in dict_state.keys():
+        counter = 0
+        for item in step_log:
+            if item["state"] == key:
+                counter = counter + 1
+        dict_counter[key] = counter
+
+    print(dict_counter)
+
+    state_max = max(dict_state, key=dict_state.get)
+    print(state_max)
+
+    state_max_value = dict_state[state_max]
+    print(state_max_value)
+
+    point_average = state_max_value/(dict_counter[state_max])
+    print(point_average)
+    return state_max, point_average
+
+
+print(get_state_belief_most(dict_test))
 
 # print("XXX_Matrix B: ")
 # print(agent_model.B)

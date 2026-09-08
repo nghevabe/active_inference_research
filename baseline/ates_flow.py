@@ -14,7 +14,6 @@ agent_model_init = extend_action_space("AIT")
 agent_model_init = extend_action_space("ADT")
 agent_model_init = extend_action_space("XDT")
 
-
 # print("AIT matrix: ")
 # print(agent_model_init.B["comfort"][:, :, "AIT"])
 # print("ADT matrix: ")
@@ -50,6 +49,8 @@ previous_action = ""
 belief_prob = 0.7
 
 summary_learning_log = []
+summary_step_log = []
+history_log = []
 agent_model = agent_model_init
 
 for t in range(30):
@@ -115,29 +116,42 @@ for t in range(30):
     current_belief = comforts[get_max_index(lst_current_distribution)]
     current_belief_distribution = max(lst_current_distribution)
 
+    # step_log_str = f"STEP {t + 1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
+
     if previous_action not in base_actions and previous_action != "" and previous_belief_distribution > belief_prob and current_belief_distribution > belief_prob:
         point = get_ates_point(previous_action, previous_belief, current_belief, agent_model, belief_prob, 30)
-        str_log = f"STEP {t+1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
+        str_log = f"STEP {t + 1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
         summary_learning_log.append(str_log)
         ates_dif = ates_update(previous_action, previous_belief, current_belief, agent_model, belief_prob, 30)
-        agent_model = ates_update_matrix_positive(previous_action, previous_belief, current_belief, agent_model, ates_dif,
-                                                point)
+        agent_model = ates_update_matrix_positive(previous_action, previous_belief, current_belief, agent_model,
+                                                  ates_dif,
+                                                  point)
         print(str_log)
 
+    step_log = {
+        "from_observation": result["current_temperature"],
+        "from_state_belief": result["current_comfort_map"],
+        "from_state_belief_distribution": max(lst_current_distribution),
+        "chosen_action": result["chosen_action"],
+        "to_observation": result["next_temperature"],
+        "to_state_belief": current_belief,
+        "to_state_belief_distribution": max(lst_predicted_distribution),
+    }
+
+    history_log.append(step_log)
 
     print("XXX_Matrix_agent_model After Learning: ")
     print(agent_model)
 
-        # each loop ask for input ates_action_id_input
-        # ates_point = get_ates_positive_point(ates_action_id_input, "Neutral", "Cool", agent_model, 70, 30)
-        # ates_dif = ates_positive_update(ates_action_id_input, "Neutral", "Cool", agent_model, 70, 30)
-        # new_model = ates_update_matrix_positive(ates_action_id_input, "Neutral", "Cool", agent_model, ates_dif, ates_point)
+    # each loop ask for input ates_action_id_input
+    # ates_point = get_ates_positive_point(ates_action_id_input, "Neutral", "Cool", agent_model, 70, 30)
+    # ates_dif = ates_positive_update(ates_action_id_input, "Neutral", "Cool", agent_model, 70, 30)
+    # new_model = ates_update_matrix_positive(ates_action_id_input, "Neutral", "Cool", agent_model, ates_dif, ates_point)
 
     previous_belief = comforts[get_max_index(lst_current_distribution)]
     previous_belief_distribution = max(lst_current_distribution)
     predicted_belief = comforts[get_max_index(lst_predicted_distribution)]
     previous_action = result["chosen_action"]
-
 
     # =========================================================
     # Keep the FULL SOFT posterior
@@ -186,9 +200,9 @@ for t in range(30):
     # =========================================================
     rng_key = result["rng_key"]
 
-
-print("summary_learning_log: ")
-for item in summary_learning_log:
+print("summary_step_log: ")
+counter = 0
+for item in history_log:
+    step_log_str = f"STEP {counter + 1} {item["from_observation"]} ({item["from_state_belief"]} [{item["from_state_belief_distribution"]}]) + {item["chosen_action"]} => {item["to_observation"]} ({item["to_state_belief"]} [{item["to_state_belief_distribution"]}]) "
     print(item)
-
-
+    counter = counter + 1
