@@ -925,6 +925,67 @@ def get_state_belief_most(
     state_max = max(dict_state, key=dict_state.get)
     state_max_value = dict_state[state_max]
     point_average = state_max_value / (dict_counter[state_max])
-    print(point_average)
+    return state_max, point_average
+
+
+def get_list_target_step(step_log, step_index, current_observed):
+    lst_target_step = []
+    for item in step_log:
+        if item["step_index"] == (step_index - 1) and item["to_observation"] == current_observed:
+            lst_target_step.append(item)
+        if item["step_index"] >= step_index:
+            if item["from_observation"] == current_observed:
+                lst_target_step.append(item)
+            else:
+                break
+
+    return lst_target_step
+
+
+def get_list_positive_and_negative(
+        step_log,
+        init_observed
+):
+    lst_negative_step = []
+    lst_target_step = []
+    current_observed = init_observed
+
+    for item in step_log:
+        if item["from_observation"] == current_observed:
+            lst_negative_step.append(item)
+        if item["from_observation"] != current_observed:
+            lst_target_step.append(item)
+            current_observed = item["from_observation"]
+            lst_target_step = get_list_target_step(step_log, item["step_index"], current_observed)
+            list_state_target = get_list_state_target(lst_target_step, current_observed)
+            print(lst_negative_step)
+            print(get_state_belief_most(list_state_target))
+            lst_negative_step.clear()
+            lst_target_step.clear()
+            print("=========")
+            # break
+
+
+def get_list_state_target(step_log, target_observed):
+    lst_state_target = []
+
+    for item in step_log:
+        if item["from_observation"] == target_observed or item["to_observation"] == target_observed:
+            if item["from_observation"] == target_observed:
+                state_object = {
+                    "state": item["from_state_belief"],
+                    "distribute": item["from_state_belief_distribution"],
+                }
+                lst_state_target.append(state_object)
+            if item["to_observation"] == target_observed:
+                state_object = {
+                    "state": item["to_state_belief"],
+                    "distribute": item["to_state_belief_distribution"],
+                }
+                lst_state_target.append(state_object)
+        else:
+            break
+
+    return lst_state_target
 
 # Baseline

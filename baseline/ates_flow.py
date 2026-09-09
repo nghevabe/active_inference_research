@@ -1,5 +1,5 @@
 from env.agent import run_agent, extend_action_space, \
-    ates_update_matrix_positive, update_matrix_agent, get_ates_point, ates_update
+    ates_update_matrix_positive, update_matrix_agent, get_ates_point, ates_update, get_list_positive_and_negative
 import jax
 import time
 
@@ -129,6 +129,7 @@ for t in range(30):
         print(str_log)
 
     step_log = {
+        "step_index": t,
         "from_observation": result["current_temperature"],
         "from_state_belief": result["current_comfort_map"],
         "from_state_belief_distribution": max(lst_current_distribution),
@@ -200,9 +201,11 @@ for t in range(30):
     # =========================================================
     rng_key = result["rng_key"]
 
-print("summary_step_log: ")
-counter = 0
-for item in history_log:
-    step_log_str = f"STEP {counter + 1} {item["from_observation"]} ({item["from_state_belief"]} [{item["from_state_belief_distribution"]}]) + {item["chosen_action"]} => {item["to_observation"]} ({item["to_state_belief"]} [{item["to_state_belief_distribution"]}]) "
-    print(item)
-    counter = counter + 1
+# print("summary_step_log: ")
+# counter = 0
+# for item in history_log:
+#     step_log_str = f"STEP {counter + 1} {item["from_observation"]} ({item["from_state_belief"]} [{item["from_state_belief_distribution"]}]) + {item["chosen_action"]} => {item["to_observation"]} ({item["to_state_belief"]} [{item["to_state_belief_distribution"]}]) "
+#     print(item)
+#     counter = counter + 1
+
+get_list_positive_and_negative(history_log, "T0")
