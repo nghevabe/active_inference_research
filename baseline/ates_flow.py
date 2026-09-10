@@ -1,9 +1,10 @@
 from env.agent import run_agent, extend_action_space, \
-    ates_update_matrix_positive, update_matrix_agent, get_ates_point, ates_update, get_list_positive_and_negative
+    ates_update_matrix_positive, get_list_positive_and_negative, \
+    get_ates_point, ates_update_matrix_negative, get_ates_point_negative
 import jax
 import time
 
-from env.elements import base_actions, agent_actions, comforts
+from env.elements import base_actions, agent_actions, comforts, base_actions_test
 from utils.util import get_max_index
 
 # =========================================================
@@ -118,13 +119,12 @@ for t in range(30):
 
     # step_log_str = f"STEP {t + 1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
 
-    if previous_action not in base_actions and previous_action != "" and previous_belief_distribution > belief_prob and current_belief_distribution > belief_prob:
+    # if previous_action not in base_actions and previous_action != "" and previous_belief_distribution > belief_prob and current_belief_distribution > belief_prob:
+    if previous_action not in base_actions_test and previous_action != "" and previous_belief_distribution > belief_prob and current_belief_distribution > belief_prob:
         point = get_ates_point(previous_action, previous_belief, current_belief, agent_model, belief_prob, 30)
         str_log = f"STEP {t + 1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
         summary_learning_log.append(str_log)
-        ates_dif = ates_update(previous_action, previous_belief, current_belief, agent_model, belief_prob, 30)
         agent_model = ates_update_matrix_positive(previous_action, previous_belief, current_belief, agent_model,
-                                                  ates_dif,
                                                   point)
         print(str_log)
 
@@ -201,11 +201,15 @@ for t in range(30):
     # =========================================================
     rng_key = result["rng_key"]
 
-# print("summary_step_log: ")
-# counter = 0
-# for item in history_log:
-#     step_log_str = f"STEP {counter + 1} {item["from_observation"]} ({item["from_state_belief"]} [{item["from_state_belief_distribution"]}]) + {item["chosen_action"]} => {item["to_observation"]} ({item["to_state_belief"]} [{item["to_state_belief_distribution"]}]) "
-#     print(item)
-#     counter = counter + 1
+print("summary_step_log: ")
+counter = 0
+for item in summary_learning_log:
+    # step_log_str = f"STEP {counter + 1} {item["from_observation"]} ({item["from_state_belief"]} [{item["from_state_belief_distribution"]}]) + {item["chosen_action"]} => {item["to_observation"]} ({item["to_state_belief"]} [{item["to_state_belief_distribution"]}]) "
+    print(item)
+    counter = counter + 1
 
-get_list_positive_and_negative(history_log, "T0")
+print("")
+print("")
+get_list_positive_and_negative(history_log, "T0", agent_model)
+print("FINAL MODEL")
+print(agent_model.B)

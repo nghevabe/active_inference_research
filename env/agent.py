@@ -318,7 +318,13 @@ def get_ates_point(ates_action_id, current_state, expect_state, current_model, b
     return round(point, 2)
 
 
-def normalization_matrix(ates_action_id, current_state, expect_state, current_model, ates_point):
+def get_ates_point_negative(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
+    current_transition_prob = current_model.B["comfort"][expect_state, current_state, ates_action_id]
+    point = current_transition_prob * upd_point_ratio / 100 * belief_prob
+    return round(point, 2)
+
+
+def normalization_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_point):
     print("-----------")
     remain_sum_point = 0
     for item in comforts:
@@ -330,7 +336,7 @@ def normalization_matrix(ates_action_id, current_state, expect_state, current_mo
 
     for item in comforts:
         point_item = current_model.B["comfort"][item, current_state, ates_action_id]
-        new_sum = remain_sum_point - ates_point
+        new_sum = abs(remain_sum_point - ates_point)
 
         if item != expect_state:
             new_point = point_item / remain_sum_point * new_sum
@@ -348,39 +354,48 @@ def normalization_matrix(ates_action_id, current_state, expect_state, current_mo
     return current_model
 
 
-def ates_update(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
+def normalization_matrix_negative(ates_action_id, current_state, expect_state, current_model, ates_point):
+    print("-----------")
+    remain_sum_point = 0
+    for item in comforts:
+        point_item = current_model.B["comfort"][item, current_state, ates_action_id]
 
-    lst_transition_prob = current_model.B["comfort"][:, current_state, ates_action_id]
-    remainder_prob_num = len(lst_transition_prob) - 1
-    ates_point = get_ates_point(ates_action_id, current_state, expect_state, current_model,
-                                belief_prob, upd_point_ratio)
-    ates_positive_remain_prob = ates_point / remainder_prob_num
+        if item != expect_state:
+            print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
+            remain_sum_point = remain_sum_point + point_item
 
-    # print("lst_transition_prob")
-    # print(lst_transition_prob)
-    # print("remainder_prob_num")
-    # print(remainder_prob_num)
-    return round(ates_positive_remain_prob, 3)
+    for item in comforts:
+        point_item = current_model.B["comfort"][item, current_state, ates_action_id]
+        new_sum = remain_sum_point + ates_point
+
+        if item != expect_state:
+            new_point = point_item / remain_sum_point * new_sum
+            current_model.B["comfort"][item, current_state, ates_action_id] = new_point
+
+    print("***")
+
+    for item in comforts:
+        point_item = current_model.B["comfort"][item, current_state, ates_action_id]
+        print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
+
+    print(f"XXX_previous sum = {remain_sum_point} - after sum = {remain_sum_point + ates_point}")
+
+    print("-----------")
+    return current_model
 
 
-def ates_update_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_diff, ates_point):
+def ates_update_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_point):
     current_model.B["comfort"][expect_state, current_state, ates_action_id] += ates_point
-    current_model = normalization_matrix(ates_action_id, current_state, expect_state, current_model, ates_point)
-    # for item_str in lst_pairing_state:
-    #     state_str = item_str.split("_")
-    #     state_to = state_str[0]
-    #     state_from = state_str[1]
-    #     matrix_value = current_model.B["comfort"][state_to, state_from, ates_action_id]
-    #     if state_from == current_state and state_to != expect_state and matrix_value > 0:
-    #     # if state_from == current_state and state_to != expect_state:
-    #         print("XXX_matrix_point:")
-    #         print(matrix_value)
-    #         print("XXX_ates_diff:")
-    #         print(ates_diff)
-    #         current_model.B["comfort"][state_to, state_from, ates_action_id] -= ates_diff
+    current_model = normalization_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_point)
 
     return current_model
-    # return current_model.B["comfort"][:, current_state, ates_action_id]
+
+
+def ates_update_matrix_negative(ates_action_id, current_state, expect_state, current_model, ates_point):
+    current_model.B["comfort"][expect_state, current_state, ates_action_id] -= ates_point
+    current_model = normalization_matrix_negative(ates_action_id, current_state, expect_state, current_model, ates_point)
+
+    return current_model
 
 
 def infer_belief_once(
@@ -944,7 +959,8 @@ def get_list_target_step(step_log, step_index, current_observed):
 
 def get_list_positive_and_negative(
         step_log,
-        init_observed
+        init_observed,
+        agent_model
 ):
     lst_negative_step = []
     lst_target_step = []
@@ -958,11 +974,14 @@ def get_list_positive_and_negative(
             current_observed = item["from_observation"]
             lst_target_step = get_list_target_step(step_log, item["step_index"], current_observed)
             list_state_target = get_list_state_target(lst_target_step, current_observed)
-            print(lst_negative_step)
-            print(get_state_belief_most(list_state_target))
-            lst_negative_step.clear()
-            lst_target_step.clear()
-            print("=========")
+            target_state, target_state_distribute = get_state_belief_most(list_state_target)
+            if len(lst_negative_step) > 0:
+                print("Negative Update: " + str(lst_negative_step))
+                print("With: " + str(target_state) + " by " + str(target_state_distribute))
+                negative_update_steps(lst_negative_step, agent_model, target_state, target_state_distribute)
+                lst_negative_step.clear()
+                lst_target_step.clear()
+                print("=========")
             # break
 
 
@@ -987,5 +1006,24 @@ def get_list_state_target(step_log, target_observed):
             break
 
     return lst_state_target
+
+
+def negative_update_steps(lst_negative_step, agent_model, target_state, target_state_distribute):
+    for step in lst_negative_step:
+        if step["chosen_action"] not in base_actions:
+            print("Update Negative_XXX:")
+            print("chosen_action:" + str(step["chosen_action"]))
+            print("from_state_belief:" + str(step["from_state_belief"]))
+            print("target_state:" + str(target_state))
+            print("target_state_distribute:" + str(target_state_distribute))
+            point = get_ates_point_negative(step["chosen_action"], step["from_state_belief"], target_state, agent_model,
+                                            target_state_distribute, 30)
+            print("point: " + str(point))
+            agent_model = ates_update_matrix_negative(step["chosen_action"], step["from_state_belief"], target_state,
+                                                      agent_model,
+                                                      point)
+
+
+
 
 # Baseline

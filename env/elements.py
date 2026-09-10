@@ -1,6 +1,7 @@
 comforts = ["Warm", "LittleCool", "Cool", "LittleCold", "Cold"]  # hidden state
 
 base_actions = ["FIT", "FDT", "NA"]  # Base action
+base_actions_test = ["NA"]  # Base action
 agent_actions = base_actions + []  # Agent action
 
 temperatures = ["T0", "T1", "T2", "T3", "T4", "T5", "T6"]  # Observe Temperature
