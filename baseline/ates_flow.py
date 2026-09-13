@@ -3,6 +3,7 @@ from env.agent import run_agent, extend_action_space, \
     get_ates_point, ates_update_matrix_negative, get_ates_point_negative
 import jax
 import time
+from decimal import Decimal
 
 from env.elements import base_actions, agent_actions, comforts, base_actions_test
 from utils.util import get_max_index
@@ -39,7 +40,7 @@ temperature_observed = "T0"
 # =========================================================
 
 qs_prior = None
-RANDOM_SEED = 50
+RANDOM_SEED = 100
 rng_key = jax.random.PRNGKey(RANDOM_SEED)
 
 history = []
@@ -47,14 +48,17 @@ previous_belief = ""
 previous_belief_distribution = 0
 predicted_belief = ""
 previous_action = ""
-belief_prob = 0.7
+belief_prob = 0.5
 
 summary_learning_log = []
 summary_step_log = []
 history_log = []
 agent_model = agent_model_init
 
-for t in range(30):
+
+previous_step = {}
+
+for t in range(50):
     print(
         f"\n================ AGENT LOOP STEP {t + 1} ================"
     )
@@ -115,22 +119,23 @@ for t in range(30):
     lst_predicted_distribution = result["predicted_prior_next"].tolist()
 
     current_belief = comforts[get_max_index(lst_current_distribution)]
-    current_belief_distribution = max(lst_current_distribution)
+    # current_belief_distribution = max(lst_current_distribution)
+    #
+    #
+    #
+    # if previous_action not in base_actions_test and previous_action != "":
+    #     point = get_ates_point(previous_action, previous_belief, current_belief, agent_model, current_belief_distribution, 30)
+    #     agent_model = ates_update_matrix_positive(previous_action, previous_belief, current_belief, agent_model,
+    #                                               point)
+        # print(str_log)
 
-    # step_log_str = f"STEP {t + 1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
-
-    # if previous_action not in base_actions and previous_action != "" and previous_belief_distribution > belief_prob and current_belief_distribution > belief_prob:
-    if previous_action not in base_actions_test and previous_action != "" and previous_belief_distribution > belief_prob and current_belief_distribution > belief_prob:
-        point = get_ates_point(previous_action, previous_belief, current_belief, agent_model, belief_prob, 30)
-        str_log = f"STEP {t + 1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
-        summary_learning_log.append(str_log)
-        agent_model = ates_update_matrix_positive(previous_action, previous_belief, current_belief, agent_model,
-                                                  point)
-        print(str_log)
+        # str_log = f"STEP {t + 1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
+        # summary_learning_log.append(str_log)
 
     step_log = {
         "step_index": t,
         "from_observation": result["current_temperature"],
+        "current_belief_lst": result["lst_obj_belief"],
         "from_state_belief": result["current_comfort_map"],
         "from_state_belief_distribution": max(lst_current_distribution),
         "chosen_action": result["chosen_action"],
@@ -140,6 +145,37 @@ for t in range(30):
     }
 
     history_log.append(step_log)
+
+    if t > 0 and previous_action not in base_actions_test:
+        lst_previous = previous_step["current_belief_lst"]
+        lst_current = step_log["current_belief_lst"]
+        for previous in lst_previous:
+            previous_name = previous.split(": ")[0]
+            previous_distribute = float(previous.split(": ")[1])
+            if previous_distribute > 0.0:
+                print("___ZZZ: " + previous_name)
+                for current in lst_current:
+                    current_name = current.split(": ")[0]
+                    current_distribute = float(current.split(": ")[1])
+                    if current_distribute > 0.0:
+                        current_belief_distribution = previous_distribute * current_distribute
+                        print("previous_action: " + str(previous_action))
+                        print("previous_name: " + str(previous_name))
+                        print("current_name: " + str(current_name))
+                        print("current_belief_distribution: " + str(current_belief_distribution))
+
+                        point = get_ates_point(previous_action, previous_name, current_name, agent_model,
+                                               current_belief_distribution, 30)
+                        agent_model = ates_update_matrix_positive(previous_action, previous_name, current_name,
+                                                                  agent_model,
+                                                                  point)
+
+                                # todo linhth
+
+    previous_step = step_log
+
+
+
 
     print("XXX_Matrix_agent_model After Learning: ")
     print(agent_model)
@@ -153,6 +189,8 @@ for t in range(30):
     previous_belief_distribution = max(lst_current_distribution)
     predicted_belief = comforts[get_max_index(lst_predicted_distribution)]
     previous_action = result["chosen_action"]
+
+    previous_belief_lst = lst_current_distribution
 
     # =========================================================
     # Keep the FULL SOFT posterior
@@ -200,6 +238,13 @@ for t in range(30):
     # Carry RNG state forward
     # =========================================================
     rng_key = result["rng_key"]
+
+print("summary_history_log: ")
+count_step = 0
+for item in history_log:
+    step_log_str = f"STEP {count_step + 1} from {item["from_observation"]} to {item["to_observation"]} with {item["chosen_action"]}"
+    print(step_log_str)
+    count_step = count_step + 1
 
 print("summary_step_log: ")
 counter = 0

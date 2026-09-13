@@ -52,7 +52,7 @@ GAMMA = 1.0
 # ------------------------------------------------------------
 
 INITIAL_TEMPERATURE = "T0"
-NUM_STEPS = 30
+NUM_STEPS = 50
 
 # IMPORTANT:
 #
@@ -62,7 +62,7 @@ NUM_STEPS = 30
 #   Dirichlet
 #   ATES
 #
-RANDOM_SEED = 50
+RANDOM_SEED = 100
 
 
 # ============================================================

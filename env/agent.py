@@ -1,6 +1,6 @@
 from pymdp.distribution import compile_model
 from env.elements import update_model_description, lst_action_extended, lst_slice_b, \
-    lst_pairing_state, append_action, base_actions
+    lst_pairing_state, append_action, base_actions, base_actions_test
 
 import jax
 from pymdp.agent import Agent
@@ -235,6 +235,15 @@ def build_matrix_c(current_model):
     current_model.C["temperature_obs"]["T5"] = 0.0
     current_model.C["temperature_obs"]["T6"] = 6.0
 
+    # # Temperature preferences for T0
+    # current_model.C["temperature_obs"]["T0"] = 6.0
+    # current_model.C["temperature_obs"]["T1"] = 0.0
+    # current_model.C["temperature_obs"]["T2"] = 0.0
+    # current_model.C["temperature_obs"]["T3"] = 0.0
+    # current_model.C["temperature_obs"]["T4"] = 0.0
+    # current_model.C["temperature_obs"]["T5"] = 0.0
+    # current_model.C["temperature_obs"]["T6"] = 0.0
+
     return current_model
 
 
@@ -314,7 +323,8 @@ def extend_action_space(action_id):
 
 def get_ates_point(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
     current_transition_prob = current_model.B["comfort"][expect_state, current_state, ates_action_id]
-    point = (1 - current_transition_prob) * upd_point_ratio / 100 * belief_prob
+    point = (1 - current_transition_prob) * (upd_point_ratio / 100) * belief_prob
+    print("XXX_my_point: "+str(point))
     return round(point, 2)
 
 
@@ -570,7 +580,10 @@ def run_agent(
         "\n===== POSTERIOR BELIEF OVER COMFORT ====="
     )
 
+    lst_obj_belief = []
     for i, state in enumerate(comforts):
+        str_object_belief = f"{state}: "+f"{float(comfort_belief[i]):.4f}"
+        lst_obj_belief.append(str_object_belief)
         print(
             f"{state}: "
             f"{float(comfort_belief[i]):.4f}"
@@ -879,6 +892,7 @@ def run_agent(
         # Selected action:
         "chosen_action_idx": chosen_action_idx,
         "chosen_action": chosen_action,
+        "lst_obj_belief": lst_obj_belief,
 
         # Policy inference:
         "q_pi": q_pi,
@@ -919,36 +933,60 @@ def run_agent(
 # ]
 
 
+# def get_state_belief_most(
+#         step_log
+# ):
+#     dict_state = {}
+#     for item in step_log:
+#         dict_state[item["state"]] = 0.0
+#
+#     for item in step_log:
+#         dict_state[item["state"]] = dict_state.get(item["state"]) + item["distribute"]
+#
+#     dict_counter = {}
+#     for key in dict_state.keys():
+#         counter = 0
+#         for item in step_log:
+#             if item["state"] == key:
+#                 counter = counter + 1
+#         dict_counter[key] = counter
+#
+#     state_max = max(dict_state, key=dict_state.get)
+#     state_max_value = dict_state[state_max]
+#     point_average = state_max_value / (dict_counter[state_max])
+#     return state_max, point_average
+
+
 def get_state_belief_most(
         step_log
 ):
-    dict_state = {}
-    for item in step_log:
-        dict_state[item["state"]] = 0.0
+    state_max = ""
+    point_average = 0.0
 
     for item in step_log:
-        dict_state[item["state"]] = dict_state.get(item["state"]) + item["distribute"]
+        state_max = item["state"]
+        point_average = item["distribute"]
 
-    dict_counter = {}
-    for key in dict_state.keys():
-        counter = 0
-        for item in step_log:
-            if item["state"] == key:
-                counter = counter + 1
-        dict_counter[key] = counter
-
-    state_max = max(dict_state, key=dict_state.get)
-    state_max_value = dict_state[state_max]
-    point_average = state_max_value / (dict_counter[state_max])
+    # dict_counter = {}
+    # for key in dict_state.keys():
+    #     counter = 0
+    #     for item in step_log:
+    #         if item["state"] == key:
+    #             counter = counter + 1
+    #     dict_counter[key] = counter
+    #
+    # state_max = max(dict_state, key=dict_state.get)
+    # state_max_value = dict_state[state_max]
+    # point_average = state_max_value / (dict_counter[state_max])
     return state_max, point_average
 
 
 def get_list_target_step(step_log, step_index, current_observed):
     lst_target_step = []
     for item in step_log:
-        if item["step_index"] == (step_index - 1) and item["to_observation"] == current_observed:
+        if item["step_index"] == step_index:
             lst_target_step.append(item)
-        if item["step_index"] >= step_index:
+        if item["step_index"] > step_index:
             if item["from_observation"] == current_observed:
                 lst_target_step.append(item)
             else:
@@ -967,18 +1005,24 @@ def get_list_positive_and_negative(
     current_observed = init_observed
 
     for item in step_log:
-        if item["from_observation"] == current_observed:
+        if item["from_observation"] == current_observed and item["to_observation"] == current_observed:
             lst_negative_step.append(item)
-        if item["from_observation"] != current_observed:
+        else:
             lst_target_step.append(item)
-            current_observed = item["from_observation"]
+            print("XXX_evident: " + str(item))
+            current_observed = item["to_observation"]
             lst_target_step = get_list_target_step(step_log, item["step_index"], current_observed)
+            most_target_step_belief = lst_target_step[len(lst_target_step) - 1]
+            current_belief_lst = most_target_step_belief["current_belief_lst"]
+            print("current_belief_lst_ZZZ: " + str(current_belief_lst))
             list_state_target = get_list_state_target(lst_target_step, current_observed)
+            print("lst_target_step_XXX: "+str(lst_target_step))
+            print("lst_state_target_XXX: "+str(list_state_target))
             target_state, target_state_distribute = get_state_belief_most(list_state_target)
             if len(lst_negative_step) > 0:
                 print("Negative Update: " + str(lst_negative_step))
                 print("With: " + str(target_state) + " by " + str(target_state_distribute))
-                negative_update_steps(lst_negative_step, agent_model, target_state, target_state_distribute)
+                negative_update_steps(lst_negative_step, agent_model, current_belief_lst)
                 lst_negative_step.clear()
                 lst_target_step.clear()
                 print("=========")
@@ -987,7 +1031,7 @@ def get_list_positive_and_negative(
 
 def get_list_state_target(step_log, target_observed):
     lst_state_target = []
-
+    print("XXX_target_observed: "+str(target_observed))
     for item in step_log:
         if item["from_observation"] == target_observed or item["to_observation"] == target_observed:
             if item["from_observation"] == target_observed:
@@ -1008,21 +1052,42 @@ def get_list_state_target(step_log, target_observed):
     return lst_state_target
 
 
-def negative_update_steps(lst_negative_step, agent_model, target_state, target_state_distribute):
-    for step in lst_negative_step:
-        if step["chosen_action"] not in base_actions:
-            print("Update Negative_XXX:")
-            print("chosen_action:" + str(step["chosen_action"]))
-            print("from_state_belief:" + str(step["from_state_belief"]))
-            print("target_state:" + str(target_state))
-            print("target_state_distribute:" + str(target_state_distribute))
-            point = get_ates_point_negative(step["chosen_action"], step["from_state_belief"], target_state, agent_model,
-                                            target_state_distribute, 30)
-            print("point: " + str(point))
-            agent_model = ates_update_matrix_negative(step["chosen_action"], step["from_state_belief"], target_state,
-                                                      agent_model,
-                                                      point)
+# def negative_update_steps(lst_negative_step, agent_model, target_state, target_state_distribute):
+#     for step in lst_negative_step:
+#         # if step["chosen_action"] not in base_actions_test and str(step["from_state_belief"]) != str(target_state):
+#         if step["chosen_action"] not in base_actions_test and str(step["from_state_belief"]) != str(target_state):
+#             print("Update Negative_XXX:")
+#             print("chosen_action:" + str(step["chosen_action"]))
+#             print("from_state_belief:" + str(step["from_state_belief"]))
+#             print("target_state:" + str(target_state))
+#             print("target_state_distribute:" + str(target_state_distribute))
+#             point = get_ates_point_negative(step["chosen_action"], step["from_state_belief"], target_state, agent_model,
+#                                             target_state_distribute, 30)
+#             print("point: " + str(point))
+#             agent_model = ates_update_matrix_negative(step["chosen_action"], step["from_state_belief"], target_state,
+#                                                       agent_model,
+#                                                       point)
 
+
+def negative_update_steps(lst_negative_step, agent_model, current_belief_lst):
+    for step in lst_negative_step:
+        for item in current_belief_lst:
+            target_state_name = item.split(": ")[0]
+            target_state_distribute = float(item.split(": ")[1])
+            if step["chosen_action"] not in base_actions_test and str(step["from_state_belief"]) != str(target_state_name) and target_state_distribute > 0:
+                print("Update Negative_XXX:")
+                print("chosen_action:" + str(step["chosen_action"]))
+                print("from_state_belief:" + str(step["from_state_belief"]))
+                print("target_state:" + str(target_state_name))
+                print("target_state_distribute:" + str(target_state_distribute))
+                point = get_ates_point_negative(step["chosen_action"], step["from_state_belief"], target_state_name,
+                                                agent_model,
+                                                target_state_distribute, 30)
+                print("point: " + str(point))
+                agent_model = ates_update_matrix_negative(step["chosen_action"], step["from_state_belief"],
+                                                          target_state_name,
+                                                          agent_model,
+                                                          point)
 
 
 
