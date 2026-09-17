@@ -12,6 +12,9 @@ from env.environtment import (
     environment_step,
     predict_next_state_belief,
 )
+from utils.load_dirichlet import load_b_matrix_dirichlet
+from utils.save_dirichlet import save_b_matrix_dirichlet
+from utils.save_matrix_b import save_b_matrix_readable
 from utils.util import extract_distribution_array_and_attr
 
 
@@ -51,8 +54,8 @@ GAMMA = 1.0
 # Experiment
 # ------------------------------------------------------------
 
-INITIAL_TEMPERATURE = "T0"
-NUM_STEPS = 50
+INITIAL_TEMPERATURE = "T6"
+NUM_STEPS = 80
 
 # IMPORTANT:
 #
@@ -62,7 +65,7 @@ NUM_STEPS = 50
 #   Dirichlet
 #   ATES
 #
-RANDOM_SEED = 100
+RANDOM_SEED = 70
 
 
 # ============================================================
@@ -1564,6 +1567,25 @@ agent_model = extend_action_space(
 
 
 # ============================================================
+# LOAD SAVED B ONCE AT START OF RUN
+# ============================================================
+#
+# IMPORTANT:
+# Load both B and Dirichlet alpha_B from the previous run only once here.
+# Do NOT reload B / alpha_B inside the interaction loop, otherwise the
+# newly learned B / alpha_B from the current step would be overwritten
+# by the older contents stored on disk. 2
+# ============================================================
+
+agent_model, alpha_B = load_b_matrix_dirichlet(
+    model_agent=agent_model,
+    file_path="logs/matrix_b_dirichlet.txt",
+    prior_strength=DIRICHLET_PRIOR_STRENGTH,
+    epsilon=DIRICHLET_EPSILON,
+)
+
+
+# ============================================================
 # SAVE INITIAL MODEL
 # ============================================================
 #
@@ -1572,7 +1594,7 @@ agent_model = extend_action_space(
 #     Initial B
 #         vs
 #     Final B
-#
+# 8
 # comparison.
 # ============================================================
 
@@ -1607,7 +1629,12 @@ qs_prior = None
 #         from,
 #         action
 #     ]
-alpha_B = None
+#
+# IMPORTANT:
+# alpha_B has already been loaded together with B above.
+# Do NOT reset it to None here, otherwise the saved Dirichlet
+# pseudo-count history would be discarded and reconstructed
+# from the current B.
 
 
 # Previous posterior/action needed for delayed learning.
@@ -1771,6 +1798,11 @@ for t in range(
     agent_model = result[
         "updated_model_agent"
     ]
+
+    # IMPORTANT:
+    # Do not reload B from disk here. The model returned above
+    # contains the B learned during this interaction and must be
+    # carried forward to the next step.
 
     # ========================================================
     # Preserve alpha
@@ -1946,7 +1978,6 @@ print_all_learnable_b_slices(
     title="FINAL B SLICES",
 )
 
-
 # ============================================================
 # INITIAL vs FINAL B
 # ============================================================
@@ -1954,4 +1985,15 @@ print_all_learnable_b_slices(
 print_initial_final_b_comparison(
     initial_model=initial_agent_model,
     final_model=agent_model,
+)
+
+# save_b_matrix_readable(
+#     agent_model,
+#     "logs/matrix_b_dirichlet.txt",
+# )
+
+save_b_matrix_dirichlet(
+    model_agent=agent_model,
+    alpha_B=alpha_B,
+    file_path="logs/matrix_b_dirichlet.txt",
 )

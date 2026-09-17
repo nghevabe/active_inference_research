@@ -4,8 +4,10 @@ from env.agent import run_agent, extend_action_space, \
 import jax
 import time
 from decimal import Decimal
+from utils.load_matrix_b import load_b_matrix_from_txt
 
 from env.elements import base_actions, agent_actions, comforts, base_actions_test
+from utils.save_matrix_b import save_b_matrix_readable
 from utils.util import get_max_index
 
 # =========================================================
@@ -30,17 +32,17 @@ agent_model_init = extend_action_space("XDT")
 
 # temperature_observed = "T4"
 
-print("XXX_Matrix_agent_model Before Learning: ")
+print("XXX_Matrix_agent_model Init: ")
 print(agent_model_init)
 
-temperature_observed = "T0"
+temperature_observed = "T6"
 
 # =========================================================
 # Initial recurrent variables
 # =========================================================
 
 qs_prior = None
-RANDOM_SEED = 100
+RANDOM_SEED = 70
 rng_key = jax.random.PRNGKey(RANDOM_SEED)
 
 history = []
@@ -53,12 +55,21 @@ belief_prob = 0.5
 summary_learning_log = []
 summary_step_log = []
 history_log = []
+
 agent_model = agent_model_init
 
+# load model 2
+load_b_matrix_from_txt(
+    agent_model,
+    "logs/matrix_b_ates.txt",
+)
+
+print("XXX_Matrix_agent_model After Load: ")
+print(agent_model)
 
 previous_step = {}
 
-for t in range(50):
+for t in range(80):
     print(
         f"\n================ AGENT LOOP STEP {t + 1} ================"
     )
@@ -163,9 +174,12 @@ for t in range(50):
                         print("previous_name: " + str(previous_name))
                         print("current_name: " + str(current_name))
                         print("current_belief_distribution: " + str(current_belief_distribution))
-
+                        print("positive update for : " + str(t) + " " + str(previous_name) + "("+str(previous_distribute)+")" + " -> " + str(current_name) + "("+str(current_distribute)+")" + " by "+previous_action)
                         point = get_ates_point(previous_action, previous_name, current_name, agent_model,
-                                               current_belief_distribution, 30)
+                                               current_belief_distribution, 40)
+                        EPS = 1e-10
+                        if point <= EPS:
+                            break
                         agent_model = ates_update_matrix_positive(previous_action, previous_name, current_name,
                                                                   agent_model,
                                                                   point)
@@ -255,6 +269,11 @@ for item in summary_learning_log:
 
 print("")
 print("")
-get_list_positive_and_negative(history_log, "T0", agent_model)
+get_list_positive_and_negative(history_log, "T6", agent_model)
 print("FINAL MODEL")
-print(agent_model.B)
+print(agent_model)
+
+save_b_matrix_readable(
+    agent_model,
+    "logs/matrix_b_ates.txt",
+)

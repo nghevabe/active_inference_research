@@ -1,0 +1,259 @@
+====================================================================================================
+AGENT MODEL - MATRIX B
+====================================================================================================
+Saved at: 2026-09-17 21:50:22
+Orientation: B[TO_STATE, FROM_STATE, ACTION]
+
+STATES
+----------------------------------------------------------------------------------------------------
+0: Warm
+1: LittleCool
+2: Cool
+3: LittleCold
+4: Cold
+
+ACTIONS
+----------------------------------------------------------------------------------------------------
+0: FIT
+1: FDT
+2: NA
+3: AIT
+4: ADT
+5: XDT
+
+====================================================================================================
+B SLICES
+====================================================================================================
+
+ACTION = FIT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                0.0918159229     0.0096013309     0.0002194431     0.0000000000     0.0000000000
+LittleCool          0.8478705652     0.4711954785     0.0345082059     0.0000001574     0.0000000000
+Cool                0.0602494229     0.5094805922     0.6634876281     0.0001335097     0.0019265495
+LittleCold          0.0000640890     0.0097225984     0.2987365504     0.9971726667     0.0702205067
+Cold                0.0000000000     0.0000000000     0.0030481727     0.0026936662     0.9278529438
+
+ACTION = FDT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                0.9999947279     0.5312780426     0.0469335103     0.0000000000     0.0000000000
+LittleCool          0.0000052721     0.4687219574     0.8734728702     0.0000000000     0.0000000000
+Cool                0.0000000000     0.0000000000     0.0000970389     0.0000009504     0.0000006253
+LittleCold          0.0000000000     0.0000000000     0.0763821024     0.9997760671     0.0000287014
+Cold                0.0000000000     0.0000000000     0.0031144783     0.0002229823     0.9999706732
+
+ACTION = NA
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                1.0000000000     0.0000000000     0.0000000000     0.0000000000     0.0000000000
+LittleCool          0.0000000000     1.0000000000     0.0000000000     0.0000000000     0.0000000000
+Cool                0.0000000000     0.0000000000     1.0000000000     0.0000000000     0.0000000000
+LittleCold          0.0000000000     0.0000000000     0.0000000000     1.0000000000     0.0000000000
+Cold                0.0000000000     0.0000000000     0.0000000000     0.0000000000     1.0000000000
+
+ACTION = AIT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                0.9999480483     0.1169466690     0.0008374134     0.0000000000     0.0000000000
+LittleCool          0.0000519516     0.8482050218     0.0193874415     0.0000000000     0.0000000000
+Cool                0.0000000000     0.0308120064     0.0792239446     0.0030180808     0.0000014081
+LittleCold          0.0000000000     0.0039814102     0.8592501349     0.0991372645     0.0000201493
+Cold                0.0000000000     0.0000548928     0.0413010655     0.8978446546     0.9999784424
+
+ACTION = ADT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                0.9999999992     0.0160813880     0.0060855040     0.0000000000     0.0000000000
+LittleCool          0.0000000009     0.9107519535     0.0204848343     0.0001486085     0.0000000179
+Cool                0.0000000000     0.0690135118     0.9211374904     0.7606359309     0.0028393593
+LittleCold          0.0000000000     0.0041531467     0.0522651351     0.2392106144     0.9960988091
+Cold                0.0000000000     0.0000000000     0.0000270362     0.0000048463     0.0010618140
+
+ACTION = XDT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                0.9999994800     0.4442388040     0.0032903516     0.0000846841     0.0000000000
+LittleCool          0.0000005201     0.5519770300     0.9673031049     0.0825353496     0.0000000000
+Cool                0.0000000000     0.0035582694     0.0282382976     0.0017819944     0.0000453006
+LittleCold          0.0000000000     0.0002258969     0.0011271108     0.9153256472     0.0002849574
+Cold                0.0000000000     0.0000000000     0.0000411352     0.0002723248     0.9996697422
+
+====================================================================================================
+TRANSITION LIST
+====================================================================================================
+
+ACTION = FIT
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | FIT   | 0.0918159229
+Warm         -> LittleCool   | FIT   | 0.8478705652
+Warm         -> Cool         | FIT   | 0.0602494229
+Warm         -> LittleCold   | FIT   | 0.0000640890
+Warm         -> Cold         | FIT   | 0.0000000000
+LittleCool   -> Warm         | FIT   | 0.0096013309
+LittleCool   -> LittleCool   | FIT   | 0.4711954785
+LittleCool   -> Cool         | FIT   | 0.5094805922
+LittleCool   -> LittleCold   | FIT   | 0.0097225984
+LittleCool   -> Cold         | FIT   | 0.0000000000
+Cool         -> Warm         | FIT   | 0.0002194431
+Cool         -> LittleCool   | FIT   | 0.0345082059
+Cool         -> Cool         | FIT   | 0.6634876281
+Cool         -> LittleCold   | FIT   | 0.2987365504
+Cool         -> Cold         | FIT   | 0.0030481727
+LittleCold   -> Warm         | FIT   | 0.0000000000
+LittleCold   -> LittleCool   | FIT   | 0.0000001574
+LittleCold   -> Cool         | FIT   | 0.0001335097
+LittleCold   -> LittleCold   | FIT   | 0.9971726667
+LittleCold   -> Cold         | FIT   | 0.0026936662
+Cold         -> Warm         | FIT   | 0.0000000000
+Cold         -> LittleCool   | FIT   | 0.0000000000
+Cold         -> Cool         | FIT   | 0.0019265495
+Cold         -> LittleCold   | FIT   | 0.0702205067
+Cold         -> Cold         | FIT   | 0.9278529438
+
+ACTION = FDT
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | FDT   | 0.9999947279
+Warm         -> LittleCool   | FDT   | 0.0000052721
+Warm         -> Cool         | FDT   | 0.0000000000
+Warm         -> LittleCold   | FDT   | 0.0000000000
+Warm         -> Cold         | FDT   | 0.0000000000
+LittleCool   -> Warm         | FDT   | 0.5312780426
+LittleCool   -> LittleCool   | FDT   | 0.4687219574
+LittleCool   -> Cool         | FDT   | 0.0000000000
+LittleCool   -> LittleCold   | FDT   | 0.0000000000
+LittleCool   -> Cold         | FDT   | 0.0000000000
+Cool         -> Warm         | FDT   | 0.0469335103
+Cool         -> LittleCool   | FDT   | 0.8734728702
+Cool         -> Cool         | FDT   | 0.0000970389
+Cool         -> LittleCold   | FDT   | 0.0763821024
+Cool         -> Cold         | FDT   | 0.0031144783
+LittleCold   -> Warm         | FDT   | 0.0000000000
+LittleCold   -> LittleCool   | FDT   | 0.0000000000
+LittleCold   -> Cool         | FDT   | 0.0000009504
+LittleCold   -> LittleCold   | FDT   | 0.9997760671
+LittleCold   -> Cold         | FDT   | 0.0002229823
+Cold         -> Warm         | FDT   | 0.0000000000
+Cold         -> LittleCool   | FDT   | 0.0000000000
+Cold         -> Cool         | FDT   | 0.0000006253
+Cold         -> LittleCold   | FDT   | 0.0000287014
+Cold         -> Cold         | FDT   | 0.9999706732
+
+ACTION = NA
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | NA    | 1.0000000000
+Warm         -> LittleCool   | NA    | 0.0000000000
+Warm         -> Cool         | NA    | 0.0000000000
+Warm         -> LittleCold   | NA    | 0.0000000000
+Warm         -> Cold         | NA    | 0.0000000000
+LittleCool   -> Warm         | NA    | 0.0000000000
+LittleCool   -> LittleCool   | NA    | 1.0000000000
+LittleCool   -> Cool         | NA    | 0.0000000000
+LittleCool   -> LittleCold   | NA    | 0.0000000000
+LittleCool   -> Cold         | NA    | 0.0000000000
+Cool         -> Warm         | NA    | 0.0000000000
+Cool         -> LittleCool   | NA    | 0.0000000000
+Cool         -> Cool         | NA    | 1.0000000000
+Cool         -> LittleCold   | NA    | 0.0000000000
+Cool         -> Cold         | NA    | 0.0000000000
+LittleCold   -> Warm         | NA    | 0.0000000000
+LittleCold   -> LittleCool   | NA    | 0.0000000000
+LittleCold   -> Cool         | NA    | 0.0000000000
+LittleCold   -> LittleCold   | NA    | 1.0000000000
+LittleCold   -> Cold         | NA    | 0.0000000000
+Cold         -> Warm         | NA    | 0.0000000000
+Cold         -> LittleCool   | NA    | 0.0000000000
+Cold         -> Cool         | NA    | 0.0000000000
+Cold         -> LittleCold   | NA    | 0.0000000000
+Cold         -> Cold         | NA    | 1.0000000000
+
+ACTION = AIT
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | AIT   | 0.9999480483
+Warm         -> LittleCool   | AIT   | 0.0000519516
+Warm         -> Cool         | AIT   | 0.0000000000
+Warm         -> LittleCold   | AIT   | 0.0000000000
+Warm         -> Cold         | AIT   | 0.0000000000
+LittleCool   -> Warm         | AIT   | 0.1169466690
+LittleCool   -> LittleCool   | AIT   | 0.8482050218
+LittleCool   -> Cool         | AIT   | 0.0308120064
+LittleCool   -> LittleCold   | AIT   | 0.0039814102
+LittleCool   -> Cold         | AIT   | 0.0000548928
+Cool         -> Warm         | AIT   | 0.0008374134
+Cool         -> LittleCool   | AIT   | 0.0193874415
+Cool         -> Cool         | AIT   | 0.0792239446
+Cool         -> LittleCold   | AIT   | 0.8592501349
+Cool         -> Cold         | AIT   | 0.0413010655
+LittleCold   -> Warm         | AIT   | 0.0000000000
+LittleCold   -> LittleCool   | AIT   | 0.0000000000
+LittleCold   -> Cool         | AIT   | 0.0030180808
+LittleCold   -> LittleCold   | AIT   | 0.0991372645
+LittleCold   -> Cold         | AIT   | 0.8978446546
+Cold         -> Warm         | AIT   | 0.0000000000
+Cold         -> LittleCool   | AIT   | 0.0000000000
+Cold         -> Cool         | AIT   | 0.0000014081
+Cold         -> LittleCold   | AIT   | 0.0000201493
+Cold         -> Cold         | AIT   | 0.9999784424
+
+ACTION = ADT
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | ADT   | 0.9999999992
+Warm         -> LittleCool   | ADT   | 0.0000000009
+Warm         -> Cool         | ADT   | 0.0000000000
+Warm         -> LittleCold   | ADT   | 0.0000000000
+Warm         -> Cold         | ADT   | 0.0000000000
+LittleCool   -> Warm         | ADT   | 0.0160813880
+LittleCool   -> LittleCool   | ADT   | 0.9107519535
+LittleCool   -> Cool         | ADT   | 0.0690135118
+LittleCool   -> LittleCold   | ADT   | 0.0041531467
+LittleCool   -> Cold         | ADT   | 0.0000000000
+Cool         -> Warm         | ADT   | 0.0060855040
+Cool         -> LittleCool   | ADT   | 0.0204848343
+Cool         -> Cool         | ADT   | 0.9211374904
+Cool         -> LittleCold   | ADT   | 0.0522651351
+Cool         -> Cold         | ADT   | 0.0000270362
+LittleCold   -> Warm         | ADT   | 0.0000000000
+LittleCold   -> LittleCool   | ADT   | 0.0001486085
+LittleCold   -> Cool         | ADT   | 0.7606359309
+LittleCold   -> LittleCold   | ADT   | 0.2392106144
+LittleCold   -> Cold         | ADT   | 0.0000048463
+Cold         -> Warm         | ADT   | 0.0000000000
+Cold         -> LittleCool   | ADT   | 0.0000000179
+Cold         -> Cool         | ADT   | 0.0028393593
+Cold         -> LittleCold   | ADT   | 0.9960988091
+Cold         -> Cold         | ADT   | 0.0010618140
+
+ACTION = XDT
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | XDT   | 0.9999994800
+Warm         -> LittleCool   | XDT   | 0.0000005201
+Warm         -> Cool         | XDT   | 0.0000000000
+Warm         -> LittleCold   | XDT   | 0.0000000000
+Warm         -> Cold         | XDT   | 0.0000000000
+LittleCool   -> Warm         | XDT   | 0.4442388040
+LittleCool   -> LittleCool   | XDT   | 0.5519770300
+LittleCool   -> Cool         | XDT   | 0.0035582694
+LittleCool   -> LittleCold   | XDT   | 0.0002258969
+LittleCool   -> Cold         | XDT   | 0.0000000000
+Cool         -> Warm         | XDT   | 0.0032903516
+Cool         -> LittleCool   | XDT   | 0.9673031049
+Cool         -> Cool         | XDT   | 0.0282382976
+Cool         -> LittleCold   | XDT   | 0.0011271108
+Cool         -> Cold         | XDT   | 0.0000411352
+LittleCold   -> Warm         | XDT   | 0.0000846841
+LittleCold   -> LittleCool   | XDT   | 0.0825353496
+LittleCold   -> Cool         | XDT   | 0.0017819944
+LittleCold   -> LittleCold   | XDT   | 0.9153256472
+LittleCold   -> Cold         | XDT   | 0.0002723248
+Cold         -> Warm         | XDT   | 0.0000000000
+Cold         -> LittleCool   | XDT   | 0.0000000000
+Cold         -> Cool         | XDT   | 0.0000453006
+Cold         -> LittleCold   | XDT   | 0.0002849574
+Cold         -> Cold         | XDT   | 0.9996697422
+

@@ -227,22 +227,22 @@ def build_matrix_c(current_model):
     # current_model.C["temperature_obs"]["T6"] = -4.0
 
     # Temperature preferences for T6
-    current_model.C["temperature_obs"]["T0"] = 0.0
-    current_model.C["temperature_obs"]["T1"] = 0.0
-    current_model.C["temperature_obs"]["T2"] = 0.0
-    current_model.C["temperature_obs"]["T3"] = 0.0
-    current_model.C["temperature_obs"]["T4"] = 0.0
-    current_model.C["temperature_obs"]["T5"] = 0.0
-    current_model.C["temperature_obs"]["T6"] = 6.0
-
-    # # Temperature preferences for T0
-    # current_model.C["temperature_obs"]["T0"] = 6.0
+    # current_model.C["temperature_obs"]["T0"] = 0.0
     # current_model.C["temperature_obs"]["T1"] = 0.0
     # current_model.C["temperature_obs"]["T2"] = 0.0
     # current_model.C["temperature_obs"]["T3"] = 0.0
     # current_model.C["temperature_obs"]["T4"] = 0.0
     # current_model.C["temperature_obs"]["T5"] = 0.0
-    # current_model.C["temperature_obs"]["T6"] = 0.0
+    # current_model.C["temperature_obs"]["T6"] = 6.0
+
+    # # Temperature preferences for T0
+    current_model.C["temperature_obs"]["T0"] = 6.0
+    current_model.C["temperature_obs"]["T1"] = 0.0
+    current_model.C["temperature_obs"]["T2"] = 0.0
+    current_model.C["temperature_obs"]["T3"] = 0.0
+    current_model.C["temperature_obs"]["T4"] = 0.0
+    current_model.C["temperature_obs"]["T5"] = 0.0
+    current_model.C["temperature_obs"]["T6"] = 0.0
 
     return current_model
 
@@ -323,15 +323,16 @@ def extend_action_space(action_id):
 
 def get_ates_point(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
     current_transition_prob = current_model.B["comfort"][expect_state, current_state, ates_action_id]
+    # point = (1 - current_transition_prob) * (upd_point_ratio / 100) * belief_prob
     point = (1 - current_transition_prob) * (upd_point_ratio / 100) * belief_prob
     print("XXX_my_point: "+str(point))
-    return round(point, 2)
+    return point
 
 
 def get_ates_point_negative(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
     current_transition_prob = current_model.B["comfort"][expect_state, current_state, ates_action_id]
     point = current_transition_prob * upd_point_ratio / 100 * belief_prob
-    return round(point, 2)
+    return point
 
 
 def normalization_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_point):
@@ -1082,7 +1083,7 @@ def negative_update_steps(lst_negative_step, agent_model, current_belief_lst):
                 print("target_state_distribute:" + str(target_state_distribute))
                 point = get_ates_point_negative(step["chosen_action"], step["from_state_belief"], target_state_name,
                                                 agent_model,
-                                                target_state_distribute, 30)
+                                                target_state_distribute, 80)
                 print("point: " + str(point))
                 agent_model = ates_update_matrix_negative(step["chosen_action"], step["from_state_belief"],
                                                           target_state_name,
