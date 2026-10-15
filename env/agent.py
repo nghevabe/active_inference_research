@@ -227,22 +227,22 @@ def build_matrix_c(current_model):
     # current_model.C["temperature_obs"]["T6"] = -4.0
 
     # Temperature preferences for T6
-    # current_model.C["temperature_obs"]["T0"] = 0.0
-    # current_model.C["temperature_obs"]["T1"] = 0.0
-    # current_model.C["temperature_obs"]["T2"] = 0.0
-    # current_model.C["temperature_obs"]["T3"] = 0.0
-    # current_model.C["temperature_obs"]["T4"] = 0.0
-    # current_model.C["temperature_obs"]["T5"] = 0.0
-    # current_model.C["temperature_obs"]["T6"] = 6.0
-
-    # # Temperature preferences for T0
-    current_model.C["temperature_obs"]["T0"] = 6.0
+    current_model.C["temperature_obs"]["T0"] = 0.0
     current_model.C["temperature_obs"]["T1"] = 0.0
     current_model.C["temperature_obs"]["T2"] = 0.0
     current_model.C["temperature_obs"]["T3"] = 0.0
     current_model.C["temperature_obs"]["T4"] = 0.0
     current_model.C["temperature_obs"]["T5"] = 0.0
-    current_model.C["temperature_obs"]["T6"] = 0.0
+    current_model.C["temperature_obs"]["T6"] = 6.0
+
+    # # Temperature preferences for T0
+    # current_model.C["temperature_obs"]["T0"] = 6.0
+    # current_model.C["temperature_obs"]["T1"] = 0.0
+    # current_model.C["temperature_obs"]["T2"] = 0.0
+    # current_model.C["temperature_obs"]["T3"] = 0.0
+    # current_model.C["temperature_obs"]["T4"] = 0.0
+    # current_model.C["temperature_obs"]["T5"] = 0.0
+    # current_model.C["temperature_obs"]["T6"] = 0.0
 
     return current_model
 
@@ -288,24 +288,6 @@ def calculate_average_distribution(current_model, state_to, state_from):
     return average
 
 
-# def calculate_average_distribution(
-#     current_model,
-#     state_to,
-#     state_from,
-# ):
-#     source_actions = ["IT", "DT", "NA"]
-#
-#     return sum(
-#         float(
-#             current_model.B["comfort"][
-#                 state_to,
-#                 state_from,
-#                 action,
-#             ]
-#         )
-#         for action in source_actions
-#     ) / len(source_actions)
-
 
 def extend_action_space(action_id):
     append_action(action_id)
@@ -325,7 +307,6 @@ def get_ates_point(ates_action_id, current_state, expect_state, current_model, b
     current_transition_prob = current_model.B["comfort"][expect_state, current_state, ates_action_id]
     # point = (1 - current_transition_prob) * (upd_point_ratio / 100) * belief_prob
     point = (1 - current_transition_prob) * (upd_point_ratio / 100) * belief_prob
-    print("XXX_my_point: "+str(point))
     return point
 
 
@@ -336,13 +317,12 @@ def get_ates_point_negative(ates_action_id, current_state, expect_state, current
 
 
 def normalization_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_point):
-    print("-----------")
+    # print("-----------")
     remain_sum_point = 0
     for item in comforts:
         point_item = current_model.B["comfort"][item, current_state, ates_action_id]
 
         if item != expect_state:
-            print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
             remain_sum_point = remain_sum_point + point_item
 
     for item in comforts:
@@ -353,26 +333,16 @@ def normalization_matrix_positive(ates_action_id, current_state, expect_state, c
             new_point = point_item / remain_sum_point * new_sum
             current_model.B["comfort"][item, current_state, ates_action_id] = new_point
 
-    print("***")
-
-    for item in comforts:
-        point_item = current_model.B["comfort"][item, current_state, ates_action_id]
-        print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
-
-    print(f"XXX_previous sum = {remain_sum_point} - after sum = {remain_sum_point - ates_point}")
-
-    print("-----------")
     return current_model
 
 
 def normalization_matrix_negative(ates_action_id, current_state, expect_state, current_model, ates_point):
-    print("-----------")
+    # print("-----------")
     remain_sum_point = 0
     for item in comforts:
         point_item = current_model.B["comfort"][item, current_state, ates_action_id]
 
         if item != expect_state:
-            print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
             remain_sum_point = remain_sum_point + point_item
 
     for item in comforts:
@@ -383,15 +353,6 @@ def normalization_matrix_negative(ates_action_id, current_state, expect_state, c
             new_point = point_item / remain_sum_point * new_sum
             current_model.B["comfort"][item, current_state, ates_action_id] = new_point
 
-    print("***")
-
-    for item in comforts:
-        point_item = current_model.B["comfort"][item, current_state, ates_action_id]
-        print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
-
-    print(f"XXX_previous sum = {remain_sum_point} - after sum = {remain_sum_point + ates_point}")
-
-    print("-----------")
     return current_model
 
 
@@ -1010,29 +971,29 @@ def get_list_positive_and_negative(
             lst_negative_step.append(item)
         else:
             lst_target_step.append(item)
-            print("XXX_evident: " + str(item))
+            # print("XXX_evident: " + str(item))
             current_observed = item["to_observation"]
             lst_target_step = get_list_target_step(step_log, item["step_index"], current_observed)
             most_target_step_belief = lst_target_step[len(lst_target_step) - 1]
             current_belief_lst = most_target_step_belief["current_belief_lst"]
-            print("current_belief_lst_ZZZ: " + str(current_belief_lst))
+            # print("current_belief_lst_ZZZ: " + str(current_belief_lst))
             list_state_target = get_list_state_target(lst_target_step, current_observed)
-            print("lst_target_step_XXX: "+str(lst_target_step))
-            print("lst_state_target_XXX: "+str(list_state_target))
+            # print("lst_target_step_XXX: "+str(lst_target_step))
+            # print("lst_state_target_XXX: "+str(list_state_target))
             target_state, target_state_distribute = get_state_belief_most(list_state_target)
             if len(lst_negative_step) > 0:
-                print("Negative Update: " + str(lst_negative_step))
-                print("With: " + str(target_state) + " by " + str(target_state_distribute))
+                # print("Negative Update: " + str(lst_negative_step))
+                # print("With: " + str(target_state) + " by " + str(target_state_distribute))
                 negative_update_steps(lst_negative_step, agent_model, current_belief_lst)
                 lst_negative_step.clear()
                 lst_target_step.clear()
-                print("=========")
+                # print("=========")
             # break
 
 
 def get_list_state_target(step_log, target_observed):
     lst_state_target = []
-    print("XXX_target_observed: "+str(target_observed))
+    # print("XXX_target_observed: "+str(target_observed))
     for item in step_log:
         if item["from_observation"] == target_observed or item["to_observation"] == target_observed:
             if item["from_observation"] == target_observed:
@@ -1076,15 +1037,15 @@ def negative_update_steps(lst_negative_step, agent_model, current_belief_lst):
             target_state_name = item.split(": ")[0]
             target_state_distribute = float(item.split(": ")[1])
             if step["chosen_action"] not in base_actions_test and str(step["from_state_belief"]) != str(target_state_name) and target_state_distribute > 0:
-                print("Update Negative_XXX:")
-                print("chosen_action:" + str(step["chosen_action"]))
-                print("from_state_belief:" + str(step["from_state_belief"]))
-                print("target_state:" + str(target_state_name))
-                print("target_state_distribute:" + str(target_state_distribute))
+                # print("Update Negative_XXX:")
+                # print("chosen_action:" + str(step["chosen_action"]))
+                # print("from_state_belief:" + str(step["from_state_belief"]))
+                # print("target_state:" + str(target_state_name))
+                # print("target_state_distribute:" + str(target_state_distribute))
                 point = get_ates_point_negative(step["chosen_action"], step["from_state_belief"], target_state_name,
                                                 agent_model,
                                                 target_state_distribute, 80)
-                print("point: " + str(point))
+                # print("point: " + str(point))
                 agent_model = ates_update_matrix_negative(step["chosen_action"], step["from_state_belief"],
                                                           target_state_name,
                                                           agent_model,

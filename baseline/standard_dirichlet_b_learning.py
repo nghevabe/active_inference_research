@@ -65,7 +65,7 @@ NUM_STEPS = 80
 #   Dirichlet
 #   ATES
 #
-RANDOM_SEED = 70
+RANDOM_SEED = 150
 
 
 # ============================================================

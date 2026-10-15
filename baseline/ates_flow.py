@@ -32,17 +32,17 @@ agent_model_init = extend_action_space("XDT")
 
 # temperature_observed = "T4"
 
-print("XXX_Matrix_agent_model Init: ")
-print(agent_model_init)
+# print("XXX_Matrix_agent_model Init: ")
+# print(agent_model_init)
 
-temperature_observed = "T6"
+temperature_observed = "T0"
 
 # =========================================================
 # Initial recurrent variables
 # =========================================================
 
 qs_prior = None
-RANDOM_SEED = 70
+RANDOM_SEED = 130
 rng_key = jax.random.PRNGKey(RANDOM_SEED)
 
 history = []
@@ -64,12 +64,12 @@ load_b_matrix_from_txt(
     "logs/matrix_b_ates.txt",
 )
 
-print("XXX_Matrix_agent_model After Load: ")
-print(agent_model)
+# print("XXX_Matrix_agent_model After Load: ")
+# print(agent_model)
 
 previous_step = {}
 
-for t in range(80):
+for t in range(40):
     print(
         f"\n================ AGENT LOOP STEP {t + 1} ================"
     )
@@ -138,10 +138,10 @@ for t in range(80):
     #     point = get_ates_point(previous_action, previous_belief, current_belief, agent_model, current_belief_distribution, 30)
     #     agent_model = ates_update_matrix_positive(previous_action, previous_belief, current_belief, agent_model,
     #                                               point)
-        # print(str_log)
+    # print(str_log)
 
-        # str_log = f"STEP {t + 1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
-        # summary_learning_log.append(str_log)
+    # str_log = f"STEP {t + 1} update for {previous_belief} -> {current_belief} with {previous_action} by {point} point"
+    # summary_learning_log.append(str_log)
 
     step_log = {
         "step_index": t,
@@ -164,17 +164,17 @@ for t in range(80):
             previous_name = previous.split(": ")[0]
             previous_distribute = float(previous.split(": ")[1])
             if previous_distribute > 0.0:
-                print("___ZZZ: " + previous_name)
+                # print("___ZZZ: " + previous_name)
                 for current in lst_current:
                     current_name = current.split(": ")[0]
                     current_distribute = float(current.split(": ")[1])
                     if current_distribute > 0.0:
                         current_belief_distribution = previous_distribute * current_distribute
-                        print("previous_action: " + str(previous_action))
-                        print("previous_name: " + str(previous_name))
-                        print("current_name: " + str(current_name))
-                        print("current_belief_distribution: " + str(current_belief_distribution))
-                        print("positive update for : " + str(t) + " " + str(previous_name) + "("+str(previous_distribute)+")" + " -> " + str(current_name) + "("+str(current_distribute)+")" + " by "+previous_action)
+                        # print("previous_action: " + str(previous_action))
+                        # print("previous_name: " + str(previous_name))
+                        # print("current_name: " + str(current_name))
+                        # print("current_belief_distribution: " + str(current_belief_distribution))
+                        # print("positive update for : " + str(t) + " " + str(previous_name) + "("+str(previous_distribute)+")" + " -> " + str(current_name) + "("+str(current_distribute)+")" + " by "+previous_action)
                         point = get_ates_point(previous_action, previous_name, current_name, agent_model,
                                                current_belief_distribution, 40)
                         EPS = 1e-10
@@ -184,15 +184,12 @@ for t in range(80):
                                                                   agent_model,
                                                                   point)
 
-                                # todo linhth
+                        # todo linhth
 
     previous_step = step_log
 
-
-
-
-    print("XXX_Matrix_agent_model After Learning: ")
-    print(agent_model)
+    # print("XXX_Matrix_agent_model After Learning: ")
+    # print(agent_model)
 
     # each loop ask for input ates_action_id_input
     # ates_point = get_ates_positive_point(ates_action_id_input, "Neutral", "Cool", agent_model, 70, 30)
@@ -253,27 +250,132 @@ for t in range(80):
     # =========================================================
     rng_key = result["rng_key"]
 
+
+def at_t0():
+    return ""
+
+
+def at_t1():
+    return "      "
+
+
+def at_t2():
+    return "             "
+
+
+def at_t3():
+    return "                    "
+
+
+def at_t4():
+    return "                           "
+
+
+def at_t5():
+    return "                                   "
+
+
+def at_t6():
+    return "                                           "
+
+
+def draw_action(action):
+    if action == 'FIT':
+        return "FIT"
+    if action == 'FDT':
+        return "FDT"
+    if action == 'XDT':
+        return "XDT"
+    if action == 'AIT':
+        return "AIT"
+    if action == 'ADT':
+        return "ADT"
+    if action == 'NA':
+        return "NA"
+
+
+def show_agent(step, action):
+    print("Action Chosen: " + draw_action(action) + "")
+    print("")
+    print("")
+    print("")
+    if step == 'T0':
+        print(at_t0()+"(*)")
+    if step == 'T1':
+        print(at_t1()+"(*)")
+    if step == 'T2':
+        print(at_t2()+"(*)")
+    if step == 'T3':
+        print(at_t3()+"(*)")
+    if step == 'T4':
+        print(at_t4()+"(*)")
+    if step == 'T5':
+        print(at_t5()+"(*)")
+    if step == 'T6':
+        print(at_t6()+"(*)")
+
+    print("T0    T1     T2     T3     T4      T5      T6")
+    print("Start                                     Target")
+
+
 print("summary_history_log: ")
 count_step = 0
 for item in history_log:
     step_log_str = f"STEP {count_step + 1} from {item["from_observation"]} to {item["to_observation"]} with {item["chosen_action"]}"
     print(step_log_str)
     count_step = count_step + 1
+    print("")
 
-print("summary_step_log: ")
-counter = 0
-for item in summary_learning_log:
-    # step_log_str = f"STEP {counter + 1} {item["from_observation"]} ({item["from_state_belief"]} [{item["from_state_belief_distribution"]}]) + {item["chosen_action"]} => {item["to_observation"]} ({item["to_state_belief"]} [{item["to_state_belief_distribution"]}]) "
-    print(item)
-    counter = counter + 1
+print("visualization: ")
+count_step = 0
+for item in history_log:
+    time.sleep(1)
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    show_agent(item["from_observation"], item["chosen_action"])
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
+    print("")
 
-print("")
+
 print("")
 get_list_positive_and_negative(history_log, "T6", agent_model)
-print("FINAL MODEL")
-print(agent_model)
 
-save_b_matrix_readable(
-    agent_model,
-    "logs/matrix_b_ates.txt",
-)
+# save_b_matrix_readable(
+#     agent_model,
+#     "logs/matrix_b_ates.txt",
+# )
+
+
+
+
