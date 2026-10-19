@@ -10,7 +10,7 @@ from jax import numpy as jnp
 import jax.tree_util as jtu
 from env.elements import comforts, agent_actions
 from env.environtment import \
-    temperatures, lights, humidity, environment_step, \
+    temperatures, environment_step, \
     predict_next_state_belief
 
 
@@ -82,7 +82,7 @@ def build_noisy_agent_b_from_env(
     state_names = [
         "Uncomfortable",
         "Neutral",
-        "Comfortable",
+        "Cool",
     ]
 
     action_names = [
@@ -178,3 +178,8 @@ def sample_top_k_with_temperature(
     chosen_action = agent_actions[chosen_action_idx]
 
     return chosen_action_idx, chosen_action, rng_key, top_indices, top_probs_temp
+
+
+def get_max_index(list_distribution):
+    max_distribution = max(list_distribution)
+    return list_distribution.index(max_distribution)

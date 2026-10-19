@@ -1,0 +1,627 @@
+====================================================================================================
+DIRICHLET MODEL - MATRIX B + ALPHA
+====================================================================================================
+Saved at: 2026-09-17 21:55:33
+Orientation: B[TO_STATE, FROM_STATE, ACTION]
+Alpha orientation: alpha_B[TO_STATE, FROM_STATE, ACTION]
+
+[MACHINE_DATA]
+B|FIT|Warm|Warm|0.099999792873859406
+ALPHA|FIT|Warm|Warm|1.5999969244003296
+B|FIT|Warm|LittleCool|0.84999829530715942
+ALPHA|FIT|Warm|LittleCool|13.599974632263184
+B|FIT|Warm|Cool|0.049999896436929703
+ALPHA|FIT|Warm|Cool|0.79999846220016479
+B|FIT|Warm|LittleCold|9.9999795111216372e-07
+ALPHA|FIT|Warm|LittleCold|1.5999969036784023e-05
+B|FIT|Warm|Cold|9.9999795111216372e-07
+ALPHA|FIT|Warm|Cold|1.5999969036784023e-05
+B|FIT|LittleCool|Warm|0.04999995231628418
+ALPHA|FIT|LittleCool|Warm|0.79999923706054688
+B|FIT|LittleCool|LittleCool|0.44999957084655762
+ALPHA|FIT|LittleCool|LittleCool|7.1999931335449219
+B|FIT|LittleCool|Cool|0.44999957084655762
+ALPHA|FIT|LittleCool|Cool|7.1999931335449219
+B|FIT|LittleCool|LittleCold|0.04999995231628418
+ALPHA|FIT|LittleCool|LittleCold|0.79999923706054688
+B|FIT|LittleCool|Cold|9.9999908798054093e-07
+ALPHA|FIT|LittleCool|Cold|1.5999985407688655e-05
+B|FIT|Cool|Warm|9.9999704161746195e-07
+ALPHA|FIT|Cool|Warm|1.5999952665879391e-05
+B|FIT|Cool|LittleCool|9.9999704161746195e-07
+ALPHA|FIT|Cool|LittleCool|1.5999952665879391e-05
+B|FIT|Cool|Cool|0.9499971866607666
+ALPHA|FIT|Cool|Cool|15.199954986572266
+B|FIT|Cool|LittleCold|0.049999851733446121
+ALPHA|FIT|Cool|LittleCold|0.79999762773513794
+B|FIT|Cool|Cold|9.9999704161746195e-07
+ALPHA|FIT|Cool|Cold|1.5999952665879391e-05
+B|FIT|LittleCold|Warm|9.9999704161746195e-07
+ALPHA|FIT|LittleCold|Warm|1.5999952665879391e-05
+B|FIT|LittleCold|LittleCool|9.9999704161746195e-07
+ALPHA|FIT|LittleCold|LittleCool|1.5999952665879391e-05
+B|FIT|LittleCold|Cool|9.9999704161746195e-07
+ALPHA|FIT|LittleCold|Cool|1.5999952665879391e-05
+B|FIT|LittleCold|LittleCold|0.9499971866607666
+ALPHA|FIT|LittleCold|LittleCold|15.199954986572266
+B|FIT|LittleCold|Cold|0.049999851733446121
+ALPHA|FIT|LittleCold|Cold|0.79999762773513794
+B|FIT|Cold|Warm|9.9999704161746195e-07
+ALPHA|FIT|Cold|Warm|1.5999952665879391e-05
+B|FIT|Cold|LittleCool|9.9999704161746195e-07
+ALPHA|FIT|Cold|LittleCool|1.5999952665879391e-05
+B|FIT|Cold|Cool|9.9999704161746195e-07
+ALPHA|FIT|Cold|Cool|1.5999952665879391e-05
+B|FIT|Cold|LittleCold|0.049999851733446121
+ALPHA|FIT|Cold|LittleCold|0.79999762773513794
+B|FIT|Cold|Cold|0.9499971866607666
+ALPHA|FIT|Cold|Cold|15.199954986572266
+B|FDT|Warm|Warm|0.8999982476234436
+ALPHA|FDT|Warm|Warm|14.399971961975098
+B|FDT|Warm|LittleCool|0.0499999038875103
+ALPHA|FDT|Warm|LittleCool|0.79999846220016479
+B|FDT|Warm|Cool|0.0499999038875103
+ALPHA|FDT|Warm|Cool|0.79999846220016479
+B|FDT|Warm|LittleCold|9.9999806479900144e-07
+ALPHA|FDT|Warm|LittleCold|1.5999969036784023e-05
+B|FDT|Warm|Cold|9.9999806479900144e-07
+ALPHA|FDT|Warm|Cold|1.5999969036784023e-05
+B|FDT|LittleCool|Warm|0.049999851733446121
+ALPHA|FDT|LittleCool|Warm|0.79999774694442749
+B|FDT|LittleCool|LittleCool|0.94999712705612183
+ALPHA|FDT|LittleCool|LittleCool|15.199955940246582
+B|FDT|LittleCool|Cool|9.9999704161746195e-07
+ALPHA|FDT|LittleCool|Cool|1.5999954484868795e-05
+B|FDT|LittleCool|LittleCold|9.9999704161746195e-07
+ALPHA|FDT|LittleCool|LittleCold|1.5999954484868795e-05
+B|FDT|LittleCool|Cold|9.9999704161746195e-07
+ALPHA|FDT|LittleCool|Cold|1.5999954484868795e-05
+B|FDT|Cool|Warm|0.049999851733446121
+ALPHA|FDT|Cool|Warm|0.79999774694442749
+B|FDT|Cool|LittleCool|0.94999712705612183
+ALPHA|FDT|Cool|LittleCool|15.199955940246582
+B|FDT|Cool|Cool|9.9999704161746195e-07
+ALPHA|FDT|Cool|Cool|1.5999954484868795e-05
+B|FDT|Cool|LittleCold|9.9999704161746195e-07
+ALPHA|FDT|Cool|LittleCold|1.5999954484868795e-05
+B|FDT|Cool|Cold|9.9999704161746195e-07
+ALPHA|FDT|Cool|Cold|1.5999954484868795e-05
+B|FDT|LittleCold|Warm|9.9999704161746195e-07
+ALPHA|FDT|LittleCold|Warm|1.5999952665879391e-05
+B|FDT|LittleCold|LittleCool|9.9999704161746195e-07
+ALPHA|FDT|LittleCold|LittleCool|1.5999952665879391e-05
+B|FDT|LittleCold|Cool|0.049999851733446121
+ALPHA|FDT|LittleCold|Cool|0.79999762773513794
+B|FDT|LittleCold|LittleCold|0.9499971866607666
+ALPHA|FDT|LittleCold|LittleCold|15.199954986572266
+B|FDT|LittleCold|Cold|9.9999704161746195e-07
+ALPHA|FDT|LittleCold|Cold|1.5999952665879391e-05
+B|FDT|Cold|Warm|9.9999704161746195e-07
+ALPHA|FDT|Cold|Warm|1.5999952665879391e-05
+B|FDT|Cold|LittleCool|9.9999704161746195e-07
+ALPHA|FDT|Cold|LittleCool|1.5999952665879391e-05
+B|FDT|Cold|Cool|9.9999704161746195e-07
+ALPHA|FDT|Cold|Cool|1.5999952665879391e-05
+B|FDT|Cold|LittleCold|0.049999851733446121
+ALPHA|FDT|Cold|LittleCold|0.79999762773513794
+B|FDT|Cold|Cold|0.9499971866607666
+ALPHA|FDT|Cold|Cold|15.199954986572266
+B|NA|Warm|Warm|0.99999594688415527
+ALPHA|NA|Warm|Warm|15.99993896484375
+B|NA|Warm|LittleCool|9.9999590474908473e-07
+ALPHA|NA|Warm|LittleCool|1.5999938113964163e-05
+B|NA|Warm|Cool|9.9999590474908473e-07
+ALPHA|NA|Warm|Cool|1.5999938113964163e-05
+B|NA|Warm|LittleCold|9.9999590474908473e-07
+ALPHA|NA|Warm|LittleCold|1.5999938113964163e-05
+B|NA|Warm|Cold|9.9999590474908473e-07
+ALPHA|NA|Warm|Cold|1.5999938113964163e-05
+B|NA|LittleCool|Warm|9.9999590474908473e-07
+ALPHA|NA|LittleCool|Warm|1.5999938113964163e-05
+B|NA|LittleCool|LittleCool|0.99999594688415527
+ALPHA|NA|LittleCool|LittleCool|15.99993896484375
+B|NA|LittleCool|Cool|9.9999590474908473e-07
+ALPHA|NA|LittleCool|Cool|1.5999938113964163e-05
+B|NA|LittleCool|LittleCold|9.9999590474908473e-07
+ALPHA|NA|LittleCool|LittleCold|1.5999938113964163e-05
+B|NA|LittleCool|Cold|9.9999590474908473e-07
+ALPHA|NA|LittleCool|Cold|1.5999938113964163e-05
+B|NA|Cool|Warm|9.9999590474908473e-07
+ALPHA|NA|Cool|Warm|1.5999936294974759e-05
+B|NA|Cool|LittleCool|9.9999590474908473e-07
+ALPHA|NA|Cool|LittleCool|1.5999936294974759e-05
+B|NA|Cool|Cool|0.99999594688415527
+ALPHA|NA|Cool|Cool|15.999937057495117
+B|NA|Cool|LittleCold|9.9999590474908473e-07
+ALPHA|NA|Cool|LittleCold|1.5999936294974759e-05
+B|NA|Cool|Cold|9.9999590474908473e-07
+ALPHA|NA|Cool|Cold|1.5999936294974759e-05
+B|NA|LittleCold|Warm|9.9999601843592245e-07
+ALPHA|NA|LittleCold|Warm|1.5999936294974759e-05
+B|NA|LittleCold|LittleCool|9.9999601843592245e-07
+ALPHA|NA|LittleCold|LittleCool|1.5999936294974759e-05
+B|NA|LittleCold|Cool|9.9999601843592245e-07
+ALPHA|NA|LittleCold|Cool|1.5999936294974759e-05
+B|NA|LittleCold|LittleCold|0.99999606609344482
+ALPHA|NA|LittleCold|LittleCold|15.999937057495117
+B|NA|LittleCold|Cold|9.9999601843592245e-07
+ALPHA|NA|LittleCold|Cold|1.5999936294974759e-05
+B|NA|Cold|Warm|9.9999601843592245e-07
+ALPHA|NA|Cold|Warm|1.5999934475985356e-05
+B|NA|Cold|LittleCool|9.9999601843592245e-07
+ALPHA|NA|Cold|LittleCool|1.5999934475985356e-05
+B|NA|Cold|Cool|9.9999601843592245e-07
+ALPHA|NA|Cold|Cool|1.5999934475985356e-05
+B|NA|Cold|LittleCold|9.9999601843592245e-07
+ALPHA|NA|Cold|LittleCold|1.5999934475985356e-05
+B|NA|Cold|Cold|0.99999600648880005
+ALPHA|NA|Cold|Cold|15.999935150146484
+B|AIT|Warm|Warm|0.98182076215744019
+ALPHA|AIT|Warm|Warm|509.90835571289062
+B|AIT|Warm|LittleCool|0.017145326361060143
+ALPHA|AIT|Warm|LittleCool|8.9044208526611328
+B|AIT|Warm|Cool|0.0010338543215766549
+ALPHA|AIT|Warm|Cool|0.53693199157714844
+B|AIT|Warm|LittleCold|3.0807697726231709e-08
+ALPHA|AIT|Warm|LittleCold|1.5999969036784023e-05
+B|AIT|Warm|Cold|3.0807697726231709e-08
+ALPHA|AIT|Warm|Cold|1.5999969036784023e-05
+B|AIT|LittleCool|Warm|0.22435708343982697
+ALPHA|AIT|LittleCool|Warm|7.3349976539611816
+B|AIT|LittleCool|LittleCool|0.68597286939620972
+ALPHA|AIT|LittleCool|LittleCool|22.426792144775391
+B|AIT|LittleCool|Cool|0.080650322139263153
+ALPHA|AIT|LittleCool|Cool|2.6367340087890625
+B|AIT|LittleCool|LittleCold|0.0089688757434487343
+ALPHA|AIT|LittleCool|LittleCold|0.29322311282157898
+B|AIT|LittleCool|Cold|5.0833692512242123e-05
+ALPHA|AIT|LittleCool|Cold|0.0016619267407804728
+B|AIT|Cool|Warm|0.0057806149125099182
+ALPHA|AIT|Cool|Warm|0.26668503880500793
+B|AIT|Cool|LittleCool|0.10984186828136444
+ALPHA|AIT|Cool|LittleCool|5.0674858093261719
+B|AIT|Cool|Cool|0.40151682496070862
+ALPHA|AIT|Cool|Cool|18.523727416992188
+B|AIT|Cool|LittleCold|0.44991829991340637
+ALPHA|AIT|Cool|LittleCold|20.756698608398438
+B|AIT|Cool|Cold|0.03294236958026886
+ALPHA|AIT|Cool|Cold|1.5197756290435791
+B|AIT|LittleCold|Warm|5.1721521288072836e-08
+ALPHA|AIT|LittleCold|Warm|1.599996721779462e-05
+B|AIT|LittleCold|LittleCool|5.1721521288072836e-08
+ALPHA|AIT|LittleCold|LittleCool|1.599996721779462e-05
+B|AIT|LittleCold|Cool|0.0034514742437750101
+ALPHA|AIT|LittleCold|Cool|1.067707896232605
+B|AIT|LittleCold|LittleCold|0.3063698410987854
+ALPHA|AIT|LittleCold|LittleCold|94.775009155273438
+B|AIT|LittleCold|Cold|0.69017857313156128
+ALPHA|AIT|LittleCold|Cold|213.50559997558594
+B|AIT|Cold|Warm|9.2767301396179391e-08
+ALPHA|AIT|Cold|Warm|1.5999952665879391e-05
+B|AIT|Cold|LittleCool|9.2767301396179391e-08
+ALPHA|AIT|Cold|LittleCool|1.5999952665879391e-05
+B|AIT|Cold|Cool|2.6546029403107241e-05
+ALPHA|AIT|Cold|Cool|0.0045785014517605305
+B|AIT|Cold|LittleCold|0.024037793278694153
+ALPHA|AIT|Cold|LittleCold|4.1458959579467773
+B|AIT|Cold|Cold|0.97593545913696289
+ALPHA|AIT|Cold|Cold|168.32354736328125
+B|ADT|Warm|Warm|0.98517221212387085
+ALPHA|ADT|Warm|Warm|671.90240478515625
+B|ADT|Warm|LittleCool|0.014031529426574707
+ALPHA|ADT|Warm|LittleCool|9.5697164535522461
+B|ADT|Warm|Cool|0.00079631531843915582
+ALPHA|ADT|Warm|Cool|0.54309916496276855
+B|ADT|Warm|LittleCold|2.3459842068973558e-08
+ALPHA|ADT|Warm|LittleCold|1.5999969036784023e-05
+B|ADT|Warm|Cold|2.3459842068973558e-08
+ALPHA|ADT|Warm|Cold|1.5999969036784023e-05
+B|ADT|LittleCool|Warm|0.077957615256309509
+ALPHA|ADT|LittleCool|Warm|6.0662384033203125
+B|ADT|LittleCool|LittleCool|0.8720284104347229
+ALPHA|ADT|LittleCool|LittleCool|67.856513977050781
+B|ADT|LittleCool|Cool|0.046362575143575668
+ALPHA|ADT|LittleCool|Cool|3.6076836585998535
+B|ADT|LittleCool|LittleCold|0.003651247825473547
+ALPHA|ADT|LittleCool|LittleCold|0.28412026166915894
+B|ADT|LittleCool|Cold|2.0561684266340308e-07
+ALPHA|ADT|LittleCool|Cold|1.5999985407688655e-05
+B|ADT|Cool|Warm|0.0029909953009337187
+ALPHA|ADT|Cool|Warm|0.29882434010505676
+B|ADT|Cool|LittleCool|0.094293363392353058
+ALPHA|ADT|Cool|LittleCool|9.4206609725952148
+B|ADT|Cool|Cool|0.85951292514801025
+ALPHA|ADT|Cool|Cool|85.872215270996094
+B|ADT|Cool|LittleCold|0.043193869292736053
+ALPHA|ADT|Cool|LittleCold|4.3154129981994629
+B|ADT|Cool|Cold|8.8627130025997758e-06
+ALPHA|ADT|Cool|Cold|0.00088545586913824081
+B|ADT|LittleCold|Warm|5.2646360160224503e-08
+ALPHA|ADT|LittleCold|Warm|1.599996721779462e-05
+B|ADT|LittleCold|LittleCool|0.0033620409667491913
+ALPHA|ADT|LittleCold|LittleCool|1.0217714309692383
+B|ADT|LittleCold|Cool|0.27875599265098572
+ALPHA|ADT|LittleCold|Cool|84.717857360839844
+B|ADT|LittleCold|LittleCold|0.70817363262176514
+ALPHA|ADT|LittleCold|LittleCold|215.22390747070312
+B|ADT|LittleCold|Cold|0.009708235040307045
+ALPHA|ADT|LittleCold|Cold|2.9504687786102295
+B|ADT|Cold|Warm|5.2228006808263672e-08
+ALPHA|ADT|Cold|Warm|1.5999952665879391e-05
+B|ADT|Cold|LittleCool|5.8394448387844022e-06
+ALPHA|ADT|Cold|LittleCool|0.0017889030277729034
+B|ADT|Cold|Cool|0.0026203121524304152
+ALPHA|ADT|Cold|Cool|0.80272775888442993
+B|ADT|Cold|LittleCold|0.78593462705612183
+ALPHA|ADT|Cold|LittleCold|240.76962280273438
+B|ADT|Cold|Cold|0.21143916249275208
+ALPHA|ADT|Cold|Cold|64.773994445800781
+B|XDT|Warm|Warm|0.98605597019195557
+ALPHA|XDT|Warm|Warm|797.28082275390625
+B|XDT|Warm|LittleCool|0.013279446400702
+ALPHA|XDT|Warm|LittleCool|10.737167358398438
+B|XDT|Warm|Cool|0.00066455948399379849
+ALPHA|XDT|Warm|Cool|0.53733313083648682
+B|XDT|Warm|LittleCold|1.9788341631965523e-08
+ALPHA|XDT|Warm|LittleCold|1.5999969036784023e-05
+B|XDT|Warm|Cold|1.9788341631965523e-08
+ALPHA|XDT|Warm|Cold|1.5999969036784023e-05
+B|XDT|LittleCool|Warm|0.46943643689155579
+ALPHA|XDT|LittleCool|Warm|65.195060729980469
+B|XDT|LittleCool|LittleCool|0.50553762912750244
+ALPHA|XDT|LittleCool|LittleCool|70.208778381347656
+B|XDT|LittleCool|Cool|0.023105714470148087
+ALPHA|XDT|LittleCool|Cool|3.2089083194732666
+B|XDT|LittleCool|LittleCold|0.0019201290560886264
+ALPHA|XDT|LittleCool|LittleCold|0.26666641235351562
+B|XDT|LittleCool|Cold|1.1520774734208317e-07
+ALPHA|XDT|LittleCool|Cold|1.5999985407688655e-05
+B|XDT|Cool|Warm|0.016918715089559555
+ALPHA|XDT|Cool|Warm|1.497490406036377
+B|XDT|Cool|LittleCool|0.71352893114089966
+ALPHA|XDT|Cool|LittleCool|63.155078887939453
+B|XDT|Cool|Cool|0.163569375872612
+ALPHA|XDT|Cool|Cool|14.477670669555664
+B|XDT|Cool|LittleCold|0.10431283712387085
+ALPHA|XDT|Cool|LittleCold|9.2328214645385742
+B|XDT|Cool|Cold|0.0016701702261343598
+ALPHA|XDT|Cool|Cold|0.14782825112342834
+B|XDT|LittleCold|Warm|0.0003113226848654449
+ALPHA|XDT|LittleCold|Warm|0.094645395874977112
+B|XDT|LittleCold|LittleCool|0.060341008007526398
+ALPHA|XDT|LittleCold|LittleCool|18.344305038452148
+B|XDT|LittleCold|Cool|0.015651986002922058
+ALPHA|XDT|LittleCold|Cool|4.7583694458007812
+B|XDT|LittleCold|LittleCold|0.89310777187347412
+ALPHA|XDT|LittleCold|LittleCold|271.51422119140625
+B|XDT|LittleCold|Cold|0.030587906017899513
+ALPHA|XDT|LittleCold|Cold|9.2990474700927734
+B|XDT|Cold|Warm|1.1424962309547482e-07
+ALPHA|XDT|Cold|Warm|1.5999952665879391e-05
+B|XDT|Cold|LittleCool|1.1424962309547482e-07
+ALPHA|XDT|Cold|LittleCool|1.5999952665879391e-05
+B|XDT|Cold|Cool|0.00074678455712273717
+ALPHA|XDT|Cold|Cool|0.10458255559206009
+B|XDT|Cold|LittleCold|0.17944939434528351
+ALPHA|XDT|Cold|LittleCold|25.130777359008789
+B|XDT|Cold|Cold|0.81980359554290771
+ALPHA|XDT|Cold|Cold|114.80841827392578
+[/MACHINE_DATA]
+
+STATES
+----------------------------------------------------------------------------------------------------
+0: Warm
+1: LittleCool
+2: Cool
+3: LittleCold
+4: Cold
+
+ACTIONS
+----------------------------------------------------------------------------------------------------
+0: FIT
+1: FDT
+2: NA
+3: AIT
+4: ADT
+5: XDT
+
+====================================================================================================
+B SLICES
+====================================================================================================
+
+ACTION = FIT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                0.0999997929     0.0499999523     0.0000010000     0.0000010000     0.0000010000
+LittleCool          0.8499982953     0.4499995708     0.0000010000     0.0000010000     0.0000010000
+Cool                0.0499998964     0.4499995708     0.9499971867     0.0000010000     0.0000010000
+LittleCold          0.0000010000     0.0499999523     0.0499998517     0.9499971867     0.0499998517
+Cold                0.0000010000     0.0000010000     0.0000010000     0.0499998517     0.9499971867
+
+ACTION = FDT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                0.8999982476     0.0499998517     0.0499998517     0.0000010000     0.0000010000
+LittleCool          0.0499999039     0.9499971271     0.9499971271     0.0000010000     0.0000010000
+Cool                0.0499999039     0.0000010000     0.0000010000     0.0499998517     0.0000010000
+LittleCold          0.0000010000     0.0000010000     0.0000010000     0.9499971867     0.0499998517
+Cold                0.0000010000     0.0000010000     0.0000010000     0.0000010000     0.9499971867
+
+ACTION = NA
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                0.9999959469     0.0000010000     0.0000010000     0.0000010000     0.0000010000
+LittleCool          0.0000010000     0.9999959469     0.0000010000     0.0000010000     0.0000010000
+Cool                0.0000010000     0.0000010000     0.9999959469     0.0000010000     0.0000010000
+LittleCold          0.0000010000     0.0000010000     0.0000010000     0.9999960661     0.0000010000
+Cold                0.0000010000     0.0000010000     0.0000010000     0.0000010000     0.9999960065
+
+ACTION = AIT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                0.9818207622     0.2243570834     0.0057806149     0.0000000517     0.0000000928
+LittleCool          0.0171453264     0.6859728694     0.1098418683     0.0000000517     0.0000000928
+Cool                0.0010338543     0.0806503221     0.4015168250     0.0034514742     0.0000265460
+LittleCold          0.0000000308     0.0089688757     0.4499182999     0.3063698411     0.0240377933
+Cold                0.0000000308     0.0000508337     0.0329423696     0.6901785731     0.9759354591
+
+ACTION = ADT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                0.9851722121     0.0779576153     0.0029909953     0.0000000526     0.0000000522
+LittleCool          0.0140315294     0.8720284104     0.0942933634     0.0033620410     0.0000058394
+Cool                0.0007963153     0.0463625751     0.8595129251     0.2787559927     0.0026203122
+LittleCold          0.0000000235     0.0036512478     0.0431938693     0.7081736326     0.7859346271
+Cold                0.0000000235     0.0000002056     0.0000088627     0.0097082350     0.2114391625
+
+ACTION = XDT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                0.9860559702     0.4694364369     0.0169187151     0.0003113227     0.0000001142
+LittleCool          0.0132794464     0.5055376291     0.7135289311     0.0603410080     0.0000001142
+Cool                0.0006645595     0.0231057145     0.1635693759     0.0156519860     0.0007467846
+LittleCold          0.0000000198     0.0019201291     0.1043128371     0.8931077719     0.1794493943
+Cold                0.0000000198     0.0000001152     0.0016701702     0.0305879060     0.8198035955
+
+====================================================================================================
+DIRICHLET ALPHA SLICES
+====================================================================================================
+
+ACTION = FIT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm                1.5999969244     0.7999992371     0.0000160000     0.0000160000     0.0000160000
+LittleCool         13.5999746323     7.1999931335     0.0000160000     0.0000160000     0.0000160000
+Cool                0.7999984622     7.1999931335    15.1999549866     0.0000160000     0.0000160000
+LittleCold          0.0000160000     0.7999992371     0.7999976277    15.1999549866     0.7999976277
+Cold                0.0000160000     0.0000160000     0.0000160000     0.7999976277    15.1999549866
+
+ACTION = FDT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm               14.3999719620     0.7999977469     0.7999977469     0.0000160000     0.0000160000
+LittleCool          0.7999984622    15.1999559402    15.1999559402     0.0000160000     0.0000160000
+Cool                0.7999984622     0.0000160000     0.0000160000     0.7999976277     0.0000160000
+LittleCold          0.0000160000     0.0000160000     0.0000160000    15.1999549866     0.7999976277
+Cold                0.0000160000     0.0000160000     0.0000160000     0.0000160000    15.1999549866
+
+ACTION = NA
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm               15.9999389648     0.0000159999     0.0000159999     0.0000159999     0.0000159999
+LittleCool          0.0000159999    15.9999389648     0.0000159999     0.0000159999     0.0000159999
+Cool                0.0000159999     0.0000159999    15.9999370575     0.0000159999     0.0000159999
+LittleCold          0.0000159999     0.0000159999     0.0000159999    15.9999370575     0.0000159999
+Cold                0.0000159999     0.0000159999     0.0000159999     0.0000159999    15.9999351501
+
+ACTION = AIT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm              509.9083557129     7.3349976540     0.2666850388     0.0000160000     0.0000160000
+LittleCool          8.9044208527    22.4267921448     5.0674858093     0.0000160000     0.0000160000
+Cool                0.5369319916     2.6367340088    18.5237274170     1.0677078962     0.0045785015
+LittleCold          0.0000160000     0.2932231128    20.7566986084    94.7750091553     4.1458959579
+Cold                0.0000160000     0.0016619267     1.5197756290   213.5055999756   168.3235473633
+
+ACTION = ADT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm              671.9024047852     6.0662384033     0.2988243401     0.0000160000     0.0000160000
+LittleCool          9.5697164536    67.8565139771     9.4206609726     1.0217714310     0.0017889030
+Cool                0.5430991650     3.6076836586    85.8722152710    84.7178573608     0.8027277589
+LittleCold          0.0000160000     0.2841202617     4.3154129982   215.2239074707   240.7696228027
+Cold                0.0000160000     0.0000160000     0.0008854559     2.9504687786    64.7739944458
+
+ACTION = XDT
+rows = TO state | columns = FROM state
+----------------------------------------------------------------------------------------------------
+TO \ FROM                   Warm       LittleCool             Cool       LittleCold             Cold
+Warm              797.2808227539    65.1950607300     1.4974904060     0.0946453959     0.0000160000
+LittleCool         10.7371673584    70.2087783813    63.1550788879    18.3443050385     0.0000160000
+Cool                0.5373331308     3.2089083195    14.4776706696     4.7583694458     0.1045825556
+LittleCold          0.0000160000     0.2666664124     9.2328214645   271.5142211914    25.1307773590
+Cold                0.0000160000     0.0000160000     0.1478282511     9.2990474701   114.8084182739
+
+====================================================================================================
+TRANSITION LIST - B + ALPHA
+====================================================================================================
+
+ACTION = FIT
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | FIT   | B = 0.0999997929 | alpha = 1.5999969244
+Warm         -> LittleCool   | FIT   | B = 0.8499982953 | alpha = 13.5999746323
+Warm         -> Cool         | FIT   | B = 0.0499998964 | alpha = 0.7999984622
+Warm         -> LittleCold   | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+Warm         -> Cold         | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+LittleCool   -> Warm         | FIT   | B = 0.0499999523 | alpha = 0.7999992371
+LittleCool   -> LittleCool   | FIT   | B = 0.4499995708 | alpha = 7.1999931335
+LittleCool   -> Cool         | FIT   | B = 0.4499995708 | alpha = 7.1999931335
+LittleCool   -> LittleCold   | FIT   | B = 0.0499999523 | alpha = 0.7999992371
+LittleCool   -> Cold         | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+Cool         -> Warm         | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+Cool         -> LittleCool   | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+Cool         -> Cool         | FIT   | B = 0.9499971867 | alpha = 15.1999549866
+Cool         -> LittleCold   | FIT   | B = 0.0499998517 | alpha = 0.7999976277
+Cool         -> Cold         | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+LittleCold   -> Warm         | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+LittleCold   -> LittleCool   | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+LittleCold   -> Cool         | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+LittleCold   -> LittleCold   | FIT   | B = 0.9499971867 | alpha = 15.1999549866
+LittleCold   -> Cold         | FIT   | B = 0.0499998517 | alpha = 0.7999976277
+Cold         -> Warm         | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+Cold         -> LittleCool   | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+Cold         -> Cool         | FIT   | B = 0.0000010000 | alpha = 0.0000160000
+Cold         -> LittleCold   | FIT   | B = 0.0499998517 | alpha = 0.7999976277
+Cold         -> Cold         | FIT   | B = 0.9499971867 | alpha = 15.1999549866
+
+ACTION = FDT
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | FDT   | B = 0.8999982476 | alpha = 14.3999719620
+Warm         -> LittleCool   | FDT   | B = 0.0499999039 | alpha = 0.7999984622
+Warm         -> Cool         | FDT   | B = 0.0499999039 | alpha = 0.7999984622
+Warm         -> LittleCold   | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+Warm         -> Cold         | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+LittleCool   -> Warm         | FDT   | B = 0.0499998517 | alpha = 0.7999977469
+LittleCool   -> LittleCool   | FDT   | B = 0.9499971271 | alpha = 15.1999559402
+LittleCool   -> Cool         | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+LittleCool   -> LittleCold   | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+LittleCool   -> Cold         | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+Cool         -> Warm         | FDT   | B = 0.0499998517 | alpha = 0.7999977469
+Cool         -> LittleCool   | FDT   | B = 0.9499971271 | alpha = 15.1999559402
+Cool         -> Cool         | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+Cool         -> LittleCold   | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+Cool         -> Cold         | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+LittleCold   -> Warm         | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+LittleCold   -> LittleCool   | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+LittleCold   -> Cool         | FDT   | B = 0.0499998517 | alpha = 0.7999976277
+LittleCold   -> LittleCold   | FDT   | B = 0.9499971867 | alpha = 15.1999549866
+LittleCold   -> Cold         | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+Cold         -> Warm         | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+Cold         -> LittleCool   | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+Cold         -> Cool         | FDT   | B = 0.0000010000 | alpha = 0.0000160000
+Cold         -> LittleCold   | FDT   | B = 0.0499998517 | alpha = 0.7999976277
+Cold         -> Cold         | FDT   | B = 0.9499971867 | alpha = 15.1999549866
+
+ACTION = NA
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | NA    | B = 0.9999959469 | alpha = 15.9999389648
+Warm         -> LittleCool   | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Warm         -> Cool         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Warm         -> LittleCold   | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Warm         -> Cold         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+LittleCool   -> Warm         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+LittleCool   -> LittleCool   | NA    | B = 0.9999959469 | alpha = 15.9999389648
+LittleCool   -> Cool         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+LittleCool   -> LittleCold   | NA    | B = 0.0000010000 | alpha = 0.0000159999
+LittleCool   -> Cold         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Cool         -> Warm         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Cool         -> LittleCool   | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Cool         -> Cool         | NA    | B = 0.9999959469 | alpha = 15.9999370575
+Cool         -> LittleCold   | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Cool         -> Cold         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+LittleCold   -> Warm         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+LittleCold   -> LittleCool   | NA    | B = 0.0000010000 | alpha = 0.0000159999
+LittleCold   -> Cool         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+LittleCold   -> LittleCold   | NA    | B = 0.9999960661 | alpha = 15.9999370575
+LittleCold   -> Cold         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Cold         -> Warm         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Cold         -> LittleCool   | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Cold         -> Cool         | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Cold         -> LittleCold   | NA    | B = 0.0000010000 | alpha = 0.0000159999
+Cold         -> Cold         | NA    | B = 0.9999960065 | alpha = 15.9999351501
+
+ACTION = AIT
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | AIT   | B = 0.9818207622 | alpha = 509.9083557129
+Warm         -> LittleCool   | AIT   | B = 0.0171453264 | alpha = 8.9044208527
+Warm         -> Cool         | AIT   | B = 0.0010338543 | alpha = 0.5369319916
+Warm         -> LittleCold   | AIT   | B = 0.0000000308 | alpha = 0.0000160000
+Warm         -> Cold         | AIT   | B = 0.0000000308 | alpha = 0.0000160000
+LittleCool   -> Warm         | AIT   | B = 0.2243570834 | alpha = 7.3349976540
+LittleCool   -> LittleCool   | AIT   | B = 0.6859728694 | alpha = 22.4267921448
+LittleCool   -> Cool         | AIT   | B = 0.0806503221 | alpha = 2.6367340088
+LittleCool   -> LittleCold   | AIT   | B = 0.0089688757 | alpha = 0.2932231128
+LittleCool   -> Cold         | AIT   | B = 0.0000508337 | alpha = 0.0016619267
+Cool         -> Warm         | AIT   | B = 0.0057806149 | alpha = 0.2666850388
+Cool         -> LittleCool   | AIT   | B = 0.1098418683 | alpha = 5.0674858093
+Cool         -> Cool         | AIT   | B = 0.4015168250 | alpha = 18.5237274170
+Cool         -> LittleCold   | AIT   | B = 0.4499182999 | alpha = 20.7566986084
+Cool         -> Cold         | AIT   | B = 0.0329423696 | alpha = 1.5197756290
+LittleCold   -> Warm         | AIT   | B = 0.0000000517 | alpha = 0.0000160000
+LittleCold   -> LittleCool   | AIT   | B = 0.0000000517 | alpha = 0.0000160000
+LittleCold   -> Cool         | AIT   | B = 0.0034514742 | alpha = 1.0677078962
+LittleCold   -> LittleCold   | AIT   | B = 0.3063698411 | alpha = 94.7750091553
+LittleCold   -> Cold         | AIT   | B = 0.6901785731 | alpha = 213.5055999756
+Cold         -> Warm         | AIT   | B = 0.0000000928 | alpha = 0.0000160000
+Cold         -> LittleCool   | AIT   | B = 0.0000000928 | alpha = 0.0000160000
+Cold         -> Cool         | AIT   | B = 0.0000265460 | alpha = 0.0045785015
+Cold         -> LittleCold   | AIT   | B = 0.0240377933 | alpha = 4.1458959579
+Cold         -> Cold         | AIT   | B = 0.9759354591 | alpha = 168.3235473633
+
+ACTION = ADT
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | ADT   | B = 0.9851722121 | alpha = 671.9024047852
+Warm         -> LittleCool   | ADT   | B = 0.0140315294 | alpha = 9.5697164536
+Warm         -> Cool         | ADT   | B = 0.0007963153 | alpha = 0.5430991650
+Warm         -> LittleCold   | ADT   | B = 0.0000000235 | alpha = 0.0000160000
+Warm         -> Cold         | ADT   | B = 0.0000000235 | alpha = 0.0000160000
+LittleCool   -> Warm         | ADT   | B = 0.0779576153 | alpha = 6.0662384033
+LittleCool   -> LittleCool   | ADT   | B = 0.8720284104 | alpha = 67.8565139771
+LittleCool   -> Cool         | ADT   | B = 0.0463625751 | alpha = 3.6076836586
+LittleCool   -> LittleCold   | ADT   | B = 0.0036512478 | alpha = 0.2841202617
+LittleCool   -> Cold         | ADT   | B = 0.0000002056 | alpha = 0.0000160000
+Cool         -> Warm         | ADT   | B = 0.0029909953 | alpha = 0.2988243401
+Cool         -> LittleCool   | ADT   | B = 0.0942933634 | alpha = 9.4206609726
+Cool         -> Cool         | ADT   | B = 0.8595129251 | alpha = 85.8722152710
+Cool         -> LittleCold   | ADT   | B = 0.0431938693 | alpha = 4.3154129982
+Cool         -> Cold         | ADT   | B = 0.0000088627 | alpha = 0.0008854559
+LittleCold   -> Warm         | ADT   | B = 0.0000000526 | alpha = 0.0000160000
+LittleCold   -> LittleCool   | ADT   | B = 0.0033620410 | alpha = 1.0217714310
+LittleCold   -> Cool         | ADT   | B = 0.2787559927 | alpha = 84.7178573608
+LittleCold   -> LittleCold   | ADT   | B = 0.7081736326 | alpha = 215.2239074707
+LittleCold   -> Cold         | ADT   | B = 0.0097082350 | alpha = 2.9504687786
+Cold         -> Warm         | ADT   | B = 0.0000000522 | alpha = 0.0000160000
+Cold         -> LittleCool   | ADT   | B = 0.0000058394 | alpha = 0.0017889030
+Cold         -> Cool         | ADT   | B = 0.0026203122 | alpha = 0.8027277589
+Cold         -> LittleCold   | ADT   | B = 0.7859346271 | alpha = 240.7696228027
+Cold         -> Cold         | ADT   | B = 0.2114391625 | alpha = 64.7739944458
+
+ACTION = XDT
+----------------------------------------------------------------------------------------------------
+Warm         -> Warm         | XDT   | B = 0.9860559702 | alpha = 797.2808227539
+Warm         -> LittleCool   | XDT   | B = 0.0132794464 | alpha = 10.7371673584
+Warm         -> Cool         | XDT   | B = 0.0006645595 | alpha = 0.5373331308
+Warm         -> LittleCold   | XDT   | B = 0.0000000198 | alpha = 0.0000160000
+Warm         -> Cold         | XDT   | B = 0.0000000198 | alpha = 0.0000160000
+LittleCool   -> Warm         | XDT   | B = 0.4694364369 | alpha = 65.1950607300
+LittleCool   -> LittleCool   | XDT   | B = 0.5055376291 | alpha = 70.2087783813
+LittleCool   -> Cool         | XDT   | B = 0.0231057145 | alpha = 3.2089083195
+LittleCool   -> LittleCold   | XDT   | B = 0.0019201291 | alpha = 0.2666664124
+LittleCool   -> Cold         | XDT   | B = 0.0000001152 | alpha = 0.0000160000
+Cool         -> Warm         | XDT   | B = 0.0169187151 | alpha = 1.4974904060
+Cool         -> LittleCool   | XDT   | B = 0.7135289311 | alpha = 63.1550788879
+Cool         -> Cool         | XDT   | B = 0.1635693759 | alpha = 14.4776706696
+Cool         -> LittleCold   | XDT   | B = 0.1043128371 | alpha = 9.2328214645
+Cool         -> Cold         | XDT   | B = 0.0016701702 | alpha = 0.1478282511
+LittleCold   -> Warm         | XDT   | B = 0.0003113227 | alpha = 0.0946453959
+LittleCold   -> LittleCool   | XDT   | B = 0.0603410080 | alpha = 18.3443050385
+LittleCold   -> Cool         | XDT   | B = 0.0156519860 | alpha = 4.7583694458
+LittleCold   -> LittleCold   | XDT   | B = 0.8931077719 | alpha = 271.5142211914
+LittleCold   -> Cold         | XDT   | B = 0.0305879060 | alpha = 9.2990474701
+Cold         -> Warm         | XDT   | B = 0.0000001142 | alpha = 0.0000160000
+Cold         -> LittleCool   | XDT   | B = 0.0000001142 | alpha = 0.0000160000
+Cold         -> Cool         | XDT   | B = 0.0007467846 | alpha = 0.1045825556
+Cold         -> LittleCold   | XDT   | B = 0.1794493943 | alpha = 25.1307773590
+Cold         -> Cold         | XDT   | B = 0.8198035955 | alpha = 114.8084182739
+
