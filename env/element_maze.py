@@ -9,6 +9,9 @@ position_observes = []
 
 maze_size = 6
 
+lst_slice_b = []
+lst_action_extended = []
+
 
 def init_element(size):
     for x in range(size):
@@ -64,6 +67,14 @@ def update_model_description():
             },
         },
     }
+
+
+def update_matrix_agent():
+    model = compile_model(update_model_description())
+    build_matrix_a(model, position_observes, position_states)
+    build_matrix_b(model, position_states, base_actions)
+    build_matrix_c(model, position_observes, "P42")
+    return model
 
 
 def append_action(action_id):
@@ -142,14 +153,55 @@ def build_matrix_b(model, lst_position_state, lst_base_actions):
     # current_model.B["comfort"]["Cold", "Warm", "FIT"] = 0.00
 
 
+def build_matrix_c(model, lst_position_observe, target_pos):
+    for item_obs in lst_position_observe:
+        model.C["position_obs"][item_obs] = 0
+
+    model.C["position_obs"][target_pos] = 1
+
+
+def add_slice_b_by_action(action_id, lst_position_states):
+    current_model = update_matrix_agent()
+    for item_to in lst_position_states:
+        for item_from in lst_position_states:
+            average_distribution = calculate_average_distribution(current_model, item_to, item_from)
+            current_model.B["position_state"][item_to, item_from, action_id] = average_distribution
+
+    lst_action_extended.append(action_id)
+    lst_slice_b.append(current_model.B["position_state"][:, :, action_id])
+    return current_model
+
+
+def calculate_average_distribution(model, state_to, state_from):
+    lst_item = model.B["position_state"][state_to, state_from, :]
+    filtered_list = lst_item[0:len(base_actions)]
+    total_item = 0.0
+    for item in filtered_list:
+        total_item = total_item + item
+    average = total_item / len(filtered_list)
+    return average
+
+
+def extend_action_space(action_id):
+    append_action(action_id)
+    model = add_slice_b_by_action(action_id, position_states)
+    print("Done_1")
+    slice_index = 0
+    for action in lst_action_extended:
+        model.B["position_state"][:, :, action] = lst_slice_b[slice_index]
+        slice_index = slice_index + 1
+    print("Done_2")
+    return model
+
+
 init_element(maze_size)
 print("position_observes: ")
 print(position_observes)
 print("position_states: ")
 print(position_states)
 
-current_model = compile_model(update_model_description())
-build_matrix_a(current_model, position_observes, position_states)
-build_matrix_b(current_model, position_states, base_actions)
+current_model = extend_action_space("SWIM_UP")
 
 print("XXX_current_model: " + str(current_model.B))
+
+
