@@ -194,14 +194,101 @@ def extend_action_space(action_id):
     return model
 
 
+def get_ates_point(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
+    current_transition_prob = current_model.B["position_state"][expect_state, current_state, ates_action_id]
+    point = (1 - current_transition_prob) * (upd_point_ratio / 100) * belief_prob
+    print("XXX_my_point: "+str(point))
+    return point
+
+
+def get_ates_point_negative(ates_action_id, current_state, expect_state, current_model, belief_prob, upd_point_ratio):
+    current_transition_prob = current_model.B["position_state"][expect_state, current_state, ates_action_id]
+    point = current_transition_prob * upd_point_ratio / 100 * belief_prob
+    return point
+
+
+def ates_update_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_point):
+    current_model.B["position_state"][expect_state, current_state, ates_action_id] += ates_point
+    current_model = normalization_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_point)
+
+    return current_model
+
+
+def ates_update_matrix_negative(ates_action_id, current_state, expect_state, current_model, ates_point):
+    current_model.B["position_state"][expect_state, current_state, ates_action_id] -= ates_point
+    current_model = normalization_matrix_negative(ates_action_id, current_state, expect_state, current_model, ates_point)
+
+    return current_model
+
+
+def normalization_matrix_positive(ates_action_id, current_state, expect_state, current_model, ates_point):
+    print("-----------")
+    remain_sum_point = 0
+    for item in position_states:
+        point_item = current_model.B["position_state"][item, current_state, ates_action_id]
+
+        if item != expect_state:
+            print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
+            remain_sum_point = remain_sum_point + point_item
+
+    for item in position_states:
+        point_item = current_model.B["position_state"][item, current_state, ates_action_id]
+        new_sum = abs(remain_sum_point - ates_point)
+
+        if item != expect_state:
+            new_point = point_item / remain_sum_point * new_sum
+            current_model.B["position_state"][item, current_state, ates_action_id] = new_point
+
+    print("***")
+
+    for item in position_states:
+        point_item = current_model.B["position_state"][item, current_state, ates_action_id]
+        print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
+
+    print(f"XXX_previous sum = {remain_sum_point} - after sum = {remain_sum_point - ates_point}")
+
+    print("-----------")
+    return current_model
+
+
+def normalization_matrix_negative(ates_action_id, current_state, expect_state, current_model, ates_point):
+    print("-----------")
+    remain_sum_point = 0
+    for item in position_states:
+        point_item = current_model.B["position_state"][item, current_state, ates_action_id]
+
+        if item != expect_state:
+            print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
+            remain_sum_point = remain_sum_point + point_item
+
+    for item in position_states:
+        point_item = current_model.B["position_state"][item, current_state, ates_action_id]
+        new_sum = remain_sum_point + ates_point
+
+        if item != expect_state:
+            new_point = point_item / remain_sum_point * new_sum
+            current_model.B["position_state"][item, current_state, ates_action_id] = new_point
+
+    print("***")
+
+    for item in position_states:
+        point_item = current_model.B["position_state"][item, current_state, ates_action_id]
+        print(f"XXX_current_state {current_state}, expect_state {item}, action {ates_action_id} : {point_item}")
+
+    print(f"XXX_previous sum = {remain_sum_point} - after sum = {remain_sum_point + ates_point}")
+
+    print("-----------")
+    return current_model
+
+
 init_element(maze_size)
 print("position_observes: ")
 print(position_observes)
 print("position_states: ")
 print(position_states)
 
-current_model = extend_action_space("SWIM_UP")
+test_model = extend_action_space("SWIM_UP")
 
-print("XXX_current_model: " + str(current_model.B))
+print("XXX_current_model: " + str(test_model.B))
 
 
