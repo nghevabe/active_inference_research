@@ -2,7 +2,8 @@ import numpy as np
 from env.element_maze import base_actions, position_states, init_element
 import jax
 
-from env.environtment_maze import extend_action_space, run_agent, get_ates_point, ates_update_matrix_positive
+from env.environtment_maze import extend_action_space, run_agent, get_ates_point, ates_update_matrix_positive, \
+    get_list_positive_and_negative
 from utils.util import get_max_index
 
 # =========================================================
@@ -205,9 +206,6 @@ for t in range(50):
     # =========================================================
     rng_key = result["rng_key"]
 
-print("FINAL MODEL B")
-print(agent_model.B)
-
 # print("summary_history_log: ")
 # count_step = 0
 # for item in history_log:
@@ -222,4 +220,7 @@ print(agent_model.B)
 #     print(item)
 #     counter = counter + 1
 
-# get_list_positive_and_negative(history_log, "T6", agent_model)
+model_test = get_list_positive_and_negative(history_log, "P22", agent_model)
+
+print("FINAL MODEL B")
+print(model_test.B)
