@@ -124,7 +124,7 @@ def update_matrix_agent():
     model = compile_model(update_model_description())
     build_matrix_a(model, position_observes, position_states)
     build_matrix_b(model, position_states, base_actions)
-    build_matrix_c(model, position_observes, "P12")
+    build_matrix_c(model, position_observes, "P10")
     return model
 
 

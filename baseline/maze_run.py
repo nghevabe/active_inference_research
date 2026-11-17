@@ -2,7 +2,7 @@ import numpy as np
 from env.element_maze import base_actions, position_states, init_element
 import jax
 
-from env.environtment_maze import extend_action_space, run_agent
+from env.environtment_maze import extend_action_space, run_agent, get_ates_point, ates_update_matrix_positive
 from utils.util import get_max_index
 
 # =========================================================
@@ -59,7 +59,7 @@ agent_model = agent_model_init
 
 previous_step = {}
 
-for t in range(30):
+for t in range(50):
     print(
         f"\n================ AGENT LOOP STEP {t + 1} ================"
     )
@@ -85,6 +85,9 @@ for t in range(30):
         "Current observation:",
         result["current_position"],
     )
+
+    if result["current_position"] == 'P10':
+        break
 
     print(
         "Chosen action:",
@@ -135,32 +138,32 @@ for t in range(30):
 
     history_log.append(step_log)
 
-    # if t > 0 and previous_action:
-    #     lst_previous = previous_step["current_belief_lst"]
-    #     lst_current = step_log["current_belief_lst"]
-    #     for previous in lst_previous:
-    #         previous_name = previous.split(": ")[0]
-    #         previous_distribute = float(previous.split(": ")[1])
-    #         if previous_distribute > 0.0:
-    #             print("___ZZZ: " + previous_name)
-    #             for current in lst_current:
-    #                 current_name = current.split(": ")[0]
-    #                 current_distribute = float(current.split(": ")[1])
-    #                 if current_distribute > 0.0:
-    #                     current_belief_distribution = previous_distribute * current_distribute
-    #                     print("previous_action: " + str(previous_action))
-    #                     print("previous_name: " + str(previous_name))
-    #                     print("current_name: " + str(current_name))
-    #                     print("current_belief_distribution: " + str(current_belief_distribution))
-    #                     print("positive update for : " + str(t) + " " + str(previous_name) + "("+str(previous_distribute)+")" + " -> " + str(current_name) + "("+str(current_distribute)+")" + " by "+previous_action)
-    #                     point = get_ates_point(previous_action, previous_name, current_name, agent_model,
-    #                                            current_belief_distribution, 40)
-    #                     EPS = 1e-10
-    #                     if point <= EPS:
-    #                         break
-    #                     agent_model = ates_update_matrix_positive(previous_action, previous_name, current_name,
-    #                                                               agent_model,
-    #                                                               point)
+    if t > 0 and previous_action:
+        lst_previous = previous_step["current_belief_lst"]
+        lst_current = step_log["current_belief_lst"]
+        for previous in lst_previous:
+            previous_name = previous.split(": ")[0]
+            previous_distribute = float(previous.split(": ")[1])
+            if previous_distribute > 0.0:
+                print("___ZZZ: " + previous_name)
+                for current in lst_current:
+                    current_name = current.split(": ")[0]
+                    current_distribute = float(current.split(": ")[1])
+                    if current_distribute > 0.0:
+                        current_belief_distribution = previous_distribute * current_distribute
+                        print("previous_action: " + str(previous_action))
+                        print("previous_name: " + str(previous_name))
+                        print("current_name: " + str(current_name))
+                        print("current_belief_distribution: " + str(current_belief_distribution))
+                        print("positive update for : " + str(t) + " " + str(previous_name) + "("+str(previous_distribute)+")" + " -> " + str(current_name) + "("+str(current_distribute)+")" + " by "+previous_action)
+                        point = get_ates_point(previous_action, previous_name, current_name, agent_model,
+                                               current_belief_distribution, 30)
+                        EPS = 1e-10
+                        if point <= EPS:
+                            break
+                        agent_model = ates_update_matrix_positive(previous_action, previous_name, current_name,
+                                                                  agent_model,
+                                                                  point)
 
                                 # todo linhth
 
@@ -202,6 +205,9 @@ for t in range(30):
     # =========================================================
     rng_key = result["rng_key"]
 
+print("FINAL MODEL B")
+print(agent_model.B)
+
 # print("summary_history_log: ")
 # count_step = 0
 # for item in history_log:
@@ -215,3 +221,5 @@ for t in range(30):
 #     # step_log_str = f"STEP {counter + 1} {item["from_observation"]} ({item["from_state_belief"]} [{item["from_state_belief_distribution"]}]) + {item["chosen_action"]} => {item["to_observation"]} ({item["to_state_belief"]} [{item["to_state_belief_distribution"]}]) "
 #     print(item)
 #     counter = counter + 1
+
+# get_list_positive_and_negative(history_log, "T6", agent_model)
