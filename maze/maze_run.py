@@ -1,9 +1,10 @@
 import numpy as np
-from env.element_maze import base_actions, position_states, init_element
-import jax
 
-from env.environtment_maze import extend_action_space, run_agent, get_ates_point, ates_update_matrix_positive, \
+from maze.agent.agent_maze import run_agent
+from maze.core.core_algorithms import get_ates_point, ates_update_matrix_positive, extend_action_space, \
     get_list_positive_and_negative
+from maze.env.element_maze import base_actions, position_states, init_element
+import jax
 from utils.util import get_max_index
 
 # =========================================================
@@ -14,23 +15,9 @@ init_element(4)
 
 agent_model_init = extend_action_space("JUMP_UP")
 
-
-# print("AIT matrix: ")
-# print(agent_model_init.B["comfort"][:, :, "AIT"])
-# print("ADT matrix: ")
-# print(agent_model_init.B["comfort"][:, :, "ADT"])
-# print("XDT matrix: ")
-# print(agent_model_init.B["comfort"][:, :, "XDT"])
-
-
 # =========================================================
 # Initial observation
 # =========================================================
-
-# temperature_observed = "T4"
-
-# print("XXX_Matrix_agent_model Init B: ")
-# print(agent_model_init.B)
 
 np.set_printoptions(threshold=np.inf, linewidth=300)
 print(agent_model_init.B)
